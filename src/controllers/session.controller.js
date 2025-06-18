@@ -81,22 +81,35 @@ const login = async (req, res) => {
 
   try {
     const user = await SessionModel.validateUserCredentials(username, password);
-    if (!user) {
+    if (user) {
+      let profile_id = null;
+      if (user.role === 'chofer') {
+        const choferProfile = await SessionModel.findChoferByUserId(user.id);
+        if (choferProfile) profile_id = choferProfile.id;
+      } else if (user.role === 'cliente') {
+        const clienteProfile = await SessionModel.findClienteByUserId(user.id);
+        if (clienteProfile) profile_id = clienteProfile.id;
+      } else if (user.role === 'gerente') {
+        const gerenteProfile = await SessionModel.findGerenteByUserId(user.id);
+        if (gerenteProfile) profile_id = gerenteProfile.id;
+      }
+
+      req.session.user = {
+        id: user.id,
+        username: user.username,
+        role: user.role,
+        profile_id: profile_id // Add profile_id here
+      };
+      console.log('Usuario en sesión:', req.session.user); // For debugging
+      return res.redirect('/dashboard');
+    } else {
+      // Handle invalid credentials
       return res.render('sessions/index', {
         error: 'Credenciales inválidas.',
         showHeader: false,
         showFooter: false
       });
     }
-
-    // Guardar datos mínimos en sesión
-    req.session.user = {
-      id: user.id,
-      username: user.username,
-      role: user.role,
-    };
-    console.log('Usuario en sesión:', req.session.user);
-    return res.redirect('/dashboard');
   } catch (err) {
     console.error(err);
     res.render('sessions/index', {

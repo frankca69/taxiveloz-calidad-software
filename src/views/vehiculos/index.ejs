@@ -1,0 +1,62 @@
+
+<div class="container vehicle-container">
+  <h1 class="page-title">Gestionar Mi Vehículo</h1>
+
+  <% if (error) { %>
+    <div class="alert alert-danger"><%= error %></div>
+  <% } %>
+  <% if (success) { %>
+    <div class="alert alert-success"><%= success %></div>
+  <% } %>
+
+  <% if (vehiculo) { %>
+    <div class="vehicle-card card">
+      <div class="card-body">
+        <h3 class="card-title">Mi Vehículo</h3>
+        <p class="card-text"><strong>ID:</strong> <%= vehiculo.id %></p>
+        <p class="card-text"><strong>Modelo:</strong> <%= vehiculo.modelo %></p>
+        <p class="card-text"><strong>Placa:</strong> <%= vehiculo.placa %></p>
+        <p class="card-text"><strong>Estado:</strong> <span class="status-<%= vehiculo.estado.toLowerCase() %>"><%= vehiculo.estado %></span></p>
+
+        <div class="vehicle-actions">
+          <form action="/vehiculos/<%= vehiculo.id %>/estado" method="POST" class="form-inline">
+            <select name="estado" class="form-control mr-2">
+              <option value="operativo" <%= vehiculo.estado === 'operativo' ? 'selected' : '' %>>Operativo</option>
+              <option value="inoperativo" <%= vehiculo.estado === 'inoperativo' ? 'selected' : '' %>>Inoperativo</option>
+            </select>
+            <button type="submit" class="btn btn-warning btn-sm">Cambiar Estado</button>
+          </form>
+
+          <form action="/vehiculos/<%= vehiculo.id %>/eliminar" method="POST" class="form-inline mt-2" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este vehículo?');">
+            <button type="submit" class="btn btn-danger btn-sm">Eliminar Vehículo</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  <% } else { %>
+    <div class="add-vehicle-form card">
+      <div class="card-body">
+        <h3 class="card-title">Agregar Nuevo Vehículo</h3>
+        <p>No tienes ningún vehículo asociado. Agrega uno para continuar.</p>
+        <form action="/vehiculos" method="POST">
+          <div class="form-group">
+            <label for="modelo">Modelo del Vehículo:</label>
+            <input type="text" id="modelo" name="modelo" class="form-control" value="<%= typeof formData !== 'undefined' ? formData.modelo : '' %>" required>
+          </div>
+          <div class="form-group">
+            <label for="placa">Placa del Vehículo:</label>
+            <input type="text" id="placa" name="placa" class="form-control" value="<%= typeof formData !== 'undefined' ? formData.placa : '' %>" pattern="[A-Z0-9]{6,7}" title="La placa debe tener 6 o 7 caracteres alfanuméricos." required>
+            <small class="form-text text-muted">Ej: ABC123 o A1B2C34</small>
+          </div>
+          <button type="submit" class="btn btn-success">Agregar Vehículo</button>
+        </form>
+      </div>
+    </div>
+  <% } %>
+
+  <div class="mt-4">
+    <a href="/dashboard/chofer" class="btn btn-secondary">Volver al Dashboard</a>
+  </div>
+
+</div>
+
