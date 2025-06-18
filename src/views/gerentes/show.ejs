@@ -1,0 +1,14 @@
+<h2 class="page-title">Detalles del Gerente</h2>
+
+<ul class="details-list">
+  <li class="detail-item"><strong class="detail-label">Nombre:</strong> <span class="detail-value"><%= gerente.nombre %></span></li>
+  <li class="detail-item"><strong class="detail-label">Apellido:</strong> <span class="detail-value"><%= gerente.apellido %></span></li>
+  <li class="detail-item"><strong class="detail-label">DNI:</strong> <span class="detail-value"><%= gerente.dni %></span></li>
+  <li class="detail-item"><strong class="detail-label">Teléfono:</strong> <span class="detail-value"><%= gerente.telefono %></span></li>
+  <li class="detail-item"><strong class="detail-label">Correo:</strong> <span class="detail-value"><%= gerente.email %></span></li>
+  <li class="detail-item"><strong class="detail-label">Estado:</strong> <span class="detail-value"><%= gerente.estado %></span></li>
+</ul>
+
+<a class="action-link back-link" href="/gerentes">Volver</a>
+<a class="action-link edit-link" href="/gerentes/<%= gerente.id %>/edit">Editar Gerente</a>
+

@@ -1,0 +1,81 @@
+<h2>Registro de Cliente</h2>
+
+<% if (typeof error !== 'undefined' && error) { %>
+    <p class="error-message"><%= error %></p>
+<% } %>
+
+<form action="/sessions/registerc" method="POST" class="form-styled">
+  <div>
+    <label for="username">Usuario:</label>
+    <input type="text" name="username" required value="<%= typeof formData !== 'undefined' ? formData.username : '' %>">
+  </div>
+
+  <div>
+    <label for="password">Contraseña:</label>
+    <input type="password" name="password" required>
+  </div>
+
+  <div>
+    <label for="nombre">Nombre:</label>
+    <input type="text" name="nombre" required value="<%= typeof formData !== 'undefined' ? formData.nombre : '' %>">
+  </div>
+
+  <div>
+    <label for="apellido">Apellido:</label>
+    <input type="text" name="apellido" required value="<%= typeof formData !== 'undefined' ? formData.apellido : '' %>">
+  </div>
+
+  <div>
+    <label for="dni">DNI:</label>
+    <input type="text" name="dni" maxlength="8" required value="<%= typeof formData !== 'undefined' ? formData.dni : '' %>">
+    <span class="error-text" id="dni-error"></span>
+  </div>
+
+  <div>
+    <label for="telefono">Teléfono:</label>
+    <input type="text" name="telefono" maxlength="9" value="<%= typeof formData !== 'undefined' ? formData.telefono : '' %>">
+    <span class="error-text" id="telefono-error"></span>
+  </div>
+
+  <div>
+    <label for="email">Email:</label>
+    <input type="email" name="email" value="<%= typeof formData !== 'undefined' ? formData.email : '' %>">
+  </div>
+
+  <button type="submit">Registrarse</button>
+</form>
+
+<a href="/sessions">¿Ya tienes cuenta? Inicia sesión</a>
+
+<script>
+  const form = document.querySelector('.form-styled');
+  const dniInput = form.querySelector('input[name="dni"]');
+  const telefonoInput = form.querySelector('input[name="telefono"]');
+  const dniError = document.getElementById('dni-error');
+  const telefonoError = document.getElementById('telefono-error');
+
+  form.addEventListener('submit', function(event) {
+    let isValid = true;
+    dniError.textContent = '';
+    telefonoError.textContent = '';
+
+    const dniValue = dniInput.value.trim();
+    const telefonoValue = telefonoInput.value.trim();
+
+    // DNI validation
+    if (dniValue && !/^\\d{8}$/.test(dniValue)) {
+      dniError.textContent = 'El DNI debe tener 8 dígitos numéricos.';
+      isValid = false;
+    }
+
+    // Telefono validation (only if a value is entered)
+    if (telefonoValue && !/^\\d{9}$/.test(telefonoValue)) {
+      telefonoError.textContent = 'El Teléfono debe tener 9 dígitos numéricos.';
+      isValid = false;
+    }
+
+    if (!isValid) {
+      event.preventDefault();
+    }
+  });
+</script>

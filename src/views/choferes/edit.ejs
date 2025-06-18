@@ -1,0 +1,33 @@
+<h2 class="page-title">Editar Chofer</h2>
+
+<form class="form-styled" action="/choferes/<%= chofer.id %>?_method=PUT" method="POST">
+  <div class="form-group">
+    <label class="form-label">Nombre:</label>
+    <input class="form-input form-input-text" type="text" name="nombre" value="<%= chofer.nombre %>" required>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label">Apellido:</label>
+    <input class="form-input form-input-text" type="text" name="apellido" value="<%= chofer.apellido %>" required>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label">DNI:</label>
+    <input class="form-input form-input-text" type="text" name="dni" value="<%= chofer.dni %>" required maxlength="8">
+  </div>
+
+  <div class="form-group">
+    <label class="form-label">Teléfono:</label>
+    <input class="form-input form-input-text" type="text" name="telefono" value="<%= chofer.telefono %>" maxlength="9">
+  </div>
+
+  <div class="form-group">
+    <label class="form-label">Correo:</label>
+    <input class="form-input form-input-email" type="email" name="email" value="<%= chofer.email %>">
+  </div>
+
+  <button class="action-button submit-button" type="submit">Actualizar</button>
+</form>
+
+<a class="action-link back-link" href="/choferes">Volver</a>
+

@@ -1,0 +1,357 @@
+.titulo{
+    color: blueviolet;
+}
+
+
+/* === General Page Structure & Typography === */
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+.container { /* Optional global container */
+    width: 90%;
+    max-width: 1200px;
+    margin: auto;
+    padding: 20px;
+}
+
+/* === Header, Navigation, Footer === */
+.main-header {
+    background: #333;
+    color: #fff;
+    padding: 1rem 0;
+    text-align: center;
+}
+
+.main-header .nav-link { /* Be specific for header links */
+    color: #fff;
+    text-decoration: none;
+    margin: 0 15px;
+    font-size: 1.1em;
+}
+
+.main-header .nav-link:hover {
+    color: #00aaff; /* Light blue for hover */
+}
+
+.site-nav {
+    margin-top: 10px;
+}
+
+.logout-form {
+    display: inline; /* Maintain original behavior */
+    margin-left: 20px;
+}
+
+.nav-button, .logout-button { /* Style for buttons in nav, including logout */
+    background: #007bff; /* Bootstrap primary blue */
+    color: #fff;
+    border: none;
+    padding: 8px 12px;
+    cursor: pointer;
+    text-decoration: none;
+    border-radius: 4px;
+    font-size: 0.9em;
+}
+
+.nav-button:hover, .logout-button:hover {
+    background: #0056b3; /* Darker blue */
+}
+
+.main-content {
+    padding: 20px;
+    min-height: 70vh; /* Keep footer down */
+    background-color: #fff; /* White background for content area */
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.main-footer {
+    background: #333;
+    color: #fff;
+    text-align: center;
+    padding: 1.5rem 0;
+    margin-top: 30px;
+}
+
+.footer-text {
+    font-size: 0.9em;
+}
+
+/* === Page Titles & General Links === */
+.page-title {
+    color: #333; /* Overrides the old .titulo color if any */
+    margin-bottom: 25px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+    text-align: center;
+}
+
+a { /* General link styling */
+    color: #007bff;
+    text-decoration: none;
+}
+
+a:hover {
+    color: #0056b3;
+    text-decoration: underline;
+}
+
+.action-link { /* For text-based action links like Edit, View */
+    padding: 3px 6px;
+    border-radius: 3px;
+    margin-right: 5px;
+}
+
+/* No specific hover for .action-link, inherits from general 'a:hover' */
+
+.back-link {
+    display: inline-block;
+    margin-top: 15px;
+    font-weight: bold;
+}
+
+.filter-links-group {
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    text-align: center;
+}
+
+.filter-link {
+    margin: 0 10px;
+    font-weight: 500;
+}
+
+/* === Buttons (General Purpose) === */
+.action-button {
+    background-color: #5cb85c; /* Green - general success/action */
+    color: white !important; /* Ensure text is white */
+    padding: 10px 18px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none; /* For <a> tags styled as buttons */
+    display: inline-block;
+    text-align: center;
+    font-size: 1em;
+    margin: 5px 0; /* Add some margin for spacing */
+}
+
+.action-button:hover {
+    background-color: #4cae4c; /* Darker green */
+    text-decoration: none; /* Keep text decoration off on hover for buttons */
+    color: white !important;
+}
+
+.submit-button {
+    /* Inherits .action-button. Can add specific overrides if needed. */
+    /* For example, if you want submit buttons to be a different default color: */
+    /* background-color: #007bff; */
+}
+/* .submit-button:hover { background-color: #0056b3; } */
+
+.create-button { /* Often a primary action */
+    background-color: #007bff; /* Blue - primary */
+}
+.create-button:hover {
+    background-color: #0056b3; /* Darker blue */
+}
+
+.delete-button {
+    background-color: #d9534f; /* Red - danger/delete */
+}
+.delete-button:hover {
+    background-color: #c9302c; /* Darker red */
+}
+
+/* === Messages === */
+.error-message {
+    color: #d9534f; /* Red for errors */
+    background-color: #f2dede; /* Light red background */
+    border: 1px solid #ebccd1;
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+}
+
+.success-message { /* Define even if not used yet, for consistency */
+    color: #3c763d; /* Green for success */
+    background-color: #dff0d8; /* Light green background */
+    border: 1px solid #d6e9c6;
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+}
+
+/* === Details View (show.ejs) === */
+.details-list {
+    list-style: none;
+    padding: 0;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.detail-item {
+    padding: 10px 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.detail-item:last-child {
+    border-bottom: none;
+}
+
+.detail-label {
+    font-weight: bold;
+    color: #555;
+    margin-right: 8px;
+}
+
+.detail-value {
+    /* Styles for the actual value if needed */
+}
+
+/* For <p> based details view, if used */
+.detail-entry {
+    padding: 8px;
+    border-bottom: 1px solid #eee;
+}
+.detail-entry:last-child {
+    border-bottom: none;
+}
+
+/* === Form Styling === */
+.form-styled {
+    background: #fff;
+    padding: 25px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #555;
+}
+
+.form-input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box; /* Important to include padding and border in the element's total width and height */
+    font-size: 1em;
+}
+
+/* Specific input types can be further styled if needed */
+.form-input-text,
+.form-input-email,
+.form-input-password,
+.form-input-number,
+.form-input-date,
+.form-input-tel { /* Added tel as an example */
+    /* Common styles already in .form-input */
+}
+
+.form-input-select {
+    /* Specific styles for select if different from general inputs */
+    height: 38px; /* Align height with text inputs, adjust as needed */
+}
+
+/* Adjust input focus style */
+.form-input:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+}
+
+
+/* === Table Styling === */
+.content-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0,0,0,0.05);
+}
+
+.content-table th,
+.content-table td {
+    border: 1px solid #ddd;
+    padding: 10px 12px;
+    text-align: left;
+}
+
+.table-header { /* Thead specific styling */
+    background-color: #007bff; /* Primary blue background for headers */
+    color: #fff;
+    font-weight: bold;
+}
+
+.content-table th { /* If you want to style th inside .table-header differently or th in general */
+    /* Example: background-color: #e9ecef; color: #333; */
+}
+
+.content-table tbody tr:nth-child(even) {
+    background-color: #f9f9f9; /* Zebra striping for even rows */
+}
+
+.content-table tbody tr:hover {
+    background-color: #f1f1f1; /* Hover effect for rows */
+}
+
+/* Links within tables */
+.content-table td a {
+    /* .action-link is already styled. If more specific table links needed: */
+    /* color: #0056b3; */
+}
+.content-table td a:hover {
+    /* text-decoration: none; */
+}
+
+/* Forms within tables (like status change or delete) */
+.status-form, .delete-form {
+    display: inline-block; /* Allow multiple forms/buttons on one line */
+    margin: 0 2px; /* Minimal margin for spacing */
+}
+
+.status-select { /* For the <select> in a status form */
+    padding: 5px 8px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    background-color: #fff;
+    cursor: pointer;
+    font-size: 0.9em;
+}
+.status-select:hover {
+    border-color: #007bff;
+}
+
+/* Buttons within table cells (like a delete button that's not part of a form) */
+.content-table .action-button {
+    padding: 6px 10px; /* Slightly smaller buttons for tables */
+    font-size: 0.9em;
+}
+
+/* === Dashboard Menu Styling === */
+.dashboard-menu {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.dashboard-menu li {
+    margin-bottom: 10px; /* Add some space between buttons */
+}

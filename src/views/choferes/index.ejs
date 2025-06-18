@@ -1,0 +1,62 @@
+<h1 class="page-title">Lista de Choferes - <%= estado %></h1>
+
+<div class="filter-links-group">
+  <a class="action-button create-button" href="/choferes/create">Agregar Chofer</a> |
+  <a class="filter-link" href="/choferes?estado=activo">Activos</a> |
+  <a class="filter-link" href="/choferes?estado=suspendido">Suspendidos</a>
+</div>
+
+<table class="content-table">
+  <thead class="table-header">
+    <tr>
+      <th>Nombre</th>
+      <th>Apellido</th>
+      <th>DNI</th>
+      <th>Teléfono</th>
+      <th>Correo</th>
+      <th>Usuario</th>
+      <th>Estado</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% choferes.forEach(chofer => { %>
+      <tr>
+        <td><a class="action-link" href="/choferes/<%= chofer.id %>"><%= chofer.nombre %></a></td>
+        <td><%= chofer.apellido %></td>
+        <td><%= chofer.dni %></td>
+        <td><%= chofer.telefono %></td>
+        <td><%= chofer.email %></td>
+        <td><%= chofer.username || '—' %></td>
+        <td><%= chofer.estado %></td>
+        <td>
+          <a class="action-link" href="/choferes/<%= chofer.id %>/edit">Editar</a>
+          <form class="status-form" action="/choferes/<%= chofer.id %>/estado?_method=PUT" method="POST" style="display: inline;">
+            <select class="form-input form-input-select status-select" name="estado" onchange="this.form.submit()">
+              <option value="activo" <%= chofer.estado === 'activo' ? 'selected' : '' %>>Activo</option>
+              <option value="suspendido" <%= chofer.estado === 'suspendido' ? 'selected' : '' %>>Suspendido</option>
+            </select>
+          </form>
+          <form class="delete-status-form" method="POST" action="/choferes/<%= chofer.id %>/estado?_method=PUT" style="display: inline;">
+            <input type="hidden" name="estado" value="eliminado">
+            <button class="action-button delete-button" type="submit">Eliminar</button>
+          </form>
+        </td>
+      </tr>
+    <% }) %>
+  </tbody>
+</table>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const forms = document.querySelectorAll('.delete-status-form');
+    forms.forEach(form => {
+        form.addEventListener('submit', function (event) {
+            if (!confirm('¿Estás seguro de que quieres marcar este registro como eliminado?')) {
+                event.preventDefault();
+            }
+        });
+    });
+});
+</script>
+

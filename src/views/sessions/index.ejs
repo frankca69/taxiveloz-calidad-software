@@ -1,0 +1,21 @@
+<% if (typeof error !== 'undefined' && error) { %>
+    <p class="error-message"><%= error %></p>
+<% } %>
+
+<h2>Iniciar Sesión</h2>
+
+<form action="/sessions/login" method="POST">
+  <div>
+    <label for="username">Usuario:</label>
+    <input type="text" name="username" required>
+  </div>
+  <div>
+    <label for="password">Contraseña:</label>
+    <input type="password" name="password" required>
+  </div>
+  <button type="submit">Ingresar</button>
+</form>
+
+<a href="/sessions/registerc">¿No tienes cuenta? Regístrate como cliente</a>
+
+

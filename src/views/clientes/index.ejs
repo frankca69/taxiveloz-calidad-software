@@ -1,0 +1,48 @@
+<h1 class="page-title">Clientes vista</h1>
+
+<div class="filter-links-group">
+  <a class="action-button create-button" href="/clientes/create">Crear cliente</a>
+</div>
+
+<table class="content-table">
+    <thead class="table-header">
+        <tr>
+            <th>ID</th>
+            <th>Nombre</th>         
+            <th>Apellido</th>         
+            <th>DNI</th>         
+            <th>Teléfono</th>         
+            <th>Correo</th>         
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        <% clientes.forEach(cliente => { %>
+            <tr>
+                <td><%= cliente.id %></td>
+                <td><a class="action-link" href="/clientes/<%= cliente.id %>"><%= cliente.nombre %></a></td>
+                <td><%= cliente.apellido %></td>
+                <td><%= cliente.dni %></td>
+                <td><%= cliente.telefono %></td>
+                <td><%= cliente.email %></td>
+                <td>
+                    <a class="action-link" href="/clientes/<%= cliente.id %>/edit">Editar</a> |
+                    <form class="delete-form" action="/clientes/<%= cliente.id %>?_method=DELETE" method="post">
+                        <button class="action-button delete-button" type="submit">Borrar</button>
+                    </form>
+                </td>
+            </tr>
+        <% }) %>
+    </tbody>
+</table>
+
+<script>
+  document.addEventListener("submit", (event) => {
+    if (event.target.classList.contains("form-delete")) {
+      if (!confirm("¿Está seguro de que desea borrar este cliente?")) {
+        event.preventDefault();
+      }
+    }
+  });
+</script>
+
