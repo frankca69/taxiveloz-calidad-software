@@ -1,13 +1,36 @@
 <header class="main-header">
   <nav class="site-nav">
-    <a class="nav-link" href="/">Inicio</a>
-    <a class="nav-link" href="/clientes">Clientes</a>
+    <% if (typeof user !== 'undefined' && user) { %>
+      <a class="nav-link" href="/dashboard">Mi Panel</a> <span class="nav-separator">|</span>
 
-    <% if (typeof user !== 'undefined') { %>
-      <form class="logout-form" action="/sessions/logout" method="POST" style="display: inline;">
-        <button class="button nav-button logout-button" type="submit">Cerrar sesión (<%= user.username %>)</button>
+      <% if (user.role === 'cliente') { %>
+        <a class="nav-link" href="/reservas/solicitar">Solicitar Reserva</a>
+        <a class="nav-link" href="/reservas/cliente">Mis Reservas</a>
+      <% } else if (user.role === 'chofer') { %>
+        <a class="nav-link" href="/reservas/chofer">Mis Viajes Asignados</a>
+        <a class="nav-link" href="/vehiculos">Mi Vehículo</a>
+      <% } else if (user.role === 'admin') { %>
+        <a class="nav-link" href="/clientes">Clientes</a>
+        <a class="nav-link" href="/reservas">Reservas</a>
+      <% } else if (user.role === 'gerente') { %>
+        <a class="nav-link" href="/clientes">Clientes</a>
+        <a class="nav-link" href="/admins">Administradores</a>
+        <a class="nav-link" href="/choferes">Choferes</a>
+        <a class="nav-link" href="/gerentes">Gerentes</a> <span class="nav-separator">|</span>
+        <a class="nav-link" href="/vehiculos/all">Vehiculos</a>
+        <a class="nav-link" href="/reservas">Reservas</a>
+        <a class="nav-link" href="/reportes/generar">Generar Rerportes</a>
+      <% } %>
+
+      <form class="logout-form" action="/sessions/logout" method="POST">
+        <button class="nav-button logout-button" type="submit">Cerrar sesión (<%= user.username %>)</button>
       </form>
+    <% } else { %>
+      <!-- Links for non-authenticated users -->
+      <a class="nav-link" href="/">Inicio</a> <span class="nav-separator">|</span>
+      <a class="nav-link" href="/sessions/login">Iniciar Sesión</a>
+      <a class="nav-link" href="/sessions/registerc">Registrarse (Cliente)</a>
+      <!-- Add other public links as needed, e.g., Register Chofer if that's a public action -->
     <% } %>
   </nav>
 </header>
-
