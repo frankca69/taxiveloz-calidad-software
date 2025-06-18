@@ -41,11 +41,32 @@ body {
 
 .site-nav {
     margin-top: 10px;
+    display: flex; /* Align items in a row */
+    align-items: center; /* Vertically align items */
+    flex-wrap: wrap; /* Allow wrapping on small screens */
 }
 
+.site-nav .nav-link, .site-nav .logout-form, .site-nav .nav-separator {
+    margin-right: 10px; /* Consistent spacing for nav items and separator */
+    margin-left: 10px; /* Consistent spacing for nav items and separator */
+}
+
+.site-nav .nav-link:first-child, .site-nav .logout-form:first-child {
+    margin-left: 0; /* Remove left margin for the very first item */
+}
+.site-nav .nav-link:last-of-type, .site-nav .nav-separator:last-of-type {
+     margin-right: 0; /* Remove right margin for the very last link/separator before logout form */
+}
+
+
 .logout-form {
-    display: inline; /* Maintain original behavior */
-    margin-left: 20px;
+    /* display: inline; */ /* No longer needed with flex */
+    margin-left: auto; /* Push logout form to the right */
+}
+
+.nav-separator {
+    color: #ccc; /* Light gray color */
+    /* margin: 0 5px; */ /* Replaced by margin on all nav items */
 }
 
 .nav-button, .logout-button { /* Style for buttons in nav, including logout */
@@ -81,7 +102,22 @@ body {
 
 .footer-text {
     font-size: 0.9em;
+    margin-bottom: 0.5rem; /* Add some space between footer text lines */
 }
+
+.main-footer a {
+    color: #00aaff; /* Light blue, or any color that fits the dark footer */
+    text-decoration: none;
+}
+.main-footer a:hover {
+    text-decoration: underline;
+}
+
+.footer-link-separator {
+    color: #ccc; /* Light gray color, similar to nav-separator */
+    margin: 0 10px;
+}
+
 
 /* === Page Titles & General Links === */
 .page-title {
@@ -546,3 +582,44 @@ a:hover {
 /* This might need body/html height 100% and a flex structure on main layout */
 /* For now, a simple margin: */
 /* footer { margin-top: 40px; } */
+
+/* === Dashboard Action Buttons === */
+.dashboard-actions-container {
+    display: flex;
+    flex-wrap: wrap; /* Allow buttons to wrap on smaller screens */
+    gap: 15px; /* Space between buttons */
+    margin-top: 20px;
+    margin-bottom: 20px;
+    justify-content: flex-start; /* Align buttons to the start */
+}
+
+/*
+   Generic button style for use within dashboards.
+   Leverages .btn for base styling and .btn-primary for default color.
+   Can be combined with other .btn-* classes for different colors (e.g., .dashboard-button .btn-danger).
+*/
+.dashboard-button {
+    /* Inherits padding, font-size, text-decoration, border, border-radius, cursor, text-align from .btn */
+    /* Inherits color, background-color, border-color from .btn-primary by default (if applied in HTML) */
+    /* Adding specific overrides or additional properties if needed */
+    min-width: 150px; /* Ensure buttons have a decent minimum width */
+}
+
+/* Specific style for logout button when it appears within a dashboard context */
+.dashboard-button.logout-button {
+    /* Overrides .btn-primary or other .btn-* colors */
+    background-color: #dc3545; /* Red for logout */
+    border-color: #dc3545;
+    color: #fff; /* Ensure text is white */
+}
+
+.dashboard-button.logout-button:hover {
+    background-color: #c82333; /* Darker red */
+    border-color: #c82333;
+}
+
+/* Ensure dashboard cards provide adequate space if actions are directly inside */
+.dashboard-card .dashboard-actions-container {
+    /* If actions are directly inside a card, adjust margins if necessary */
+    margin-top: 15px; /* Override default top margin if it's too much within a card */
+}

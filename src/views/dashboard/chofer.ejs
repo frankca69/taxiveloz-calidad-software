@@ -1,25 +1,53 @@
-<div class="container dashboard-container"> <!-- Added dashboard-container for overall styling -->
+<div class="container dashboard-container">
   <h1 class="dashboard-title">Bienvenido Chofer, <%= user.username %></h1>
   <p class="dashboard-subtitle">Este es tu panel de control.</p>
 
-  <div class="dashboard-grid"> <!-- Using a grid for sections -->
-    <div class="dashboard-card current-tasks"> <!-- Added dashboard-card -->
+  <!-- Flash Messages -->
+  <% if (locals.messages && messages.success) { %>
+    <div class="alert alert-success" role="alert"><%= messages.success %></div>
+  <% } %>
+  <% if (locals.messages && messages.error) { %>
+    <div class="alert alert-danger" role="alert"><%= messages.error %></div>
+  <% } %>
+  <% if (typeof success_msg !== 'undefined' && success_msg) { %>
+    <div class="alert alert-success" role="alert"><%= success_msg %></div>
+  <% } %>
+  <% if (typeof error_msg !== 'undefined' && error_msg) { %>
+    <div class="alert alert-danger" role="alert"><%= error_msg %></div>
+  <% } %>
+
+  <div class="dashboard-grid">
+    <div class="dashboard-card current-tasks">
       <h3>Tus Tareas Actuales</h3>
       <p>Aquí verás tus viajes asignados o tareas pendientes.</p>
       <!-- Example item (can be removed or replaced with dynamic data later) -->
+      <!--
       <div class="task-item">
           <h4>Viaje #XYZ</h4>
           <p>Origen: Ejemplo Origen, Destino: Ejemplo Destino</p>
           <p>Estado: Pendiente</p>
       </div>
+      -->
+      <div class="dashboard-actions-container">
+        <a href="/reservas/chofer" class="btn btn-primary dashboard-button">Ver Mis Reservas</a>
+      </div>
     </div>
 
-    <div class="dashboard-card vehicle-management-section"> <!-- Added dashboard-card -->
+    <div class="dashboard-card vehicle-management-section">
       <h3>Gestionar Vehículo</h3>
       <p>Administra la información y el estado de tu vehículo.</p>
-      <a href="/vehiculos" class="btn btn-primary btn-dashboard">Gestionar mi Vehículo</a> <!-- Added btn-dashboard -->
+      <div class="dashboard-actions-container">
+        <a href="/vehiculos/chofer" class="btn btn-primary dashboard-button">Gestionar mi Vehículo</a>
+      </div>
     </div>
 
-    <!-- Add other sections similarly if they exist -->
+    <div class="dashboard-card account-actions">
+      <h3>Cuenta</h3>
+      <div class="dashboard-actions-container">
+        <form action="/sessions/logout" method="POST" class="logout-form-dashboard" style="display: inline;">
+            <button type="submit" class="btn dashboard-button logout-button">Cerrar Sesión</button>
+        </form>
+      </div>
+    </div>
   </div>
 </div>
