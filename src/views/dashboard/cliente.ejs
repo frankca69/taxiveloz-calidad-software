@@ -5,41 +5,12 @@
     <div class="dashboard-card">
         <h3>Acciones Rápidas</h3>
         <div class="dashboard-actions-container">
-            <a href="/reservas/crear" class="btn btn-primary dashboard-button">Solicitar Reserva</a>
-            <a href="/reservas/cliente" class="btn btn-info dashboard-button">Ver Historial de Reservas</a>
+            <a href="/reservas/solicitar" class="btn btn-primary dashboard-button">Solicitar Reserva</a>
+            <a href="/reservas/cliente" class="btn btn-primary dashboard-button">Ver Historial de Reservas</a>
             <form action="/sessions/logout" method="POST" class="logout-form-dashboard" style="display: inline;">
                 <button type="submit" class="btn dashboard-button logout-button">Cerrar Sesión</button>
             </form>
         </div>
     </div>
 
-    <% if (messages.success) { %>
-        <div class="alert alert-success mt-3">
-            <%= messages.success %>
-        </div>
-    <% } %>
-    <% if (messages.error) { %>
-        <div class="alert alert-danger mt-3">
-            <%= messages.error %>
-        </div>
-    <% } %>
-
-    <!-- Future sections for displaying reservations or other client-specific info can go here -->
-    <!-- Example: -->
-    <!--
-    <div class="dashboard-card mt-4">
-        <h3>Mis Próximas Reservas</h3>
-        <% if (typeof próximasReservas !== 'undefined' && próximasReservas.length > 0) { %>
-            <ul class="list-group">
-                <% próximasReservas.forEach(function(reserva) { %>
-                    <li class="list-group-item">
-                        Reserva #<%= reserva.id %> - <%= reserva.fecha_reserva %> a las <%= reserva.hora_reserva %> (<%= reserva.estado %>)
-                    </li>
-                <% }); %>
-            </ul>
-        <% } else { %>
-            <p>No tienes próximas reservas.</p>
-        <% } %>
-    </div>
-    -->
 </div>

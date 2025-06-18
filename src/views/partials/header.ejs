@@ -1,24 +1,25 @@
 <header class="main-header">
   <nav class="site-nav">
     <% if (typeof user !== 'undefined' && user) { %>
-      <a class="nav-link" href="/">Inicio</a> <span class="nav-separator">|</span>
       <a class="nav-link" href="/dashboard">Mi Panel</a> <span class="nav-separator">|</span>
 
       <% if (user.role === 'cliente') { %>
-        <a class="nav-link" href="/reservas/crear">Solicitar Reserva</a>
+        <a class="nav-link" href="/reservas/solicitar">Solicitar Reserva</a>
         <a class="nav-link" href="/reservas/cliente">Mis Reservas</a>
       <% } else if (user.role === 'chofer') { %>
         <a class="nav-link" href="/reservas/chofer">Mis Viajes Asignados</a>
-        <a class="nav-link" href="/vehiculos/chofer">Mi Vehículo</a>
+        <a class="nav-link" href="/vehiculos">Mi Vehículo</a>
       <% } else if (user.role === 'admin') { %>
-        <a class="nav-link" href="/admin/usuarios">Gestionar Usuarios</a>
-        <a class="nav-link" href="/admin/vehiculos">Gestionar Vehículos (Admin)</a>
-        <a class="nav-link" href="/admin/reservas">Gestionar Reservas (Admin)</a>
+        <a class="nav-link" href="/clientes">Clientes</a>
+        <a class="nav-link" href="/reservas">Reservas</a>
       <% } else if (user.role === 'gerente') { %>
-        <a class="nav-link" href="/vehiculos">Gestionar Vehículos (Gerente)</a>
-        <a class="nav-link" href="/reportes/generar">Generar Reportes</a>
-        <a class="nav-link" href="/admin/usuarios">Gestionar Usuarios (Gerente)</a>
-        <a class="nav-link" href="/admin/reservas">Gestionar Reservas (Gerente)</a>
+        <a class="nav-link" href="/clientes">Clientes</a>
+        <a class="nav-link" href="/admins">Administradores</a>
+        <a class="nav-link" href="/choferes">Choferes</a>
+        <a class="nav-link" href="/gerentes">Gerentes</a> <span class="nav-separator">|</span>
+        <a class="nav-link" href="/vehiculos/all">Vehiculos</a>
+        <a class="nav-link" href="/reservas">Reservas</a>
+        <a class="nav-link" href="/reportes/generar">Generar Rerportes</a>
       <% } %>
 
       <form class="logout-form" action="/sessions/logout" method="POST">
