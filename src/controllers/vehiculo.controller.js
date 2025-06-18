@@ -24,12 +24,12 @@ const showVehiculo = async (req, res) => {
 
     // IMPORTANT: Adjust this based on your actual auth middleware setup.
     // If req.user.role_id or req.user.profile_id is the chofer's ID in the 'choferes' table:
-    const chofer_id = req.user.profile_id; // Or req.user.chofer_id, or req.user.specific_role_id
+    const chofer_id = req.session.user && req.session.user.profile_id; // Or req.user.chofer_id, or req.user.specific_role_id
 
     if (!chofer_id) {
         // This case implies the authenticated user (chofer) does not have a profile_id (choferes table id)
         // This should ideally be caught by the role middleware or auth setup.
-        console.error("Error: chofer_id not found in req.user.profile_id. User object:", req.user);
+        console.error("Error: chofer_id not found in req.session.user.profile_id. User object:", req.session.user);
         return res.status(403).send("Acceso denegado o perfil de chofer no encontrado.");
     }
 
@@ -39,17 +39,17 @@ const showVehiculo = async (req, res) => {
   } catch (error) {
     console.error("Error en showVehiculo:", error);
     // It's better to have a dedicated error page or pass error to the view
-    res.status(500).render('vehiculos/index', { vehiculo: null, error: 'Error al obtener el vehículo.', success: null, choferId: req.user.profile_id || null });
+    res.status(500).render('vehiculos/index', { vehiculo: null, error: 'Error al obtener el vehículo.', success: null, choferId: (req.session.user && req.session.user.profile_id) || null });
   }
 };
 
 const storeVehiculo = async (req, res) => {
   // const chofer_id = req.user.chofer_id; // Adjust if necessary
-  const chofer_id = req.user.profile_id;
+  const chofer_id = req.session.user && req.session.user.profile_id;
   const { modelo, placa } = req.body;
 
   if (!chofer_id) {
-    console.error("Error en storeVehiculo: chofer_id no disponible en req.user.profile_id. User:", req.user);
+    console.error("Error en storeVehiculo: chofer_id no disponible en req.session.user.profile_id. User:", req.session.user);
     return res.status(403).render('vehiculos/index', { vehiculo: null, error: 'No se pudo identificar al chofer.', success: null, choferId: null });
   }
 
@@ -84,12 +84,12 @@ const storeVehiculo = async (req, res) => {
 
 const updateEstado = async (req, res) => {
   // const chofer_id = req.user.chofer_id; // Adjust if necessary
-  const chofer_id = req.user.profile_id;
+  const chofer_id = req.session.user && req.session.user.profile_id;
   const vehiculo_id = req.params.id;
   const { estado } = req.body;
 
   if (!chofer_id) {
-    console.error("Error en updateEstado: chofer_id no disponible en req.user.profile_id. User:", req.user);
+    console.error("Error en updateEstado: chofer_id no disponible en req.session.user.profile_id. User:", req.session.user);
     // This should ideally not happen if auth is correctly set up
     return res.status(403).redirect('/vehiculos'); // Or show an error
   }
@@ -125,11 +125,11 @@ const updateEstado = async (req, res) => {
 
 const destroyVehiculo = async (req, res) => {
   // const chofer_id = req.user.chofer_id; // Adjust if necessary
-  const chofer_id = req.user.profile_id;
+  const chofer_id = req.session.user && req.session.user.profile_id;
   const vehiculo_id = req.params.id;
 
   if (!chofer_id) {
-    console.error("Error en destroyVehiculo: chofer_id no disponible en req.user.profile_id. User:", req.user);
+    console.error("Error en destroyVehiculo: chofer_id no disponible en req.session.user.profile_id. User:", req.session.user);
     return res.status(403).redirect('/vehiculos');
   }
 

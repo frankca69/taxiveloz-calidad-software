@@ -40,6 +40,21 @@ const validateUserCredentials = async (username, password) => {
 };
 
 // Session.js
+const findChoferByUserId = async (userId) => {
+  const result = await pool.query('SELECT id FROM choferes WHERE user_id = $1', [userId]);
+  return result.rows[0]; // Returns { id: chofer_profile_id } or undefined
+};
+
+const findClienteByUserId = async (userId) => {
+  const result = await pool.query('SELECT id FROM clientes WHERE user_id = $1', [userId]);
+  return result.rows[0]; // Returns { id: cliente_profile_id } or undefined
+};
+
+const findGerenteByUserId = async (userId) => {
+  const result = await pool.query('SELECT id FROM gerentes WHERE user_id = $1', [userId]);
+  return result.rows[0]; // Returns { id: gerente_profile_id } or undefined
+};
+
 const findClienteByDni = async (dni) => {
   const query = 'SELECT * FROM clientes WHERE dni = $1';
   const result = await pool.query(query, [dni]);
@@ -64,6 +79,9 @@ module.exports = {
   createUser,
   createCliente,
   validateUserCredentials,
+  findChoferByUserId,
+  findClienteByUserId,
+  findGerenteByUserId,
   findClienteByDni,
   updateClienteWithUser
 };
