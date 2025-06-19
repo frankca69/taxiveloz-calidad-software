@@ -1,17 +1,17 @@
 
     <div class="container reservas-list-container">
-        <h1 class="page-title">Reservations for <%= reservations && reservations.length > 0 ? reservations[0].nombre_chofer + ' ' + reservations[0].apellido_chofer : 'Driver' %></h1>
+        <h1 class="page-title">Reservaciones para <%= reservations && reservations.length > 0 ? reservations[0].nombre_chofer + ' ' + reservations[0].apellido_chofer : 'Driver' %></h1>
         <table class="content-table">
             <thead class="table-header">
                 <tr>
                     <th class="reservas-table-header">ID</th>
-                    <th class="reservas-table-header">Reservation Date</th>
-                    <th class="reservas-table-header">Start Time</th>
-                    <th class="reservas-table-header">End Time</th>
-                    <th class="reservas-table-header">Status</th>
-                    <th class="reservas-table-header">Client</th>
-                    <th class="reservas-table-header">Vehicle</th>
-                    <th class="reservas-table-header">Actions</th>
+                    <th class="reservas-table-header">Fecha</th>
+                    <th class="reservas-table-header">Fecha de inicio</th>
+                    <th class="reservas-table-header">Fecha de fin</th>
+                    <th class="reservas-table-header">Estado</th>
+                    <th class="reservas-table-header">Cliente</th>
+                    <th class="reservas-table-header">Vehiculo</th>
+                    <th class="reservas-table-header">Acciones</th>
                 </tr>
             </thead>
             <tbody>
@@ -25,12 +25,12 @@
                             <td class="reservas-table-cell"><%= reserva.estado_reserva %></td>
                             <td class="reservas-table-cell"><%= reserva.nombre_cliente %> <%= reserva.apellido_cliente %></td>
                             <td class="reservas-table-cell"><%= reserva.modelo_vehiculo %> (<%= reserva.placa_vehiculo %>)</td>
-                            <td class="reservas-table-cell"><a href="/reservas/<%= reserva.id_reserva %>" class="btn btn-sm btn-secondary">View</a></td>
+                            <td class="reservas-table-cell"><a href="/reservas/<%= reserva.id_reserva %>" class="btn btn-sm btn-secondary">Detalle</a></td>
                         </tr>
                     <% }); %>
                 <% } else { %>
                     <tr>
-                        <td colspan="8">No reservations found for this driver.</td>
+                        <td colspan="8">No se encontro reservaciones para este chofer.</td>
                     </tr>
                 <% } %>
             </tbody>
