@@ -1,13 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reservation Details</title>
-    <link rel="stylesheet" href="/css/style.css">
-</head>
-<body>
-    <%- include('../partials/header') %>
+
     <div class="container reserva-detail-container">
         <% if (error) { %>
             <div class="alert alert-danger"><%= error %></div>
@@ -63,6 +54,3 @@
             <a href="/reservas" class="btn btn-primary">Back to All Reservations</a>
         <% } %>
     </div>
-    <%- include('../partials/footer') %>
-</body>
-</html>

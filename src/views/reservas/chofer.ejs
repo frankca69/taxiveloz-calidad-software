@@ -1,13 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Driver Reservations</title>
-    <link rel="stylesheet" href="/css/style.css">
-</head>
-<body>
-    <%- include('../partials/header') %>
+
     <div class="container reservas-list-container">
         <h1 class="page-title">Reservations for <%= reservations && reservations.length > 0 ? reservations[0].nombre_chofer + ' ' + reservations[0].apellido_chofer : 'Driver' %></h1>
         <table class="content-table">
@@ -45,6 +36,4 @@
             </tbody>
         </table>
     </div>
-    <%- include('../partials/footer') %>
-</body>
-</html>
+
