@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Reservations</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <%- include('../partials/header') %>
+    <div class="container">
+        <h1>All Reservations</h1>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Reservation Date</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                    <th>Status</th>
+                    <th>Client</th>
+                    <th>Driver</th>
+                    <th>Vehicle</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% if (reservations && reservations.length > 0) { %>
+                    <% reservations.forEach(reserva => { %>
+                        <tr>
+                            <td><%= reserva.id_reserva %></td>
+                            <td><%= new Date(reserva.fecha).toLocaleDateString() %></td>
+                            <td><%= new Date(reserva.hora_inicio).toLocaleDateString() %></td>
+                            <td><%= new Date(reserva.hora_fin).toLocaleDateString() %></td>
+                            <td><%= reserva.estado_reserva %></td>
+                            <td><%= reserva.nombre_cliente %> <%= reserva.apellido_cliente %></td>
+                            <td><%= reserva.nombre_chofer %> <%= reserva.apellido_chofer %></td>
+                            <td><%= reserva.modelo_vehiculo %> (<%= reserva.placa_vehiculo %>)</td>
+                            <td><a href="/reservas/<%= reserva.id_reserva %>" class="btn btn-info">View</a></td>
+                        </tr>
+                    <% }); %>
+                <% } else { %>
+                    <tr>
+                        <td colspan="9">No reservations found.</td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
+    <%- include('../partials/footer') %>
+</body>
+</html>

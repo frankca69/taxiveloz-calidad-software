@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reservation Details</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <%- include('../partials/header') %>
+    <div class="container">
+        <% if (error) { %>
+            <div class="alert alert-danger"><%= error %></div>
+            <a href="/reservas" class="btn btn-primary">Back to All Reservations</a>
+        <% } else if (reserva) { %>
+            <h1>Reservation ID: <%= reserva.id_reserva %></h1>
+            <hr>
+
+            <h2>Reservation Details</h2>
+            <table class="table table-bordered">
+                <tbody>
+                    <tr><th>Reservation Date</th><td><%= new Date(reserva.fecha).toLocaleString() %></td></tr>
+                    <tr><th>Start Date/Time</th><td><%= new Date(reserva.hora_inicio).toLocaleString() %></td></tr>
+                    <tr><th>End Date/Time</th><td><%= new Date(reserva.hora_fin).toLocaleString() %></td></tr>
+                    <tr><th>Origin</th><td><%= reserva.origen %></td></tr>
+                    <tr><th>Destination</th><td><%= reserva.destino %></td></tr>
+                    <tr><th>Fare</th><td>$<%= reserva.tarifa %></td></tr>
+                    <tr><th>Payment Type</th><td><%= reserva.tipo_pago %></td></tr>
+                    <tr><th>Status</th><td><%= reserva.estado_reserva %></td></tr>
+                </tbody>
+            </table>
+
+            <h2>Client Details</h2>
+            <table class="table table-bordered">
+                <tbody>
+                    <tr><th>Client ID</th><td><a href="/clientes/<%= reserva.id_cliente %>"><%= reserva.id_cliente %></a></td></tr>
+                    <tr><th>Name</th><td><%= reserva.nombre_cliente %> <%= reserva.apellido_cliente %></td></tr>
+                    <tr><th>DNI</th><td><%= reserva.dni_cliente %></td></tr>
+                    <tr><th>Phone</th><td><%= reserva.telefono_cliente %></td></tr>
+                    <tr><th>Email</th><td><%= reserva.email_cliente %></td></tr>
+                </tbody>
+            </table>
+
+            <h2>Driver Details</h2>
+            <table class="table table-bordered">
+                <tbody>
+                    <tr><th>Driver ID</th><td><a href="/choferes/<%= reserva.id_chofer %>"><%= reserva.id_chofer %></a></td></tr>
+                    <tr><th>Name</th><td><%= reserva.nombre_chofer %> <%= reserva.apellido_chofer %></td></tr>
+                    <tr><th>DNI</th><td><%= reserva.dni_chofer %></td></tr>
+                    <tr><th>Phone</th><td><%= reserva.telefono_chofer %></td></tr>
+                    <tr><th>Email</th><td><%= reserva.email_chofer %></td></tr>
+                </tbody>
+            </table>
+
+            <h2>Vehicle Details</h2>
+            <table class="table table-bordered">
+                <tbody>
+                    <tr><th>Vehicle ID</th><td><a href="/vehiculos/<%= reserva.id_vehiculo %>"><%= reserva.id_vehiculo %></a></td></tr>
+                    <tr><th>Model</th><td><%= reserva.modelo_vehiculo %></td></tr>
+                    <tr><th>Plate</th><td><%= reserva.placa_vehiculo %></td></tr>
+                </tbody>
+            </table>
+
+            <a href="/reservas" class="btn btn-primary mt-3">Back to All Reservations</a>
+            <a href="/reservas/edit/<%= reserva.id_reserva %>" class="btn btn-warning mt-3">Edit Reservation</a>
+
+        <% } else { %>
+            <div class="alert alert-info">No reservation data available.</div>
+            <a href="/reservas" class="btn btn-primary">Back to All Reservations</a>
+        <% } %>
+    </div>
+    <%- include('../partials/footer') %>
+</body>
+</html>
