@@ -8,33 +8,33 @@
 </head>
 <body>
     <%- include('../partials/header') %>
-    <div class="container">
-        <h1>Reservations for <%= reservations && reservations.length > 0 ? reservations[0].nombre_cliente + ' ' + reservations[0].apellido_cliente : 'Client' %></h1>
-        <table class="table">
-            <thead>
+    <div class="container reservas-list-container">
+        <h1 class="page-title">Reservations for <%= reservations && reservations.length > 0 ? reservations[0].nombre_cliente + ' ' + reservations[0].apellido_cliente : 'Client' %></h1>
+        <table class="content-table">
+            <thead class="table-header">
                 <tr>
-                    <th>ID</th>
-                    <th>Reservation Date</th>
-                    <th>Start Date</th>
-                    <th>End Date</th>
-                    <th>Status</th>
-                    <th>Driver</th>
-                    <th>Vehicle</th>
-                    <th>Actions</th>
+                    <th class="reservas-table-header">ID</th>
+                    <th class="reservas-table-header">Reservation Date</th>
+                    <th class="reservas-table-header">Start Time</th>
+                    <th class="reservas-table-header">End Time</th>
+                    <th class="reservas-table-header">Status</th>
+                    <th class="reservas-table-header">Driver</th>
+                    <th class="reservas-table-header">Vehicle</th>
+                    <th class="reservas-table-header">Actions</th>
                 </tr>
             </thead>
             <tbody>
                 <% if (reservations && reservations.length > 0) { %>
                     <% reservations.forEach(reserva => { %>
                         <tr>
-                            <td><%= reserva.id_reserva %></td>
-                            <td><%= new Date(reserva.fecha).toLocaleDateString() %></td>
-                            <td><%= new Date(reserva.hora_inicio).toLocaleDateString() %></td>
-                            <td><%= new Date(reserva.hora_fin).toLocaleDateString() %></td>
-                            <td><%= reserva.estado_reserva %></td>
-                            <td><%= reserva.nombre_chofer %> <%= reserva.apellido_chofer %></td>
-                            <td><%= reserva.modelo_vehiculo %> (<%= reserva.placa_vehiculo %>)</td>
-                            <td><a href="/reservas/<%= reserva.id_reserva %>" class="btn btn-info">View</a></td>
+                            <td class="reservas-table-cell"><%= reserva.id_reserva %></td>
+                            <td class="reservas-table-cell"><%= new Date(reserva.fecha).toLocaleDateString('es-ES', { year: 'numeric', month: '2-digit', day: '2-digit' }) %></td>
+                            <td class="reservas-table-cell"><%= new Date('1970-01-01T' + reserva.hora_inicio).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', hour12: false }) %></td>
+                            <td class="reservas-table-cell"><%= new Date('1970-01-01T' + reserva.hora_fin).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', hour12: false }) %></td>
+                            <td class="reservas-table-cell"><%= reserva.estado_reserva %></td>
+                            <td class="reservas-table-cell"><%= reserva.nombre_chofer %> <%= reserva.apellido_chofer %></td>
+                            <td class="reservas-table-cell"><%= reserva.modelo_vehiculo %> (<%= reserva.placa_vehiculo %>)</td>
+                            <td class="reservas-table-cell"><a href="/reservas/<%= reserva.id_reserva %>" class="btn btn-sm btn-secondary">View</a></td>
                         </tr>
                     <% }); %>
                 <% } else { %>

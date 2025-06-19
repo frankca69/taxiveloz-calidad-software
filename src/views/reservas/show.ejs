@@ -8,61 +8,55 @@
 </head>
 <body>
     <%- include('../partials/header') %>
-    <div class="container">
+    <div class="container reserva-detail-container">
         <% if (error) { %>
             <div class="alert alert-danger"><%= error %></div>
             <a href="/reservas" class="btn btn-primary">Back to All Reservations</a>
         <% } else if (reserva) { %>
-            <h1>Reservation ID: <%= reserva.id_reserva %></h1>
+            <h1 class="page-title reserva-detail-title">Reservation ID: <%= reserva.id_reserva %></h1>
             <hr>
 
-            <h2>Reservation Details</h2>
-            <table class="table table-bordered">
-                <tbody>
-                    <tr><th>Reservation Date</th><td><%= new Date(reserva.fecha).toLocaleString() %></td></tr>
-                    <tr><th>Start Date/Time</th><td><%= new Date(reserva.hora_inicio).toLocaleString() %></td></tr>
-                    <tr><th>End Date/Time</th><td><%= new Date(reserva.hora_fin).toLocaleString() %></td></tr>
-                    <tr><th>Origin</th><td><%= reserva.origen %></td></tr>
-                    <tr><th>Destination</th><td><%= reserva.destino %></td></tr>
-                    <tr><th>Fare</th><td>$<%= reserva.tarifa %></td></tr>
-                    <tr><th>Payment Type</th><td><%= reserva.tipo_pago %></td></tr>
-                    <tr><th>Status</th><td><%= reserva.estado_reserva %></td></tr>
-                </tbody>
-            </table>
+            <div class="detail-section">
+                <h2 class="section-title">Reservation Details</h2>
+                <p class="detail-entry"><strong class="detail-label">Reservation Date:</strong> <span class="detail-value"><%= new Date(reserva.fecha).toLocaleDateString('es-ES', { year: 'numeric', month: '2-digit', day: '2-digit' }) %></span></p>
+                <p class="detail-entry"><strong class="detail-label">Start Time:</strong> <span class="detail-value"><%= new Date('1970-01-01T' + reserva.hora_inicio).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', hour12: false }) %></span></p>
+                <p class="detail-entry"><strong class="detail-label">End Time:</strong> <span class="detail-value"><%= new Date('1970-01-01T' + reserva.hora_fin).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', hour12: false }) %></span></p>
+                <p class="detail-entry"><strong class="detail-label">Origin:</strong> <span class="detail-value"><%= reserva.origen %></span></p>
+                <p class="detail-entry"><strong class="detail-label">Destination:</strong> <span class="detail-value"><%= reserva.destino %></span></p>
+                <p class="detail-entry"><strong class="detail-label">Fare:</strong> <span class="detail-value">$<%= reserva.tarifa %></span></p>
+                <p class="detail-entry"><strong class="detail-label">Payment Type:</strong> <span class="detail-value"><%= reserva.tipo_pago %></span></p>
+                <p class="detail-entry"><strong class="detail-label">Status:</strong> <span class="detail-value"><%= reserva.estado_reserva %></span></p>
+            </div>
 
-            <h2>Client Details</h2>
-            <table class="table table-bordered">
-                <tbody>
-                    <tr><th>Client ID</th><td><a href="/clientes/<%= reserva.id_cliente %>"><%= reserva.id_cliente %></a></td></tr>
-                    <tr><th>Name</th><td><%= reserva.nombre_cliente %> <%= reserva.apellido_cliente %></td></tr>
-                    <tr><th>DNI</th><td><%= reserva.dni_cliente %></td></tr>
-                    <tr><th>Phone</th><td><%= reserva.telefono_cliente %></td></tr>
-                    <tr><th>Email</th><td><%= reserva.email_cliente %></td></tr>
-                </tbody>
-            </table>
+            <div class="detail-section">
+                <h2 class="section-title">Client Details</h2>
+                <p class="detail-entry"><strong class="detail-label">Client ID:</strong> <span class="detail-value"><a href="/clientes/<%= reserva.id_cliente %>"><%= reserva.id_cliente %></a></span></p>
+                <p class="detail-entry"><strong class="detail-label">Name:</strong> <span class="detail-value"><%= reserva.nombre_cliente %> <%= reserva.apellido_cliente %></span></p>
+                <p class="detail-entry"><strong class="detail-label">DNI:</strong> <span class="detail-value"><%= reserva.dni_cliente %></span></p>
+                <p class="detail-entry"><strong class="detail-label">Phone:</strong> <span class="detail-value"><%= reserva.telefono_cliente %></span></p>
+                <p class="detail-entry"><strong class="detail-label">Email:</strong> <span class="detail-value"><%= reserva.email_cliente %></span></p>
+            </div>
 
-            <h2>Driver Details</h2>
-            <table class="table table-bordered">
-                <tbody>
-                    <tr><th>Driver ID</th><td><a href="/choferes/<%= reserva.id_chofer %>"><%= reserva.id_chofer %></a></td></tr>
-                    <tr><th>Name</th><td><%= reserva.nombre_chofer %> <%= reserva.apellido_chofer %></td></tr>
-                    <tr><th>DNI</th><td><%= reserva.dni_chofer %></td></tr>
-                    <tr><th>Phone</th><td><%= reserva.telefono_chofer %></td></tr>
-                    <tr><th>Email</th><td><%= reserva.email_chofer %></td></tr>
-                </tbody>
-            </table>
+            <div class="detail-section">
+                <h2 class="section-title">Driver Details</h2>
+                <p class="detail-entry"><strong class="detail-label">Driver ID:</strong> <span class="detail-value"><a href="/choferes/<%= reserva.id_chofer %>"><%= reserva.id_chofer %></a></span></p>
+                <p class="detail-entry"><strong class="detail-label">Name:</strong> <span class="detail-value"><%= reserva.nombre_chofer %> <%= reserva.apellido_chofer %></span></p>
+                <p class="detail-entry"><strong class="detail-label">DNI:</strong> <span class="detail-value"><%= reserva.dni_chofer %></span></p>
+                <p class="detail-entry"><strong class="detail-label">Phone:</strong> <span class="detail-value"><%= reserva.telefono_chofer %></span></p>
+                <p class="detail-entry"><strong class="detail-label">Email:</strong> <span class="detail-value"><%= reserva.email_chofer %></span></p>
+            </div>
 
-            <h2>Vehicle Details</h2>
-            <table class="table table-bordered">
-                <tbody>
-                    <tr><th>Vehicle ID</th><td><a href="/vehiculos/<%= reserva.id_vehiculo %>"><%= reserva.id_vehiculo %></a></td></tr>
-                    <tr><th>Model</th><td><%= reserva.modelo_vehiculo %></td></tr>
-                    <tr><th>Plate</th><td><%= reserva.placa_vehiculo %></td></tr>
-                </tbody>
-            </table>
+            <div class="detail-section">
+                <h2 class="section-title">Vehicle Details</h2>
+                <p class="detail-entry"><strong class="detail-label">Vehicle ID:</strong> <span class="detail-value"><a href="/vehiculos/<%= reserva.id_vehiculo %>"><%= reserva.id_vehiculo %></a></span></p>
+                <p class="detail-entry"><strong class="detail-label">Model:</strong> <span class="detail-value"><%= reserva.modelo_vehiculo %></span></p>
+                <p class="detail-entry"><strong class="detail-label">Plate:</strong> <span class="detail-value"><%= reserva.placa_vehiculo %></span></p>
+            </div>
 
-            <a href="/reservas" class="btn btn-primary mt-3">Back to All Reservations</a>
-            <a href="/reservas/edit/<%= reserva.id_reserva %>" class="btn btn-warning mt-3">Edit Reservation</a>
+            <div class="mt-3"> <!-- Added a wrapper div for button spacing if needed -->
+                <a href="/reservas" class="btn btn-primary">Back to All Reservations</a>
+                <a href="/reservas/edit/<%= reserva.id_reserva %>" class="btn btn-warning">Edit Reservation</a>
+            </div>
 
         <% } else { %>
             <div class="alert alert-info">No reservation data available.</div>
