@@ -2,20 +2,22 @@
     <p class="error-message"><%= error %></p>
 <% } %>
 
-<h2>Iniciar Sesión</h2>
+<div class="container">
+  <h2 class="page-title">Iniciar Sesión</h2>
 
-<form action="/sessions/login" method="POST">
-  <div>
-    <label for="username">Usuario:</label>
-    <input type="text" name="username" required>
-  </div>
-  <div>
-    <label for="password">Contraseña:</label>
-    <input type="password" name="password" required>
-  </div>
-  <button type="submit">Ingresar</button>
-</form>
+  <form action="/sessions/login" method="POST" class="form-styled">
+    <div class="form-group">
+      <label for="username" class="form-label">Usuario:</label>
+      <input type="text" name="username" class="form-input" required>
+    </div>
+    <div class="form-group">
+      <label for="password" class="form-label">Contraseña:</label>
+      <input type="password" name="password" class="form-input" required>
+    </div>
+    <button type="submit" class="btn btn-primary submit-button">Ingresar</button>
+  </form>
 
-<a href="/sessions/registerc">¿No tienes cuenta? Regístrate como cliente</a>
+  <p><a href="/sessions/registerc" class="action-link">¿No tienes cuenta? Regístrate como cliente</a></p>
+</div>
 
 

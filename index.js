@@ -32,6 +32,8 @@ app.use("/choferes", require("./src/routes/chofer.router"));
 app.use("/clientes", require("./src/routes/cliente.router"));
 app.use('/gerentes', require('./src/routes/gerente.router'));
 app.use('/vehiculos', require('./src/routes/vehiculo.router'));
+const reservaRoutes = require('./src/routes/reserva.router'); // Require reservation router
+app.use('/', reservaRoutes); // Mount reservation router
 
 const PORT = process.env.PORT || 3000;
 

@@ -619,3 +619,80 @@ a:hover {
     /* If actions are directly inside a card, adjust margins if necessary */
     margin-top: 15px; /* Override default top margin if it's too much within a card */
 }
+
+/* === Field Specific Error Text === */
+.error-text {
+    color: #d9534f; /* Red color, similar to .error-message */
+    font-size: 0.9em; /* Slightly smaller font */
+    display: block; /* Ensure it takes its own line */
+    margin-top: 5px; /* Space above the error text */
+}
+
+/* === Reservation View Specific Styles === */
+
+/* General page title styling (already exists but can be confirmed) */
+/* .page-title { margin-bottom: 20px; color: #333; text-align: center; border-bottom: 1px solid #eee; padding-bottom: 10px;} */
+
+/* List Views */
+.reservas-list-container { /* Added to the main container div in list views */
+    /* padding: 20px; */ /* Global .container already has padding */
+}
+
+/* .content-table is already styled and used for reservas-table */
+/* .reservas-table { width: 100%; border-collapse: collapse; margin-top: 15px; } */
+/* .reservas-table th, .reservas-table td { border: 1px solid #ddd; padding: 8px; text-align: left; } */
+
+/* .table-header is used for thead, specific th styling below if needed */
+.reservas-table-header { /* Applied to th elements */
+    /* background-color: #f2f2f2; */ /* .table-header class on thead provides a blue background, this would override if not commented */
+    /* Specific TH styling if different from thead's global style */
+}
+.reservas-table-cell { /* Applied to td elements */
+    /* Specific TD styling if needed */
+}
+
+/* Buttons in list views already use .btn .btn-sm .btn-secondary */
+/* .btn-reserva-view { ... } */
+
+
+/* Detail View */
+.reserva-detail-container { /* Added to the main container div in show.ejs */
+    /* padding: 20px; */ /* Global .container already has padding */
+}
+
+.reserva-detail-title { /* Specific title for reservation detail if needed */
+    /* Inherits .page-title styles */
+}
+
+.detail-section {
+    margin-bottom: 25px;
+    padding: 15px;
+    border: 1px solid #eee;
+    border-radius: 5px;
+    background-color: #fdfdfd; /* Slightly off-white for section background */
+}
+
+.section-title {
+    font-size: 1.4em;
+    color: #555;
+    margin-top: 0; /* Remove default h2 margin if it's too much */
+    margin-bottom: 15px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+/* .detail-entry, .detail-label, .detail-value are already styled and suitable for p based structure */
+/* .detail-item { margin-bottom: 8px; } -> covered by .detail-entry */
+/* .detail-label { font-weight: bold; color: #444; margin-right: 5px; } */
+/* .detail-value { color: #666; } */
+
+/* Ensure buttons in detail view have some margin if needed */
+.reserva-detail-container .mt-3 { /* Utility class for margin-top, good if it exists or add */
+    margin-top: 1rem !important; /* Bootstrap-like margin top */
+}
+
+.btn-sm { /* Definition for small buttons if not already present */
+    padding: .25rem .5rem;
+    font-size: .875em;
+    border-radius: .2rem;
+}
