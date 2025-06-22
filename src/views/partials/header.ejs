@@ -5,9 +5,9 @@
 
       <% if (user.role === 'cliente') { %>
         <a class="nav-link" href="/reservas/solicitar">Solicitar Reserva</a>
-        <a class="nav-link" href="/reservas/cliente">Mis Reservas</a>
+        <a class="nav-link" href="/reservas/cliente/<%= user.profile_id">Mis Reservas</a>
       <% } else if (user.role === 'chofer') { %>
-        <a class="nav-link" href="/reservas/chofer">Mis Viajes Asignados</a>
+        <a class="nav-link" href="/reservas/chofer/<%= user.profile_id">Mis Viajes Asignados</a>
         <a class="nav-link" href="/vehiculos">Mi Vehículo</a>
       <% } else if (user.role === 'admin') { %>
         <a class="nav-link" href="/clientes">Clientes</a>
