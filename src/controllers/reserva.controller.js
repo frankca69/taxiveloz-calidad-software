@@ -22,8 +22,6 @@ const showCreateForm = async (req, res) => {
       display_name: `${ch.vehiculo_placa} - ${ch.vehiculo_modelo} - ${ch.chofer_nombre} ${ch.chofer_apellido}`
     }));
 
-    console.log('Choferes raw from model:', choferesRaw);
-
     // Format clientes for display: "DNI - Nombre Apellido"
     const clientesDisplay = clientes.map(cl => ({
       id: cl.id,
