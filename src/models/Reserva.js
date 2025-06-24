@@ -195,6 +195,70 @@ class Reserva {
             throw error;
         }
     }
+
+    /**
+     * Creates a new reservation in the database.
+     * @param {Object} reservaData - An object containing the reservation details.
+     * @param {number} reservaData.cliente_id - The ID of the client.
+     * @param {number} reservaData.chofer_id - The ID of the chofer.
+     * @param {string} reservaData.fecha - The date of the reservation (YYYY-MM-DD).
+     * @param {string} [reservaData.hora_inicio] - The start time of the reservation (HH:MM:SS).
+     * @param {string} [reservaData.hora_fin] - The end time of the reservation (HH:MM:SS).
+     * @param {string} [reservaData.origen] - The origin of the trip.
+     * @param {string} [reservaData.destino] - The destination of the trip.
+     * @param {number} [reservaData.tarifa] - The fare for the trip.
+     * @param {string} [reservaData.tipo_pago] - The payment type ('efectivo', 'virtual').
+     * @returns {Promise<Object>} A promise that resolves to the newly created reservation object.
+     * @throws {Error} Throws an error if the database query fails.
+     */
+    static async create(reservaData) {
+        const {
+            cliente_id,
+            chofer_id,
+            fecha,
+            hora_inicio,
+            hora_fin,
+            origen,
+            destino,
+            tarifa,
+            tipo_pago
+        } = reservaData;
+
+        // The 'estado' defaults to 'espera' as per the table definition.
+        const query = `
+            INSERT INTO reservas (
+                cliente_id,
+                chofer_id,
+                fecha,
+                hora_inicio,
+                hora_fin,
+                origen,
+                destino,
+                tarifa,
+                tipo_pago
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+            RETURNING *;
+        `;
+        // RETURNING * will return all columns of the newly inserted row.
+
+        try {
+            const { rows } = await pool.query(query, [
+                cliente_id,
+                chofer_id,
+                fecha,
+                hora_inicio,
+                hora_fin,
+                origen,
+                destino,
+                tarifa,
+                tipo_pago
+            ]);
+            return rows[0]; // Return the newly created reservation
+        } catch (error) {
+            console.error('Error creating reservation in Reserva.js model:', error);
+            throw error;
+        }
+    }
 }
 
 module.exports = Reserva;

@@ -52,6 +52,30 @@ module.exports = {
   getById,
   updateChofer,
   updateEstado,
+  getAllActivosConVehiculo // Exportar la nueva función
 };
 
 //Frank
+
+// Nueva función para obtener todos los choferes activos con vehículo
+const getAllActivosConVehiculo = async () => {
+  const query = `
+    SELECT
+        ch.id AS chofer_id,
+        ch.nombre AS chofer_nombre,
+        ch.apellido AS chofer_apellido,
+        v.placa AS vehiculo_placa,
+        v.modelo AS vehiculo_modelo
+    FROM choferes ch
+    JOIN vehiculos v ON ch.id = v.chofer_id
+    WHERE ch.estado = 'activo' AND v.estado = 'operativo'
+    ORDER BY ch.nombre, ch.apellido;
+  `;
+  try {
+    const { rows } = await pool.query(query);
+    return rows;
+  } catch (error) {
+    console.error('Error al obtener choferes activos con vehículo:', error);
+    throw error;
+  }
+};
