@@ -14,13 +14,15 @@ const Chofer = require('../models/Chofer.js'); // Import Chofer model
 const showCreateForm = async (req, res) => {
   try {
     const clientes = await Cliente.getAllActivos(); // Fetch active clients
-    const choferes = await Chofer.getAllActivosConVehiculo(); // Fetch active choferes with vehicles
+    const choferesRaw = await Chofer.getAllActivosConVehiculo(); // Fetch active choferes with vehicles
 
     // Format choferes for display: "Placa - Modelo - Nombre Apellido"
-    const choferesDisplay = choferes.map(ch => ({
+    const choferesDisplay = choferesRaw.map(ch => ({ // Usar choferesRaw aquí
       id: ch.chofer_id,
       display_name: `${ch.vehiculo_placa} - ${ch.vehiculo_modelo} - ${ch.chofer_nombre} ${ch.chofer_apellido}`
     }));
+
+    console.log('Choferes raw from model:', choferesRaw);
 
     // Format clientes for display: "DNI - Nombre Apellido"
     const clientesDisplay = clientes.map(cl => ({

@@ -44,17 +44,6 @@ const updateEstado = async (id, estado) => {
   await pool.query(query, [estado, id]);
 };
 
-module.exports = {
-  createUser,
-  createChofer,
-  getAll,
-  getByEstado,
-  getById,
-  updateChofer,
-  updateEstado,
-  getAllActivosConVehiculo // Exportar la nueva función
-};
-
 //Frank
 
 // Nueva función para obtener todos los choferes activos con vehículo
@@ -79,3 +68,15 @@ const getAllActivosConVehiculo = async () => {
     throw error;
   }
 };
+
+module.exports = {
+  createUser,
+  createChofer,
+  getAll,
+  getByEstado,
+  getById,
+  updateChofer,
+  updateEstado,
+  getAllActivosConVehiculo // Exportar la nueva función
+};
+

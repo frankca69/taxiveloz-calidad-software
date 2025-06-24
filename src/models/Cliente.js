@@ -80,18 +80,6 @@ const softDelete = async (id) => {
   }
 };
 
-
-
-module.exports = {
-  store,
-  getAll,
-  getById,
-  updateCliente,
-  existsDNI,
-  getAllActivos, // Make sure it's exported
-  softDelete
-};
-
 // Nueva función para obtener todos los clientes activos con campos específicos
 // Definición de getAllActivos
 const getAllActivos = async () => {
@@ -108,4 +96,14 @@ const getAllActivos = async () => {
     console.error('Error al obtener clientes activos:', error);
     throw error;
   }
+};
+
+module.exports = {
+  store,
+  getAll,
+  getById,
+  updateCliente,
+  existsDNI,
+  getAllActivos, // Make sure it's exported
+  softDelete
 };
