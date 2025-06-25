@@ -14,6 +14,28 @@ async function getChoferIdFromUserId(userId) {
   return choferProfile.id;
 }
 
+// Función para mostrar todos los vehículos con información del chofer
+// (Movida aquí para estar antes de module.exports)
+const showAllVehiculos = async (req, res) => {
+  try {
+    const vehiculos = await Vehiculo.getAllVehiculosConChofer();
+    res.render('vehiculos/all', {
+      vehiculos,
+      user: req.session.user,
+      error: null,
+      success: null
+    });
+  } catch (error) {
+    console.error("Error en showAllVehiculos:", error);
+    res.status(500).render('vehiculos/all', {
+      vehiculos: [],
+      user: req.session.user,
+      error: 'Error al obtener la lista de vehículos.',
+      success: null
+    });
+  }
+};
+
 const showVehiculo = async (req, res) => {
   try {
     // Assuming req.user.id is the user_id from the users table
@@ -158,4 +180,5 @@ module.exports = {
   storeVehiculo,
   updateEstado,
   destroyVehiculo,
+  showAllVehiculos,
 };
