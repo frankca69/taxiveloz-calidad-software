@@ -7,6 +7,124 @@
 
 // const pool = require('../models/pg'); // Import the pg pool - No longer needed
 const Reserva = require('../models/Reserva.js'); // Import the Reserva model
+const Cliente = require('../models/Cliente.js'); // Import Cliente model
+const Chofer = require('../models/Chofer.js'); // Import Chofer model
+
+// Function to display the form for creating a new reservation
+const showCreateForm = async (req, res) => {
+  try {
+    const clientes = await Cliente.getAllActivos(); // Fetch active clients
+    const choferesRaw = await Chofer.getAllActivosConVehiculo(); // Fetch active choferes with vehicles
+
+    // Format choferes for display: "Placa - Modelo - Nombre Apellido"
+    const choferesDisplay = choferesRaw.map(ch => ({ // Usar choferesRaw aquí
+      id: ch.chofer_id,
+      display_name: `${ch.vehiculo_placa} - ${ch.vehiculo_modelo} - ${ch.chofer_nombre} ${ch.chofer_apellido}`
+    }));
+
+    // Format clientes for display: "DNI - Nombre Apellido"
+    const clientesDisplay = clientes.map(cl => ({
+      id: cl.id,
+      display_name: `${cl.dni} - ${cl.nombre} ${cl.apellido}`
+    }));
+
+    res.render('reservas/create', {
+      clientes: clientesDisplay,
+      choferes: choferesDisplay,
+      error: null,
+      oldInput: {} // For repopulating form in case of error
+    });
+  } catch (error) {
+    console.error("Error fetching data for create reservation form:", error);
+    // It might be better to render an error page or redirect with an error message
+    res.render('reservas/create', {
+      clientes: [],
+      choferes: [],
+      error: 'Error al cargar datos para el formulario de reserva.',
+      oldInput: {}
+    });
+  }
+};
+
+// Function to handle the creation of a new reservation
+const createReservation = async (req, res) => {
+  try {
+    const {
+      cliente_id,
+      chofer_id,
+      fecha,
+      hora_inicio,
+      hora_fin,
+      origen,
+      destino,
+      tarifa,
+      tipo_pago
+    } = req.body;
+
+    // Basic validation (more can be added)
+    if (!cliente_id || !chofer_id || !fecha || !tarifa || !tipo_pago) {
+      // If validation fails, re-render the form with an error message and old input
+      const clientes = await Cliente.getAllActivos();
+      const choferes = await Chofer.getAllActivosConVehiculo();
+      const choferesDisplay = choferes.map(ch => ({
+        id: ch.chofer_id,
+        display_name: `${ch.vehiculo_placa} - ${ch.vehiculo_modelo} - ${ch.chofer_nombre} ${ch.chofer_apellido}`
+      }));
+      const clientesDisplay = clientes.map(cl => ({
+        id: cl.id,
+        display_name: `${cl.dni} - ${cl.nombre} ${cl.apellido}`
+      }));
+
+      return res.render('reservas/create', {
+        clientes: clientesDisplay,
+        choferes: choferesDisplay,
+        error: 'Todos los campos marcados con * son obligatorios.',
+        oldInput: req.body // Pass back the submitted data
+      });
+    }
+
+    // Prepare data for Reserva.create
+    const reservaData = {
+      cliente_id: parseInt(cliente_id),
+      chofer_id: parseInt(chofer_id),
+      fecha,
+      hora_inicio: hora_inicio || null, // Handle optional fields
+      hora_fin: hora_fin || null,
+      origen: origen || null,
+      destino: destino || null,
+      tarifa: parseFloat(tarifa),
+      tipo_pago
+    };
+
+    const nuevaReserva = await Reserva.create(reservaData);
+    // Redirect to the list of reservations or a success page
+    // For now, redirecting to all reservations. A success flash message would be good.
+    res.redirect('/reservas'); // Assuming '/reservas' lists all reservations
+
+  } catch (error) {
+    console.error("Error creating reservation:", error);
+    // In case of error (e.g., database error), re-render form with error
+    // It's important to also repopulate the form with previous input
+    const clientes = await Cliente.getAllActivos();
+    const choferes = await Chofer.getAllActivosConVehiculo();
+    const choferesDisplay = choferes.map(ch => ({
+        id: ch.chofer_id,
+        display_name: `${ch.vehiculo_placa} - ${ch.vehiculo_modelo} - ${ch.chofer_nombre} ${ch.chofer_apellido}`
+      }));
+    const clientesDisplay = clientes.map(cl => ({
+        id: cl.id,
+        display_name: `${cl.dni} - ${cl.nombre} ${cl.apellido}`
+      }));
+
+    res.render('reservas/create', {
+      clientes: clientesDisplay,
+      choferes: choferesDisplay,
+      error: 'Error al guardar la reserva. Inténtelo de nuevo.',
+      oldInput: req.body
+    });
+  }
+};
+
 
 // Function to get all reservations
 const getAllReservations = async (req, res) => {
@@ -117,5 +235,7 @@ module.exports = {
   getReservationsByCliente,
   getReservationsByChofer,
   getReservationById,
+  showCreateForm, // Export new function
+  createReservation // Export new function
   // Add other reservation-related functions here
 };

@@ -80,7 +80,23 @@ const softDelete = async (id) => {
   }
 };
 
-
+// Nueva función para obtener todos los clientes activos con campos específicos
+// Definición de getAllActivos
+const getAllActivos = async () => {
+  const query = `
+    SELECT id, dni, nombre, apellido
+    FROM clientes
+    WHERE estado = 'activo'
+    ORDER BY nombre, apellido;
+  `;
+  try {
+    const { rows } = await pool.query(query);
+    return rows;
+  } catch (error) {
+    console.error('Error al obtener clientes activos:', error);
+    throw error;
+  }
+};
 
 module.exports = {
   store,
@@ -88,5 +104,6 @@ module.exports = {
   getById,
   updateCliente,
   existsDNI,
+  getAllActivos, // Make sure it's exported
   softDelete
 };
