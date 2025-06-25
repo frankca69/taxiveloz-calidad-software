@@ -1,6 +1,7 @@
 
     <div class="container reservas-list-container">
         <h1 class="page-title">Reservaciones</h1>
+        <a href="/reservas/create" class="btn btn-primary mb-3">Crear Reserva</a>
         <table class="content-table">
             <thead class="table-header">
                 <tr>
@@ -27,7 +28,10 @@
                             <td class="reservas-table-cell"><%= reserva.nombre_cliente %> <%= reserva.apellido_cliente %></td>
                             <td class="reservas-table-cell"><%= reserva.nombre_chofer %> <%= reserva.apellido_chofer %></td>
                             <td class="reservas-table-cell"><%= reserva.modelo_vehiculo %> (<%= reserva.placa_vehiculo %>)</td>
-                            <td class="reservas-table-cell"><a href="/reservas/<%= reserva.id_reserva %>" class="btn btn-sm btn-secondary">Detalles</a></td>
+                            <td class="reservas-table-cell"><a href="/reservas/<%= reserva.id_reserva %>" class="btn btn-sm btn-secondary">Detalles</a>
+                                                            <a href="/reservas/<%= reserva.id_reserva %>" class="btn btn-sm btn-secondary">Editar</a>
+                                                            <a href="/reservas/<%= reserva.id_reserva %>" class="btn btn-sm btn-secondary">Eliminar</a>
+                            </td>
                         </tr>
                     <% }); %>
                 <% } else { %>

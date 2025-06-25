@@ -39,10 +39,33 @@ const deleteVehiculo = async (id) => {
   return result.rows[0];
 };
 
+const getAllVehiculosConChofer = async () => {
+  const query = `
+    SELECT
+        v.id AS vehiculo_id,
+        v.modelo AS vehiculo_modelo,
+        v.placa AS vehiculo_placa,
+        v.estado AS vehiculo_estado,
+        c.nombre AS chofer_nombre,
+        c.apellido AS chofer_apellido
+    FROM vehiculos v
+    LEFT JOIN choferes c ON v.chofer_id = c.id
+    ORDER BY c.apellido, c.nombre, v.modelo;
+  `;
+  try {
+    const { rows } = await pool.query(query);
+    return rows;
+  } catch (error) {
+    console.error('Error al obtener todos los vehículos con información del chofer:', error);
+    throw error;
+  }
+};
+
 module.exports = {
   createVehiculo,
   getVehiculoByChoferId,
   getVehiculoById,
   updateVehiculoEstado,
   deleteVehiculo,
+  getAllVehiculosConChofer,
 };

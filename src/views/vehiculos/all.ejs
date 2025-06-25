@@ -1,0 +1,63 @@
+<div class="container mt-4">
+    <h2>Listado de Todos los Vehículos</h2>
+
+    <% if (error) { %>
+        <div class="alert alert-danger" role="alert">
+            <%= error %>
+        </div>
+    <% } %>
+    <% if (success) { %>
+        <div class="alert alert-success" role="alert">
+            <%= success %>
+        </div>
+    <% } %>
+
+    <% if (vehiculos && vehiculos.length > 0) { %>
+        <table class="table table-striped table-hover">
+            <thead class="thead-dark">
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Modelo</th>
+                    <th scope="col">Placa</th>
+                    <th scope="col">Estado Vehículo</th>
+                    <th scope="col">Chofer Asignado</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% vehiculos.forEach((vehiculo, index) => { %>
+                    <tr>
+                        <th scope="row"><%= index + 1 %></th>
+                        <td><%= vehiculo.vehiculo_modelo %></td>
+                        <td><%= vehiculo.vehiculo_placa %></td>
+                        <td>
+                            <% if (vehiculo.vehiculo_estado === 'operativo') { %>
+                                <span class="badge bg-success">Operativo</span>
+                            <% } else if (vehiculo.vehiculo_estado === 'inoperativo') { %>
+                                <span class="badge bg-danger">Inoperativo</span>
+                            <% } else { %>
+                                <span class="badge bg-secondary"><%= vehiculo.vehiculo_estado %></span>
+                            <% } %>
+                        </td>
+                        <td>
+                            <% if (vehiculo.chofer_nombre && vehiculo.chofer_apellido) { %>
+                                <%= vehiculo.chofer_nombre %> <%= vehiculo.chofer_apellido %>
+                            <% } else { %>
+                                <span class="text-muted">No asignado</span>
+                            <% } %>
+                        </td>
+                    </tr>
+                <% }); %>
+            </tbody>
+        </table>
+    <% } else if (!error) { %>  <!-- Solo mostrar "No hay vehículos" si no hay un error -->
+        <div class="alert alert-info" role="alert">
+            No hay vehículos registrados o para mostrar.
+        </div>
+    <% } %>
+
+    <!-- Opcional: Botón para volver al dashboard o a otra página relevante -->
+    <% if (user && (user.role === 'admin' || user.role === 'gerente')) { %>
+        <a href="/dashboard" class="btn btn-secondary mt-3">Volver al Dashboard</a>
+    <% } %>
+
+</div>
