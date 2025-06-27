@@ -25,7 +25,19 @@
                             <td class="reservas-table-cell"><%= reserva.estado_reserva %></td>
                             <td class="reservas-table-cell"><%= reserva.nombre_cliente %> <%= reserva.apellido_cliente %></td>
                             <td class="reservas-table-cell"><%= reserva.modelo_vehiculo %> (<%= reserva.placa_vehiculo %>)</td>
-                            <td class="reservas-table-cell"><a href="/reservas/<%= reserva.id_reserva %>" class="btn btn-sm btn-secondary">Detalle</a></td>
+                            <td class="reservas-table-cell">
+                                <a href="/reservas/<%= reserva.id_reserva %>" class="btn btn-sm btn-secondary mb-1 d-block">Detalle</a>
+                                <% if (reserva.estado_reserva === 'espera') { %>
+                                    <form action="/reservas/<%= reserva.id_reserva %>/confirmar" method="POST" style="display: inline;">
+                                        <button type="submit" class="btn btn-sm btn-success mb-1 d-block">Confirmar</button>
+                                    </form>
+                                <% } %>
+                                <% if (reserva.estado_reserva === 'notificada') { %>
+                                    <form action="/reservas/<%= reserva.id_reserva %>/finalizar" method="POST" style="display: inline;">
+                                        <button type="submit" class="btn btn-sm btn-primary d-block">Finalizar</button>
+                                    </form>
+                                <% } %>
+                            </td>
                         </tr>
                     <% }); %>
                 <% } else { %>

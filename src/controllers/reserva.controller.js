@@ -236,6 +236,51 @@ module.exports = {
   getReservationsByChofer,
   getReservationById,
   showCreateForm, // Export new function
-  createReservation // Export new function
+  createReservation, // Export new function
+
+  // Function to confirm a reservation
+  confirmarReserva: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const reservaActualizada = await Reserva.confirmarReserva(id);
+      if (!reservaActualizada) {
+        // Consider how to handle this: maybe a 404 or a specific error message
+        // For now, redirecting back, a flash message would be good.
+        return res.redirect('back'); // 'back' might not be ideal, consider a specific route
+      }
+      // Redirect to the chofer's reservations view, assuming the user is a chofer or admin viewing a chofer's page
+      // This requires knowing the chofer_id from the updated reservation or passing it somehow.
+      // For simplicity, if chofer_id is available on reservaActualizada, use it.
+      // Otherwise, might need to redirect to a general page or handle differently.
+      if (reservaActualizada.chofer_id) {
+        res.redirect(`/reservas/chofer/${reservaActualizada.chofer_id}`);
+      } else {
+        res.redirect('/reservas'); // Fallback redirect
+      }
+    } catch (error) {
+      console.error(`Error confirming reservation with ID ${req.params.id}:`, error);
+      // Handle error, perhaps redirect back with an error message
+      res.redirect('back'); // Or a more specific error handling page/route
+    }
+  },
+
+  // Function to finalize a reservation
+  finalizarReserva: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const reservaActualizada = await Reserva.finalizarReserva(id);
+      if (!reservaActualizada) {
+        return res.redirect('back');
+      }
+      if (reservaActualizada.chofer_id) {
+        res.redirect(`/reservas/chofer/${reservaActualizada.chofer_id}`);
+      } else {
+        res.redirect('/reservas');
+      }
+    } catch (error) {
+      console.error(`Error finalizing reservation with ID ${req.params.id}:`, error);
+      res.redirect('back');
+    }
+  }
   // Add other reservation-related functions here
 };

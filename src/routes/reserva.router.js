@@ -31,4 +31,19 @@ router.get('/reservas/chofer/:chofer_id', reservaController.getReservationsByCho
 // GET /reservas/:id - Get a single reservation by ID
 router.get('/reservas/:id', reservaController.getReservationById);
 
+// POST /reservas/:id/confirmar - Confirm a reservation
+// Asumiendo que el chofer o un admin/gerente puede confirmar.
+// Si se necesita una lógica de autorización más fina (ej. solo el chofer asignado),
+// se debería añadir un middleware o lógica en el controlador.
+// Por ahora, usamos tieneRol para admin/gerente, pero un chofer también debería poder.
+// Esto podría requerir un nuevo tipo de rol o lógica de autorización personalizada.
+// Para simplificar, si la acción es principalmente para el chofer, y el chofer_id se usa para redirigir,
+// podríamos no poner tieneRol aquí y manejar la autorización en el controlador o asumir que solo el chofer logueado ve el botón.
+// O, si los choferes tienen un rol 'chofer': tieneRol('admin', 'gerente', 'chofer')
+router.post('/reservas/:id/confirmar', reservaController.confirmarReserva);
+
+// POST /reservas/:id/finalizar - Finalize a reservation
+// Misma consideración de roles que para confirmar.
+router.post('/reservas/:id/finalizar', reservaController.finalizarReserva);
+
 module.exports = router;

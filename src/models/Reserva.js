@@ -259,6 +259,50 @@ class Reserva {
             throw error;
         }
     }
+
+    /**
+     * Updates the state of a reservation to 'confirmada'.
+     * @param {number|string} id - The ID of the reservation to confirm.
+     * @returns {Promise<Object|null>} A promise that resolves to the updated reservation object or null if not found.
+     * @throws {Error} Throws an error if the database query fails.
+     */
+    static async confirmarReserva(id) {
+        const query = `
+            UPDATE reservas
+            SET estado = 'confirmada'
+            WHERE id = $1
+            RETURNING *;
+        `;
+        try {
+            const { rows } = await pool.query(query, [id]);
+            return rows.length > 0 ? rows[0] : null;
+        } catch (error) {
+            console.error(`Error confirming reservation with ID ${id} in Reserva.js model:`, error);
+            throw error;
+        }
+    }
+
+    /**
+     * Updates the state of a reservation to 'finalizada'.
+     * @param {number|string} id - The ID of the reservation to finalize.
+     * @returns {Promise<Object|null>} A promise that resolves to the updated reservation object or null if not found.
+     * @throws {Error} Throws an error if the database query fails.
+     */
+    static async finalizarReserva(id) {
+        const query = `
+            UPDATE reservas
+            SET estado = 'finalizada'
+            WHERE id = $1
+            RETURNING *;
+        `;
+        try {
+            const { rows } = await pool.query(query, [id]);
+            return rows.length > 0 ? rows[0] : null;
+        } catch (error) {
+            console.error(`Error finalizing reservation with ID ${id} in Reserva.js model:`, error);
+            throw error;
+        }
+    }
 }
 
 module.exports = Reserva;
