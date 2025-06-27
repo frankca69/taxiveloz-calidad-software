@@ -281,6 +281,37 @@ module.exports = {
       console.error(`Error finalizing reservation with ID ${req.params.id}:`, error);
       res.redirect('back');
     }
+  },
+
+  // Function to notify a reservation
+  notificarReserva: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const reservaActualizada = await Reserva.notificarReserva(id);
+      if (!reservaActualizada) {
+        // Consider specific error handling or flash message
+        return res.redirect('/reservas?error=notfound');
+      }
+      res.redirect('/reservas?success=notified'); // Redirect to general reservations list
+    } catch (error) {
+      console.error(`Error notifying reservation with ID ${req.params.id}:`, error);
+      res.redirect('/reservas?error=processing'); // Redirect with error
+    }
+  },
+
+  // Function to delete (mark as eliminated) a reservation
+  eliminarReserva: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const reservaActualizada = await Reserva.eliminarReserva(id);
+      if (!reservaActualizada) {
+        return res.redirect('/reservas?error=notfound');
+      }
+      res.redirect('/reservas?success=deleted');
+    } catch (error) {
+      console.error(`Error deleting reservation with ID ${req.params.id}:`, error);
+      res.redirect('/reservas?error=processing');
+    }
   }
   // Add other reservation-related functions here
 };

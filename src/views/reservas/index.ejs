@@ -28,9 +28,20 @@
                             <td class="reservas-table-cell"><%= reserva.nombre_cliente %> <%= reserva.apellido_cliente %></td>
                             <td class="reservas-table-cell"><%= reserva.nombre_chofer %> <%= reserva.apellido_chofer %></td>
                             <td class="reservas-table-cell"><%= reserva.modelo_vehiculo %> (<%= reserva.placa_vehiculo %>)</td>
-                            <td class="reservas-table-cell"><a href="/reservas/<%= reserva.id_reserva %>" class="btn btn-sm btn-secondary">Detalles</a>
-                                                            <a href="/reservas/<%= reserva.id_reserva %>" class="btn btn-sm btn-secondary">Editar</a>
-                                                            <a href="/reservas/<%= reserva.id_reserva %>" class="btn btn-sm btn-secondary">Eliminar</a>
+                            <td class="reservas-table-cell">
+                                <a href="/reservas/<%= reserva.id_reserva %>" class="btn btn-sm btn-info mb-1 d-block">Detalles</a>
+                                <!-- Asumiendo que la ruta de edición es /reservas/edit/:id o similar y requiere un GET -->
+                                <!-- <a href="/reservas/edit/<%= reserva.id_reserva %>" class="btn btn-sm btn-warning mb-1 d-block">Editar</a> -->
+
+                                <% if (reserva.estado_reserva === 'confirmada') { %>
+                                    <form action="/reservas/<%= reserva.id_reserva %>/notificar" method="POST" style="display: inline;">
+                                        <button type="submit" class="btn btn-sm btn-success mb-1 d-block w-100">Notificar</button>
+                                    </form>
+                                <% } %>
+
+                                <form action="/reservas/<%= reserva.id_reserva %>/eliminar" method="POST" style="display: inline;" onsubmit="return confirm('¿Está seguro de que desea eliminar esta reserva?');">
+                                    <button type="submit" class="btn btn-sm btn-danger d-block w-100">Eliminar</button>
+                                </form>
                             </td>
                         </tr>
                     <% }); %>

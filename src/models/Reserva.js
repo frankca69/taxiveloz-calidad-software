@@ -303,6 +303,50 @@ class Reserva {
             throw error;
         }
     }
+
+    /**
+     * Updates the state of a reservation to 'notificada'.
+     * @param {number|string} id - The ID of the reservation to notify.
+     * @returns {Promise<Object|null>} A promise that resolves to the updated reservation object or null if not found.
+     * @throws {Error} Throws an error if the database query fails.
+     */
+    static async notificarReserva(id) {
+        const query = `
+            UPDATE reservas
+            SET estado = 'notificada'
+            WHERE id = $1
+            RETURNING *;
+        `;
+        try {
+            const { rows } = await pool.query(query, [id]);
+            return rows.length > 0 ? rows[0] : null;
+        } catch (error) {
+            console.error(`Error notifying reservation with ID ${id} in Reserva.js model:`, error);
+            throw error;
+        }
+    }
+
+    /**
+     * Updates the state of a reservation to 'eliminada'.
+     * @param {number|string} id - The ID of the reservation to delete.
+     * @returns {Promise<Object|null>} A promise that resolves to the updated reservation object or null if not found.
+     * @throws {Error} Throws an error if the database query fails.
+     */
+    static async eliminarReserva(id) {
+        const query = `
+            UPDATE reservas
+            SET estado = 'eliminada'
+            WHERE id = $1
+            RETURNING *;
+        `;
+        try {
+            const { rows } = await pool.query(query, [id]);
+            return rows.length > 0 ? rows[0] : null;
+        } catch (error) {
+            console.error(`Error deleting reservation with ID ${id} in Reserva.js model:`, error);
+            throw error;
+        }
+    }
 }
 
 module.exports = Reserva;

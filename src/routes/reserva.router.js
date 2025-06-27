@@ -46,4 +46,12 @@ router.post('/reservas/:id/confirmar', reservaController.confirmarReserva);
 // Misma consideración de roles que para confirmar.
 router.post('/reservas/:id/finalizar', reservaController.finalizarReserva);
 
+// POST /reservas/:id/notificar - Mark a reservation as notified
+// Solo admin y gerente pueden notificar.
+router.post('/reservas/:id/notificar', tieneRol('admin', 'gerente'), reservaController.notificarReserva);
+
+// POST /reservas/:id/eliminar - Mark a reservation as eliminated (soft delete)
+// Solo admin y gerente pueden eliminar.
+router.post('/reservas/:id/eliminar', tieneRol('admin', 'gerente'), reservaController.eliminarReserva);
+
 module.exports = router;
