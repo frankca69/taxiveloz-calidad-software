@@ -437,6 +437,38 @@ module.exports = {
         error: 'Error al actualizar la reserva. Verifique los datos e inténtelo de nuevo.'
       });
     }
+  },
+
+  // Get available choferes based on date and time
+  getChoferesDisponibles: async (req, res) => {
+    try {
+      const { fecha, hora_inicio, hora_fin, reserva_id_actual } = req.query;
+
+      if (!fecha || !hora_inicio || !hora_fin) {
+        return res.status(400).json({ error: 'Fecha, hora de inicio y hora de fin son requeridas.' });
+      }
+
+      // Validar que hora_fin sea posterior a hora_inicio (también en backend)
+      if (hora_fin <= hora_inicio) {
+        return res.status(400).json({ error: 'Hora de fin debe ser posterior a hora de inicio.' });
+      }
+
+      // El modelo Chofer necesita ser importado si no lo está ya.
+      // Asumiendo que Chofer model tiene el método findAvailable
+      const choferesDisponiblesRaw = await Chofer.findAvailable(fecha, hora_inicio, hora_fin, reserva_id_actual);
+
+      // Formatear para el display_name que espera el frontend
+      const choferesDisplay = choferesDisponiblesRaw.map(ch => ({
+        id: ch.chofer_id, // Asegurarse que el ID sea el correcto (chofer_id o id)
+        display_name: `${ch.vehiculo_placa || 'N/A'} - ${ch.vehiculo_modelo || 'N/A'} - ${ch.chofer_nombre} ${ch.chofer_apellido}`
+      }));
+
+      res.json({ choferes: choferesDisplay });
+
+    } catch (error) {
+      console.error("Error fetching available choferes:", error);
+      res.status(500).json({ error: 'Error al obtener los choferes disponibles.' });
+    }
   }
   // Add other reservation-related functions here
 };

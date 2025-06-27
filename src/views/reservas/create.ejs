@@ -9,6 +9,36 @@
     <% } %>
 
     <form action="/reservas" method="POST">
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <label for="fecha" class="form-label">Fecha*</label>
+                <input type="date" class="form-control" id="fecha" name="fecha" value="<%= (typeof oldInput !== 'undefined' && oldInput.fecha) ? oldInput.fecha : '' %>" required>
+            </div>
+            <div class="col-md-4 mb-3">
+                <label for="hora_inicio" class="form-label">Hora de Inicio*</label>
+                <input type="time" class="form-control" id="hora_inicio" name="hora_inicio" value="<%= (typeof oldInput !== 'undefined' && oldInput.hora_inicio) ? oldInput.hora_inicio : '' %>" required>
+            </div>
+            <div class="col-md-4 mb-3">
+                <label for="hora_fin" class="form-label">Hora de Fin*</label>
+                <input type="time" class="form-control" id="hora_fin" name="hora_fin" value="<%= (typeof oldInput !== 'undefined' && oldInput.hora_fin) ? oldInput.hora_fin : '' %>" required>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label for="chofer_id" class="form-label">Chofer y Vehículo*</label>
+            <select class="form-select" id="chofer_id" name="chofer_id" required disabled>
+                <option value="">Seleccione fecha y horas para ver choferes disponibles</option>
+                <% if (typeof choferes !== 'undefined' && choferes.length > 0) { %>
+                    <% choferes.forEach(chofer => { %>
+                        <option value="<%= chofer.id %>" <%= (typeof oldInput !== 'undefined' && oldInput.chofer_id == chofer.id) ? 'selected' : '' %>>
+                            <%= chofer.display_name %>
+                        </option>
+                    <% }); %>
+                <% } %>
+            </select>
+            <div id="chofer_loading" style="display: none;">Consultando disponibilidad...</div>
+        </div>
+
         <div class="mb-3">
             <label for="cliente_id" class="form-label">Cliente*</label>
             <select class="form-select" id="cliente_id" name="cliente_id" required>
@@ -22,37 +52,8 @@
         </div>
 
         <div class="mb-3">
-            <label for="chofer_id" class="form-label">Chofer y Vehículo*</label>
-            <select class="form-select" id="chofer_id" name="chofer_id" required>
-                <option value="">Seleccione un chofer y vehículo</option>
-                <% choferes.forEach(chofer => { %>
-                    <option value="<%= chofer.id %>" <%= (typeof oldInput !== 'undefined' && oldInput.chofer_id == chofer.id) ? 'selected' : '' %>>
-                        <%= chofer.display_name %>
-                    </option>
-                <% }); %>
-            </select>
-        </div>
-
-        <div class="row">
-            <div class="col-md-6 mb-3">
-                <label for="fecha" class="form-label">Fecha*</label>
-                <input type="date" class="form-control" id="fecha" name="fecha" value="<%= (typeof oldInput !== 'undefined' && oldInput.fecha) ? oldInput.fecha : '' %>" required>
-            </div>
-            <div class="col-md-6 mb-3">
-                <label for="tarifa" class="form-label">Tarifa*</label>
-                <input type="number" step="0.01" class="form-control" id="tarifa" name="tarifa" value="<%= (typeof oldInput !== 'undefined' && oldInput.tarifa) ? oldInput.tarifa : '' %>" required>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-md-6 mb-3">
-                <label for="hora_inicio" class="form-label">Hora de Inicio</label>
-                <input type="time" class="form-control" id="hora_inicio" name="hora_inicio" value="<%= (typeof oldInput !== 'undefined' && oldInput.hora_inicio) ? oldInput.hora_inicio : '' %>">
-            </div>
-            <div class="col-md-6 mb-3">
-                <label for="hora_fin" class="form-label">Hora de Fin</label>
-                <input type="time" class="form-control" id="hora_fin" name="hora_fin" value="<%= (typeof oldInput !== 'undefined' && oldInput.hora_fin) ? oldInput.hora_fin : '' %>">
-            </div>
+            <label for="tarifa" class="form-label">Tarifa*</label>
+            <input type="number" step="0.01" class="form-control" id="tarifa" name="tarifa" value="<%= (typeof oldInput !== 'undefined' && oldInput.tarifa) ? oldInput.tarifa : '' %>" required>
         </div>
 
         <div class="mb-3">
@@ -79,3 +80,105 @@
     </form>
 </div>
 
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const fechaInput = document.getElementById('fecha');
+        const horaInicioInput = document.getElementById('hora_inicio');
+        const horaFinInput = document.getElementById('hora_fin');
+        const choferSelect = document.getElementById('chofer_id');
+        const choferLoadingDiv = document.getElementById('chofer_loading');
+
+        function fetchChoferesDisponibles() {
+            const fecha = fechaInput.value;
+            const horaInicio = horaInicioInput.value;
+            const horaFin = horaFinInput.value;
+
+            if (fecha && horaInicio && horaFin) {
+                choferSelect.disabled = true;
+                choferSelect.innerHTML = '<option value="">Cargando choferes...</option>';
+                choferLoadingDiv.style.display = 'block';
+
+                // Validar que hora_fin sea posterior a hora_inicio
+                if (horaFin <= horaInicio) {
+                    choferSelect.innerHTML = '<option value="">Hora de fin debe ser posterior a hora de inicio</option>';
+                    choferLoadingDiv.style.display = 'none';
+                    // No habilitar el select si hay error de hora
+                    return;
+                }
+
+                const queryParams = new URLSearchParams({ fecha, hora_inicio: horaInicio, hora_fin: horaFin });
+
+                fetch(`/choferes/disponibles?${queryParams.toString()}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`Error HTTP: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        choferSelect.innerHTML = ''; // Limpiar opciones anteriores
+                        if (data.choferes && data.choferes.length > 0) {
+                            choferSelect.appendChild(new Option('Seleccione un chofer y vehículo', ''));
+                            data.choferes.forEach(chofer => {
+                                const option = new Option(chofer.display_name, chofer.id);
+                                choferSelect.appendChild(option);
+                            });
+                            choferSelect.disabled = false;
+                        } else {
+                            choferSelect.appendChild(new Option('No hay choferes disponibles para este horario', ''));
+                            // Mantener deshabilitado si no hay choferes
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error al cargar choferes:', error);
+                        choferSelect.innerHTML = '<option value="">Error al cargar choferes</option>';
+                        // Mantener deshabilitado en caso de error
+                    })
+                    .finally(() => {
+                        choferLoadingDiv.style.display = 'none';
+                    });
+            } else {
+                choferSelect.disabled = true;
+                choferSelect.innerHTML = '<option value="">Seleccione fecha y horas para ver choferes disponibles</option>';
+            }
+        }
+
+        fechaInput.addEventListener('change', fetchChoferesDisponibles);
+        horaInicioInput.addEventListener('change', fetchChoferesDisponibles);
+        horaFinInput.addEventListener('change', fetchChoferesDisponibles);
+
+        // Si hay oldInput (por error de validación del backend), intentar cargar choferes
+        // y seleccionar el que estaba previamente seleccionado si aún está disponible.
+        const oldChoferId = "<%= (typeof oldInput !== 'undefined' && oldInput.chofer_id) ? oldInput.chofer_id : '' %>";
+        if (fechaInput.value && horaInicioInput.value && horaFinInput.value) {
+            // Guardamos el valor antiguo para re-seleccionarlo después del fetch
+            const originalFetchChoferes = fetchChoferesDisponibles;
+            const augmentedFetch = () => {
+                const currentChoferSelect = document.getElementById('chofer_id'); // Re-obtener el select
+                const originalOnChange = currentChoferSelect.onchange; // Guardar cualquier listener
+
+                originalFetchChoferes(); // Llama a la función original
+
+                // Esperar a que las opciones se carguen
+                const observer = new MutationObserver((mutationsList, observer) => {
+                    for(const mutation of mutationsList) {
+                        if (mutation.type === 'childList') {
+                             // Verificar si el oldChoferId está entre las nuevas opciones
+                            const optionExists = Array.from(currentChoferSelect.options).some(opt => opt.value === oldChoferId);
+                            if (optionExists) {
+                                currentChoferSelect.value = oldChoferId;
+                            }
+                            if (currentChoferSelect.options.length > 1 && currentChoferSelect.options[0].value !== "") { // Asegura que no sea solo "cargando" o "error"
+                                observer.disconnect(); // Dejar de observar una vez que las opciones están pobladas
+                                if (originalOnChange) currentChoferSelect.onchange = originalOnChange; // Restaurar listener
+                            }
+                            break;
+                        }
+                    }
+                });
+                observer.observe(currentChoferSelect, { childList: true });
+            };
+            augmentedFetch();
+        }
+    });
+</script>
