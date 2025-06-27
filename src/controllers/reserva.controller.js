@@ -312,6 +312,131 @@ module.exports = {
       console.error(`Error deleting reservation with ID ${req.params.id}:`, error);
       res.redirect('/reservas?error=processing');
     }
+  },
+
+  // Show form to edit a reservation
+  showEditForm: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const reserva = await Reserva.getById(id);
+
+      if (!reserva) {
+        // Consider rendering an error page or redirecting with a message
+        return res.status(404).send('Reserva no encontrada'); // Simple 404 for now
+      }
+
+      // Fetch clients and choferes for dropdowns, similar to showCreateForm
+      const clientes = await Cliente.getAllActivos();
+      const choferesRaw = await Chofer.getAllActivosConVehiculo();
+
+      const choferesDisplay = choferesRaw.map(ch => ({
+        id: ch.chofer_id,
+        display_name: `${ch.vehiculo_placa} - ${ch.vehiculo_modelo} - ${ch.chofer_nombre} ${ch.chofer_apellido}`
+      }));
+
+      const clientesDisplay = clientes.map(cl => ({
+        id: cl.id,
+        display_name: `${cl.dni} - ${cl.nombre} ${cl.apellido}`
+      }));
+
+      res.render('reservas/edit', {
+        reserva, // Pass the specific reservation data
+        clientes: clientesDisplay,
+        choferes: choferesDisplay,
+        error: null
+      });
+    } catch (error) {
+      console.error(`Error fetching reservation for edit with ID ${req.params.id}:`, error);
+      // Consider a more user-friendly error page or redirect
+      res.status(500).send('Error al cargar el formulario de edición de reserva.');
+    }
+  },
+
+  // Update an existing reservation
+  updateReservation: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const {
+        cliente_id,
+        chofer_id,
+        fecha,
+        hora_inicio,
+        hora_fin,
+        origen,
+        destino,
+        tarifa,
+        tipo_pago,
+        estado // Added estado
+      } = req.body;
+
+      // Basic validation (can be expanded)
+      if (!cliente_id || !chofer_id || !fecha || !tarifa || !tipo_pago || !estado) {
+        // If validation fails, re-render form with error and existing data
+        // This requires fetching reserva, clientes, choferes again, or passing them differently
+        // For simplicity, redirecting back to edit form with a query param error might be easier
+        // Or, better, re-render with all necessary data
+        const reserva = await Reserva.getById(id); // Refetch current reserva data
+        const clientes = await Cliente.getAllActivos();
+        const choferesRaw = await Chofer.getAllActivosConVehiculo();
+        const choferesDisplay = choferesRaw.map(ch => ({ /* ... */ }));
+        const clientesDisplay = clientes.map(cl => ({ /* ... */ }));
+
+        return res.render('reservas/edit', {
+            reserva: { ...reserva, ...req.body }, // Merge original with attempted changes for repopulation
+            clientes: clientesDisplay, // You'll need to re-fetch or pass these
+            choferes: choferesDisplay, // Same as above
+            error: 'Todos los campos marcados con * son obligatorios, incluyendo el estado.'
+        });
+      }
+
+      const reservaData = {
+        cliente_id: parseInt(cliente_id),
+        chofer_id: parseInt(chofer_id),
+        fecha,
+        hora_inicio: hora_inicio || null,
+        hora_fin: hora_fin || null,
+        origen: origen || null,
+        destino: destino || null,
+        tarifa: parseFloat(tarifa),
+        tipo_pago,
+        estado // Include estado in the data to be updated
+      };
+
+      const reservaActualizada = await Reserva.update(id, reservaData);
+
+      if (!reservaActualizada) {
+        // Handle case where update failed (e.g., reservation not found)
+        // This might involve re-rendering the edit form with an error
+        return res.status(404).send('No se pudo actualizar la reserva. Reserva no encontrada.');
+      }
+
+      res.redirect(`/reservas/${id}?success=updated`); // Redirect to reservation details page
+    } catch (error) {
+      console.error(`Error updating reservation with ID ${req.params.id}:`, error);
+      // Re-render edit form with error, requires fetching data again
+      // For simplicity, redirecting or sending a generic error
+      const { id } = req.params;
+      // It's better to re-render the form with the error and old input
+      // Fetching all data again for re-render:
+      const reserva = await Reserva.getById(id); // Potentially stale if update partially succeeded then failed
+      const clientes = await Cliente.getAllActivos();
+      const choferesRaw = await Chofer.getAllActivosConVehiculo();
+      const choferesDisplay = choferesRaw.map(ch => ({
+        id: ch.chofer_id,
+        display_name: `${ch.vehiculo_placa} - ${ch.vehiculo_modelo} - ${ch.chofer_nombre} ${ch.chofer_apellido}`
+      }));
+      const clientesDisplay = clientes.map(cl => ({
+        id: cl.id,
+        display_name: `${cl.dni} - ${cl.nombre} ${cl.apellido}`
+      }));
+
+      res.render('reservas/edit', {
+        reserva: { ...req.body, id_reserva: id }, // Use submitted data for repopulation
+        clientes: clientesDisplay,
+        choferes: choferesDisplay,
+        error: 'Error al actualizar la reserva. Verifique los datos e inténtelo de nuevo.'
+      });
+    }
   }
   // Add other reservation-related functions here
 };

@@ -1,0 +1,107 @@
+<div class="container mt-5">
+    <h2>Editar Reserva</h2>
+
+    <% if (typeof error !== 'undefined' && error) { %>
+        <div class="alert alert-danger" role="alert">
+            <%= error %>
+        </div>
+    <% } %>
+
+    <% if (typeof reserva === 'undefined' || !reserva) { %>
+        <div class="alert alert-warning" role="alert">
+            No se pudieron cargar los datos de la reserva para editar.
+        </div>
+    <% } else { %>
+        <form action="/reservas/<%= reserva.id_reserva %>/edit" method="POST">
+            <div class="mb-3">
+                <label for="cliente_id" class="form-label">Cliente*</label>
+                <select class="form-select" id="cliente_id" name="cliente_id" required>
+                    <option value="">Seleccione un cliente</option>
+                    <% clientes.forEach(cliente => { %>
+                        <option value="<%= cliente.id %>" <%= (reserva.id_cliente == cliente.id) ? 'selected' : '' %>>
+                            <%= cliente.display_name %>
+                        </option>
+                    <% }); %>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="chofer_id" class="form-label">Chofer y Vehículo*</label>
+                <select class="form-select" id="chofer_id" name="chofer_id" required>
+                    <option value="">Seleccione un chofer y vehículo</option>
+                    <% choferes.forEach(chofer => { %>
+                        <option value="<%= chofer.id %>" <%= (reserva.id_chofer == chofer.id) ? 'selected' : '' %>>
+                            <%= chofer.display_name %>
+                        </option>
+                    <% }); %>
+                </select>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="fecha" class="form-label">Fecha*</label>
+                    <%
+                    let fechaFormateada = '';
+                    if (reserva.fecha) {
+                        const d = new Date(reserva.fecha);
+                        // Ajustar por la zona horaria para obtener la fecha correcta en YYYY-MM-DD
+                        const offset = d.getTimezoneOffset();
+                        const dCorrected = new Date(d.getTime() - (offset*60*1000));
+                        fechaFormateada = dCorrected.toISOString().split('T')[0];
+                    }
+                    %>
+                    <input type="date" class="form-control" id="fecha" name="fecha" value="<%= fechaFormateada %>" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="tarifa" class="form-label">Tarifa*</label>
+                    <input type="number" step="0.01" class="form-control" id="tarifa" name="tarifa" value="<%= reserva.tarifa %>" required>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="hora_inicio" class="form-label">Hora de Inicio</label>
+                    <input type="time" class="form-control" id="hora_inicio" name="hora_inicio" value="<%= reserva.hora_inicio ? reserva.hora_inicio.substring(0,5) : '' %>">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="hora_fin" class="form-label">Hora de Fin</label>
+                    <input type="time" class="form-control" id="hora_fin" name="hora_fin" value="<%= reserva.hora_fin ? reserva.hora_fin.substring(0,5) : '' %>">
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="origen" class="form-label">Origen</label>
+                <input type="text" class="form-control" id="origen" name="origen" value="<%= reserva.origen || '' %>">
+            </div>
+
+            <div class="mb-3">
+                <label for="destino" class="form-label">Destino</label>
+                <input type="text" class="form-control" id="destino" name="destino" value="<%= reserva.destino || '' %>">
+            </div>
+
+            <div class="mb-3">
+                <label for="tipo_pago" class="form-label">Tipo de Pago*</label>
+                <select class="form-select" id="tipo_pago" name="tipo_pago" required>
+                    <option value="">Seleccione un tipo de pago</option>
+                    <option value="efectivo" <%= (reserva.tipo_pago === 'efectivo') ? 'selected' : '' %>>Efectivo</option>
+                    <option value="virtual" <%= (reserva.tipo_pago === 'virtual') ? 'selected' : '' %>>Virtual</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="estado" class="form-label">Estado</label>
+                <select class="form-select" id="estado" name="estado">
+                    <option value="espera" <%= (reserva.estado_reserva === 'espera') ? 'selected' : '' %>>Espera</option>
+                    <option value="confirmada" <%= (reserva.estado_reserva === 'confirmada') ? 'selected' : '' %>>Confirmada</option>
+                    <option value="notificada" <%= (reserva.estado_reserva === 'notificada') ? 'selected' : '' %>>Notificada</option>
+                    <option value="finalizada" <%= (reserva.estado_reserva === 'finalizada') ? 'selected' : '' %>>Finalizada</option>
+                    <option value="cancelada" <%= (reserva.estado_reserva === 'cancelada') ? 'selected' : '' %>>Cancelada</option>
+                    <!-- No se incluye 'eliminada' como opción seleccionable en edición normal -->
+                </select>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Actualizar Reserva</button>
+            <a href="/reservas" class="btn btn-secondary">Cancelar</a>
+        </form>
+    <% } %>
+</div>

@@ -348,6 +348,65 @@ class Reserva {
             throw error;
         }
     }
+
+    /**
+     * Updates an existing reservation in the database.
+     * @param {number|string} id - The ID of the reservation to update.
+     * @param {Object} reservaData - An object containing the reservation details to update.
+     * @returns {Promise<Object|null>} A promise that resolves to the updated reservation object or null if not found.
+     * @throws {Error} Throws an error if the database query fails.
+     */
+    static async update(id, reservaData) {
+        const {
+            cliente_id,
+            chofer_id,
+            fecha,
+            hora_inicio,
+            hora_fin,
+            origen,
+            destino,
+            tarifa,
+            tipo_pago,
+            estado // Added estado
+        } = reservaData;
+
+        const query = `
+            UPDATE reservas
+            SET
+                cliente_id = $1,
+                chofer_id = $2,
+                fecha = $3,
+                hora_inicio = $4,
+                hora_fin = $5,
+                origen = $6,
+                destino = $7,
+                tarifa = $8,
+                tipo_pago = $9,
+                estado = $10
+            WHERE id = $11
+            RETURNING *;
+        `;
+
+        try {
+            const { rows } = await pool.query(query, [
+                cliente_id,
+                chofer_id,
+                fecha,
+                hora_inicio,
+                hora_fin,
+                origen,
+                destino,
+                tarifa,
+                tipo_pago,
+                estado, // Pass estado to the query
+                id
+            ]);
+            return rows.length > 0 ? rows[0] : null;
+        } catch (error) {
+            console.error(`Error updating reservation with ID ${id} in Reserva.js model:`, error);
+            throw error;
+        }
+    }
 }
 
 module.exports = Reserva;
