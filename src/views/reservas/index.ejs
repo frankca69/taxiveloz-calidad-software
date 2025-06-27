@@ -32,7 +32,7 @@
                                 <a href="/reservas/<%= reserva.id_reserva %>" class="btn btn-sm btn-info mb-1 d-block">Detalles</a>
 
                                 <% if (typeof user !== 'undefined' && (user.rol === 'admin' || user.rol === 'gerente')) { %>
-                                  <a href="/reservas/<%= reserva.id_reserva %>/edit" class="btn btn-sm btn-warning mb-1 d-block">Editar</a>
+                                  <a href="/reservas/edit/<%= reserva.id_reserva %>" class="btn btn-sm btn-warning mb-1 d-block">Editar</a>
                                 <% } %>
 
                                 <% if (reserva.estado_reserva === 'confirmada' && typeof user !== 'undefined' && (user.rol === 'admin' || user.rol === 'gerente')) { %>

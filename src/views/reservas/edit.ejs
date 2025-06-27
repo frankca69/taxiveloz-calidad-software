@@ -12,7 +12,7 @@
             No se pudieron cargar los datos de la reserva para editar.
         </div>
     <% } else { %>
-        <form action="/reservas/<%= reserva.id_reserva %>/edit" method="POST">
+        <form action="/reservas/edit/<%= reserva.id_reserva %>" method="POST">
             <div class="mb-3">
                 <label for="cliente_id" class="form-label">Cliente*</label>
                 <select class="form-select" id="cliente_id" name="cliente_id" required>

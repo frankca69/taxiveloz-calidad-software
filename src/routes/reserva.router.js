@@ -54,10 +54,10 @@ router.post('/reservas/:id/notificar', tieneRol('admin', 'gerente'), reservaCont
 // Solo admin y gerente pueden eliminar.
 router.post('/reservas/:id/eliminar', tieneRol('admin', 'gerente'), reservaController.eliminarReserva);
 
-// GET /reservas/:id/edit - Show form to edit a reservation
+// GET /reservas/edit/:id - Show form to edit a reservation
 router.get('/reservas/edit/:id', tieneRol('admin', 'gerente'), reservaController.showEditForm);
 
-// POST /reservas/:id/edit - Update a reservation
-router.post('/reservas/:id/edit', tieneRol('admin', 'gerente'), reservaController.updateReservation);
+// POST /reservas/edit/:id - Update a reservation
+router.post('/reservas/edit/:id', tieneRol('admin', 'gerente'), reservaController.updateReservation);
 
 module.exports = router;
