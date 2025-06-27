@@ -55,7 +55,7 @@ router.post('/reservas/:id/notificar', tieneRol('admin', 'gerente'), reservaCont
 router.post('/reservas/:id/eliminar', tieneRol('admin', 'gerente'), reservaController.eliminarReserva);
 
 // GET /reservas/:id/edit - Show form to edit a reservation
-router.get('/reservas/:id/edit', tieneRol('admin', 'gerente'), reservaController.showEditForm);
+router.get('/reservas/edit/:id', tieneRol('admin', 'gerente'), reservaController.showEditForm);
 
 // POST /reservas/:id/edit - Update a reservation
 router.post('/reservas/:id/edit', tieneRol('admin', 'gerente'), reservaController.updateReservation);
