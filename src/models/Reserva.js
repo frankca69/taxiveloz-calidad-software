@@ -37,7 +37,8 @@ class Reserva {
             FROM reservas r
             LEFT JOIN clientes c ON r.cliente_id = c.id
             LEFT JOIN choferes ch ON r.chofer_id = ch.id
-            LEFT JOIN vehiculos v ON ch.id = v.chofer_id;
+            LEFT JOIN vehiculos v ON ch.id = v.chofer_id
+            WHERE r.estado <> 'eliminada';
         `;
         // Note: The vehicle join is now ch.id = v.chofer_id as per subtask requirement
         try {
@@ -135,7 +136,7 @@ class Reserva {
             LEFT JOIN clientes c ON r.cliente_id = c.id
             LEFT JOIN choferes ch ON r.chofer_id = ch.id
             LEFT JOIN vehiculos v ON ch.id = v.chofer_id
-            WHERE r.cliente_id = $1;
+            WHERE r.cliente_id = $1 AND r.estado <> 'eliminada';
         `;
         // Note: The vehicle join is now ch.id = v.chofer_id and filter is r.cliente_id = $1
         try {
@@ -184,7 +185,7 @@ class Reserva {
             LEFT JOIN clientes c ON r.cliente_id = c.id
             LEFT JOIN choferes ch ON r.chofer_id = ch.id
             LEFT JOIN vehiculos v ON ch.id = v.chofer_id
-            WHERE r.chofer_id = $1;
+            WHERE r.chofer_id = $1 AND r.estado <> 'eliminada';
         `;
         // Note: The vehicle join is now ch.id = v.chofer_id and filter is r.chofer_id = $1
         try {
