@@ -469,6 +469,83 @@ module.exports = {
       console.error("Error fetching available choferes:", error);
       res.status(500).json({ error: 'Error al obtener los choferes disponibles.' });
     }
+  },
+
+  rechazarYReasignarReserva: async (req, res) => {
+    const { id } = req.params; // ID de la reserva
+    let originalChoferId;
+
+    try {
+      const reserva = await Reserva.getById(id);
+
+      if (!reserva) {
+        // req.flash('error', 'Reserva no encontrada.'); // Asumiendo que usas connect-flash
+        return res.redirect('back'); // O una ruta específica de error
+      }
+      originalChoferId = reserva.id_chofer;
+
+      if (reserva.estado_reserva !== 'espera') {
+        // req.flash('error', 'Solo se pueden rechazar reservas en estado de espera.');
+        return res.redirect(`/reservas/chofer/${originalChoferId}`);
+      }
+
+      // Encontrar un nuevo chofer disponible, excluyendo el actual
+      const choferesDisponibles = await Chofer.findAvailable(
+        reserva.fecha, // Asegúrate que el formato de fecha sea el esperado por findAvailable
+        reserva.hora_inicio,
+        reserva.hora_fin,
+        reserva.id_reserva, // Para excluir esta misma reserva de los chequeos de conflicto del *nuevo* chofer
+        [originalChoferId] // Array de choferes a excluir (el que rechaza)
+      );
+
+      if (choferesDisponibles && choferesDisponibles.length > 0) {
+        const nuevoChofer = choferesDisponibles[0]; // Tomar el primer chofer disponible
+        await Reserva.update(id, {
+          ...reserva, // Mantener los datos existentes de la reserva
+          cliente_id: reserva.id_cliente, // Asegurar que se pasan todos los campos necesarios para el update
+          chofer_id: nuevoChofer.chofer_id, // Asignar el nuevo chofer
+          estado: 'espera', // Mantener en espera para el nuevo chofer (o un nuevo estado 'reasignada')
+          // Asegurar que los campos de fecha y hora se pasen correctamente si el método update los requiere
+          // y no están ya en 'reserva' en el formato adecuado.
+          fecha: reserva.fecha.toISOString().split('T')[0], // Formatear fecha si es necesario
+          hora_inicio: reserva.hora_inicio,
+          hora_fin: reserva.hora_fin,
+          origen: reserva.origen,
+          destino: reserva.destino,
+          tarifa: reserva.tarifa,
+          tipo_pago: reserva.tipo_pago
+        });
+        // req.flash('success', `Reserva ${id} rechazada y reasignada al chofer ${nuevoChofer.chofer_nombre}.`);
+      } else {
+        // No hay choferes disponibles, cambiar estado a 'requiere_atencion_manual' o similar
+        await Reserva.update(id, {
+          ...reserva, // Mantener los datos existentes
+          cliente_id: reserva.id_cliente,
+          chofer_id: reserva.id_chofer, // Podría mantenerse el chofer original o ponerse a null
+          estado: 'sin_chofer_disponible', // Nuevo estado
+          fecha: reserva.fecha.toISOString().split('T')[0],
+          hora_inicio: reserva.hora_inicio,
+          hora_fin: reserva.hora_fin,
+          origen: reserva.origen,
+          destino: reserva.destino,
+          tarifa: reserva.tarifa,
+          tipo_pago: reserva.tipo_pago
+        });
+        // req.flash('warning', `Reserva ${id} rechazada. No se encontraron choferes para reasignar. Requiere atención manual.`);
+        // Aquí se podría enviar una notificación a un admin.
+      }
+
+      res.redirect(`/reservas/chofer/${originalChoferId}`); // Redirigir al dashboard del chofer que rechazó
+
+    } catch (error) {
+      console.error(`Error al rechazar y reasignar reserva ${id}:`, error);
+      // req.flash('error', 'Ocurrió un error al procesar el rechazo de la reserva.');
+      if (originalChoferId) {
+        res.redirect(`/reservas/chofer/${originalChoferId}`);
+      } else {
+        res.redirect('/dashboard'); // O alguna otra página por defecto
+      }
+    }
   }
   // Add other reservation-related functions here
 };

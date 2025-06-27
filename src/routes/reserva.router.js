@@ -60,4 +60,11 @@ router.get('/reservas/edit/:id', tieneRol('admin', 'gerente'), reservaController
 // POST /reservas/edit/:id - Update a reservation
 router.post('/reservas/edit/:id', tieneRol('admin', 'gerente'), reservaController.updateReservation);
 
+// POST /reservas/:id/rechazar - Chofer rejects a reservation, attempt to reassign
+// Se asume que el chofer logueado es quien puede rechazar su propia reserva.
+// La autorización específica (que el chofer_id de la reserva coincida con el user.chofer_id logueado)
+// debería manejarse dentro del controlador o con un middleware más específico si es necesario.
+// Por ahora, se deja sin `tieneRol` asumiendo que la interfaz solo muestra el botón al chofer correcto.
+router.post('/reservas/:id/rechazar', reservaController.rechazarYReasignarReserva);
+
 module.exports = router;

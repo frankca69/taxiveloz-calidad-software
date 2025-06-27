@@ -28,13 +28,18 @@
                             <td class="reservas-table-cell">
                                 <a href="/reservas/<%= reserva.id_reserva %>" class="btn btn-sm btn-secondary mb-1 d-block">Detalle</a>
                                 <% if (reserva.estado_reserva === 'espera') { %>
-                                    <form action="/reservas/<%= reserva.id_reserva %>/confirmar" method="POST" style="display: inline;">
-                                        <button type="submit" class="btn btn-sm btn-success mb-1 d-block">Confirmar</button>
-                                    </form>
+                                    <div class="d-flex flex-column">
+                                        <form action="/reservas/<%= reserva.id_reserva %>/confirmar" method="POST" class="mb-1">
+                                            <button type="submit" class="btn btn-sm btn-success w-100">Confirmar</button>
+                                        </form>
+                                        <form action="/reservas/<%= reserva.id_reserva %>/rechazar" method="POST">
+                                            <button type="submit" class="btn btn-sm btn-danger w-100" onclick="return confirm('¿Está seguro de que desea rechazar esta reserva? El sistema intentará reasignarla a otro chofer.');">Rechazar</button>
+                                        </form>
+                                    </div>
                                 <% } %>
                                 <% if (reserva.estado_reserva === 'notificada') { %>
-                                    <form action="/reservas/<%= reserva.id_reserva %>/finalizar" method="POST" style="display: inline;">
-                                        <button type="submit" class="btn btn-sm btn-primary d-block">Finalizar</button>
+                                    <form action="/reservas/<%= reserva.id_reserva %>/finalizar" method="POST" class="mt-1">
+                                        <button type="submit" class="btn btn-sm btn-primary d-block w-100">Finalizar</button>
                                     </form>
                                 <% } %>
                             </td>
