@@ -142,15 +142,43 @@ document.addEventListener('DOMContentLoaded', function () {
     const initialChoferId = "<%= (typeof reserva !== 'undefined' && reserva.id_chofer) ? reserva.id_chofer : '' %>";
 
     // --- Inicio: Lógica de Google Maps ---
-    // horaInicioInput está referenciado dentro del event listener del botón sugerir
-    // Asegurarse de que esté disponible en ese scope si no lo está ya globalmente en este script.
-    // const horaInicioInput = document.getElementById('hora_inicio'); // Ya está definido por la lógica anterior, si es el mismo ID.
+    const origenInput = document.getElementById('origen');
+    const destinoInput = document.getElementById('destino');
+    const distanciaDiv = document.getElementById('distancia');
+    const distanciaHiddenInput = document.getElementById('distancia_km_hidden');
+    const tarifaInput = document.getElementById('tarifa');
+    const duracionViajeDivEdit = document.getElementById('duracion_viaje_edit');
+    const sugerirHoraFinBtnEdit = document.getElementById('sugerir_hora_fin_btn_edit'); // Definición correcta
 
-    sugerirHoraFinBtnEdit.disabled = true; // Deshabilitar inicialmente
+    let currentTravelDurationSecondsEdit = 0;
 
-    sugerirHoraFinBtnEdit.addEventListener('click', function() {
-        if (!horaInicioInput.value || currentTravelDurationSecondsEdit === 0) {
-            alert('Por favor, seleccione una hora de inicio y calcule una ruta primero.');
+    // Asegurarse de que horaInicioInput y horaFinInput estén disponibles para el event listener
+    // Ya están definidos globalmente en este script (const horaInicioInput = ..., const horaFinInput = ...)
+
+    if (sugerirHoraFinBtnEdit) { // Verificar que el botón exista antes de añadir listener
+        sugerirHoraFinBtnEdit.disabled = true; // Deshabilitar inicialmente
+        sugerirHoraFinBtnEdit.addEventListener('click', function() {
+            if (!horaInicioInput.value || currentTravelDurationSecondsEdit === 0) {
+                alert('Por favor, seleccione una hora de inicio y calcule una ruta primero.');
+        =======
+
+
+            const [hoursInicio, minutesInicio] = horaInicioInput.value.split(':').map(Number);
+            const fechaInicio = new Date();
+            fechaInicio.setHours(hoursInicio, minutesInicio, 0, 0);
+
+            const toleranciaSegundos = 30 * 60;
+            const fechaFin = new Date(fechaInicio.getTime() + (currentTravelDurationSecondsEdit + toleranciaSegundos) * 1000);
+
+            const hoursFin = fechaFin.getHours().toString().padStart(2, '0');
+            const minutesFin = fechaFin.getMinutes().toString().padStart(2, '0');
+
+            horaFinInput.value = `${hoursFin}:${minutesFin}`;
+        });
+    }
+
+
+    let map;
             return;
         }
 
