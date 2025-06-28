@@ -482,7 +482,7 @@ class Reserva {
             ORDER BY r.fecha DESC, r.hora_inicio DESC
             LIMIT $2 OFFSET $3;
         `;
-        const countQuery = "SELECT COUNT(*) FROM reservas WHERE chofer_id = $1 AND r.estado <> 'eliminada';";
+        const countQuery = "SELECT COUNT(*) FROM reservas res WHERE res.chofer_id = $1 AND res.estado <> 'eliminada';"; // Alias 'res'
         try {
             const { rows } = await pool.query(query, [choferId, limit, offset]);
             const countResult = await pool.query(countQuery, [choferId]);
