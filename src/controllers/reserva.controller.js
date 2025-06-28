@@ -104,44 +104,6 @@ const createReservation = async (req, res) => {
     };
 
     const nuevaReserva = await Reserva.create(reservaData);
-      // a menos que quieras mostrar la lista completa si JS falla (poco probable con la lógica actual).
-      // Por simplicidad, y dado que el frontend maneja la carga de choferes,
-      // no los recargamos aquí para el caso de error de validación,
-      // pero sí los clientes.
-      // const choferes = await Chofer.getAllActivosConVehiculo(); // Opcional
-      const choferesDisplay = choferes.map(ch => ({
-        id: ch.chofer_id,
-        display_name: `${ch.vehiculo_placa} - ${ch.vehiculo_modelo} - ${ch.chofer_nombre} ${ch.chofer_apellido}`
-      }));
-      const clientesDisplay = clientes.map(cl => ({
-        id: cl.id,
-        display_name: `${cl.dni} - ${cl.nombre} ${cl.apellido}`
-      }));
-
-      return res.render('reservas/create', {
-        clientes: clientesDisplay,
-        // choferes: choferesDisplay, // No se pasan los choferes si se cargan dinámicamente
-        choferes: [], // Pasar un array vacío o la lógica para recargarlos si es necesario
-        error: 'Todos los campos marcados con * son obligatorios.',
-        oldInput: req.body // Pass back the submitted data
-      });
-    }
-
-    // Prepare data for Reserva.create
-    const reservaData = {
-      cliente_id: parseInt(cliente_id),
-      chofer_id: parseInt(chofer_id),
-      fecha,
-      hora_inicio: hora_inicio, // Ya son obligatorios
-      hora_fin: hora_fin,       // Ya son obligatorios
-      origen: origen,           // Ya son obligatorios
-      destino: destino,         // Ya son obligatorios
-      tarifa: parseFloat(tarifa),
-      tipo_pago,
-      distancia_km: distancia_km ? parseFloat(distancia_km) : null
-    };
-
-    const nuevaReserva = await Reserva.create(reservaData);
     // Redirect to the list of reservations or a success page
     // For now, redirecting to all reservations. A success flash message would be good.
     res.redirect('/reservas'); // Assuming '/reservas' lists all reservations
