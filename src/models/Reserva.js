@@ -407,6 +407,92 @@ class Reserva {
             throw error;
         }
     }
+
+    static async getAllPaginated(limit, offset) {
+        const query = `
+            SELECT
+                r.id AS id_reserva, r.fecha, r.hora_inicio, r.hora_fin, r.origen, r.destino,
+                r.tarifa, r.tipo_pago, r.estado AS estado_reserva,
+                c.id AS id_cliente, c.nombre AS nombre_cliente, c.apellido AS apellido_cliente,
+                c.dni AS dni_cliente, c.email AS email_cliente, c.telefono AS telefono_cliente,
+                ch.id AS id_chofer, ch.nombre AS nombre_chofer, ch.apellido AS apellido_chofer,
+                ch.dni AS dni_chofer, ch.email AS email_chofer, ch.telefono AS telefono_chofer,
+                v.id AS id_vehiculo, v.modelo AS modelo_vehiculo, v.placa AS placa_vehiculo
+            FROM reservas r
+            LEFT JOIN clientes c ON r.cliente_id = c.id
+            LEFT JOIN choferes ch ON r.chofer_id = ch.id
+            LEFT JOIN vehiculos v ON ch.id = v.chofer_id
+            WHERE r.estado <> 'eliminada'
+            ORDER BY r.fecha DESC, r.hora_inicio DESC
+            LIMIT $1 OFFSET $2;
+        `;
+        const countQuery = "SELECT COUNT(*) FROM reservas WHERE estado <> 'eliminada';";
+        try {
+            const { rows } = await pool.query(query, [limit, offset]);
+            const countResult = await pool.query(countQuery);
+            const totalItems = parseInt(countResult.rows[0].count, 10);
+            return { rows, totalItems };
+        } catch (error) {
+            console.error('Error fetching all paginated reservations from Reserva.js model:', error);
+            throw error;
+        }
+    }
+
+    static async getByClienteIdPaginated(clienteId, limit, offset) {
+        const query = `
+            SELECT
+                r.id AS id_reserva, r.fecha, r.hora_inicio, r.hora_fin, r.origen, r.destino,
+                r.tarifa, r.tipo_pago, r.estado AS estado_reserva,
+                c.id AS id_cliente, c.nombre AS nombre_cliente, c.apellido AS apellido_cliente,
+                ch.id AS id_chofer, ch.nombre AS nombre_chofer, ch.apellido AS apellido_chofer,
+                v.modelo AS modelo_vehiculo, v.placa AS placa_vehiculo
+            FROM reservas r
+            LEFT JOIN clientes c ON r.cliente_id = c.id
+            LEFT JOIN choferes ch ON r.chofer_id = ch.id
+            LEFT JOIN vehiculos v ON ch.id = v.chofer_id
+            WHERE r.cliente_id = $1 AND r.estado <> 'eliminada'
+            ORDER BY r.fecha DESC, r.hora_inicio DESC
+            LIMIT $2 OFFSET $3;
+        `;
+        const countQuery = "SELECT COUNT(*) FROM reservas WHERE cliente_id = $1 AND estado <> 'eliminada';";
+        try {
+            const { rows } = await pool.query(query, [clienteId, limit, offset]);
+            const countResult = await pool.query(countQuery, [clienteId]);
+            const totalItems = parseInt(countResult.rows[0].count, 10);
+            return { rows, totalItems };
+        } catch (error) {
+            console.error(`Error fetching paginated reservations for client ID ${clienteId}:`, error);
+            throw error;
+        }
+    }
+
+    static async getByChoferIdPaginated(choferId, limit, offset) {
+        const query = `
+            SELECT
+                r.id AS id_reserva, r.fecha, r.hora_inicio, r.hora_fin, r.origen, r.destino,
+                r.tarifa, r.tipo_pago, r.estado AS estado_reserva,
+                c.id AS id_cliente, c.nombre AS nombre_cliente, c.apellido AS apellido_cliente,
+                ch.id AS id_chofer, ch.nombre AS nombre_chofer, ch.apellido AS apellido_chofer,
+                v.modelo AS modelo_vehiculo, v.placa AS placa_vehiculo
+            FROM reservas r
+            LEFT JOIN clientes c ON r.cliente_id = c.id
+            LEFT JOIN choferes ch ON r.chofer_id = ch.id
+            LEFT JOIN vehiculos v ON ch.id = v.chofer_id
+            WHERE r.chofer_id = $1 AND r.estado <> 'eliminada'
+            ORDER BY r.fecha DESC, r.hora_inicio DESC
+            LIMIT $2 OFFSET $3;
+        `;
+        const countQuery = "SELECT COUNT(*) FROM reservas WHERE chofer_id = $1 AND r.estado <> 'eliminada';";
+        try {
+            const { rows } = await pool.query(query, [choferId, limit, offset]);
+            const countResult = await pool.query(countQuery, [choferId]);
+            const totalItems = parseInt(countResult.rows[0].count, 10);
+            return { rows, totalItems };
+        } catch (error) {
+            console.error(`Error fetching paginated reservations for chofer ID ${choferId}:`, error);
+            throw error;
+        }
+    }
 }
 
 module.exports = Reserva;

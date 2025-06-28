@@ -129,25 +129,31 @@ const createReservation = async (req, res) => {
 // Function to get all reservations
 const getAllReservations = async (req, res) => {
   try {
-    const reservations = await Reserva.getAll();
-    // The view expects column names like 'cliente_nombre', 'chofer_nombre', 'vehiculo_marca', 'vehiculo_modelo', 'vehiculo_patente'
-    // The model's getAll method now provides 'nombre_cliente', 'nombre_chofer', 'modelo_vehiculo', 'placa_vehiculo'
-    // We need to map these if the views are not updated, or update the views.
-    // For now, let's assume the model aliases (like nombre_cliente) are what the views will adapt to or already expect from the new model.
-    // The model returns `id_reserva`, `fecha`, `hora_inicio`, `hora_fin`, `estado_reserva`
-    // The view `index.ejs` uses: `id_reserva`, `fecha_reserva` (needs to be `fecha`), `fecha_inicio_alquiler` (needs to be `hora_inicio`),
-    // `fecha_fin_alquiler` (needs to be `hora_fin`), `estado_reserva`, `cliente_nombre`, `cliente_apellido`,
-    // `chofer_nombre`, `chofer_apellido`, `vehiculo_marca`, `vehiculo_modelo`, `vehiculo_patente`.
-    // The model provides: `id_reserva`, `fecha`, `hora_inicio`, `hora_fin`, `estado_reserva`,
-    // `nombre_cliente`, `apellido_cliente`, `nombre_chofer`, `apellido_chofer`, `modelo_vehiculo`, `placa_vehiculo`.
-    // The `vehiculo_marca` is not directly available from the model's `v.modelo AS modelo_vehiculo`.
-    // This indicates a mismatch that needs to be resolved either in the model or the view.
-    // Given the current task is to refactor the controller, I will pass data as is from the model.
-    // View adjustments will be a separate task if needed.
-    res.render('reservas/index', { reservations: reservations, error: null });
+    const page = parseInt(req.query.page) || 1;
+    const limit = 10;
+    const offset = (page - 1) * limit;
+
+    const result = await Reserva.getAllPaginated(limit, offset);
+    const reservations = result.rows;
+    const totalItems = result.totalItems;
+    const totalPages = Math.ceil(totalItems / limit);
+
+    res.render('reservas/index', {
+      reservations,
+      error: null,
+      currentPage: page,
+      totalPages,
+      totalItems
+    });
   } catch (error) {
     console.error("Error fetching all reservations in controller:", error);
-    res.render('reservas/index', { reservations: [], error: 'Error fetching reservations' });
+    res.render('reservas/index', {
+      reservations: [],
+      error: 'Error fetching reservations',
+      currentPage: 1,
+      totalPages: 0,
+      totalItems: 0
+    });
   }
 };
 
@@ -155,23 +161,40 @@ const getAllReservations = async (req, res) => {
 const getReservationsByCliente = async (req, res) => {
   try {
     const { cliente_id } = req.params;
-    const reservations = await Reserva.getByClienteId(cliente_id);
-    // Similar to getAllReservations, ensure data mapping or view updates if model's output fields differ from view expectations.
-    // The view `cliente.ejs` also expects fields like `cliente_nombre`, `chofer_nombre`, etc.
-    // It also expects `fecha_reserva`, `fecha_inicio_alquiler`, `fecha_fin_alquiler`.
-    // The model provides `fecha`, `hora_inicio`, `hora_fin`.
+    const page = parseInt(req.query.page) || 1;
+    const limit = 10;
+    const offset = (page - 1) * limit;
+
+    const result = await Reserva.getByClienteIdPaginated(cliente_id, limit, offset);
+    const reservations = result.rows;
+    const totalItems = result.totalItems;
+    const totalPages = Math.ceil(totalItems / limit);
+
+    // Para obtener el nombre del cliente para el título de la página, si es necesario
+    // Esto podría hacerse de forma más eficiente, quizás el modelo ya lo devuelve o se hace una pequeña consulta adicional.
+    // Por ahora, si las reservas devuelven el nombre del cliente, se puede tomar de la primera.
+    const clienteNombre = reservations.length > 0 ? `${reservations[0].nombre_cliente} ${reservations[0].apellido_cliente}` : 'Cliente';
+
+
     res.render('reservas/cliente', {
-      reservations: reservations,
-      error: reservations.length === 0 ? 'No reservations found for this client' : null,
-      // Pass cliente_id if needed by the view, though it seems the view derives client name from the first reservation.
-      // clienteId: cliente_id
+      reservations,
+      error: reservations.length === 0 && page === 1 ? 'No reservations found for this client' : null,
+      currentPage: page,
+      totalPages,
+      totalItems,
+      clienteId: cliente_id, // Para construir los enlaces de paginación correctamente
+      clienteNombre // Para el título de la página
     });
   } catch (error) {
     console.error(`Error fetching reservations for client ${req.params.cliente_id} in controller:`, error);
     res.render('reservas/cliente', {
       reservations: [],
       error: 'Error fetching reservations for this client',
-      // clienteId: req.params.cliente_id
+      currentPage: 1,
+      totalPages: 0,
+      totalItems: 0,
+      clienteId: req.params.cliente_id,
+      clienteNombre: 'Cliente'
     });
   }
 };
@@ -180,21 +203,36 @@ const getReservationsByCliente = async (req, res) => {
 const getReservationsByChofer = async (req, res) => {
   try {
     const { chofer_id } = req.params;
-    const reservations = await Reserva.getByChoferId(chofer_id);
-    // Similar mapping/view update considerations as above.
-    // The view `chofer.ejs` expects fields like `chofer_nombre`, `cliente_nombre`, etc.
-    // and date fields like `fecha_reserva`, etc.
+    const page = parseInt(req.query.page) || 1;
+    const limit = 10;
+    const offset = (page - 1) * limit;
+
+    const result = await Reserva.getByChoferIdPaginated(chofer_id, limit, offset);
+    const reservations = result.rows;
+    const totalItems = result.totalItems;
+    const totalPages = Math.ceil(totalItems / limit);
+
+    const choferNombre = reservations.length > 0 ? `${reservations[0].nombre_chofer} ${reservations[0].apellido_chofer}` : 'Chofer';
+
     res.render('reservas/chofer', {
-      reservations: reservations,
-      error: reservations.length === 0 ? 'No reservations found for this chofer' : null,
-      // choferId: chofer_id
+      reservations,
+      error: reservations.length === 0 && page === 1 ? 'No reservations found for this chofer' : null,
+      currentPage: page,
+      totalPages,
+      totalItems,
+      choferId: chofer_id, // Para construir los enlaces de paginación correctamente
+      choferNombre // Para el título de la página
     });
   } catch (error) {
     console.error(`Error fetching reservations for chofer ${req.params.chofer_id} in controller:`, error);
     res.render('reservas/chofer', {
       reservations: [],
       error: 'Error fetching reservations for this chofer',
-      // choferId: req.params.chofer_id
+      currentPage: 1,
+      totalPages: 0,
+      totalItems: 0,
+      choferId: req.params.chofer_id,
+      choferNombre: 'Chofer'
     });
   }
 };

@@ -54,5 +54,46 @@
                 <% } %>
             </tbody>
         </table>
+
+        <% if (totalPages > 1) { %>
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    <% if (currentPage > 1) { %>
+                        <li class="page-item">
+                            <a class="page-link" href="/reservas?page=<%= currentPage - 1 %>">Anterior</a>
+                        </li>
+                    <% } else { %>
+                        <li class="page-item disabled">
+                            <span class="page-link">Anterior</span>
+                        </li>
+                    <% } %>
+
+                    <% for (let i = 1; i <= totalPages; i++) { %>
+                        <% if (i === currentPage) { %>
+                            <li class="page-item active" aria-current="page">
+                                <span class="page-link"><%= i %></span>
+                            </li>
+                        <% } else { %>
+                            <li class="page-item">
+                                <a class="page-link" href="/reservas?page=<%= i %>"><%= i %></a>
+                            </li>
+                        <% } %>
+                    <% } %>
+
+                    <% if (currentPage < totalPages) { %>
+                        <li class="page-item">
+                            <a class="page-link" href="/reservas?page=<%= currentPage + 1 %>">Siguiente</a>
+                        </li>
+                    <% } else { %>
+                        <li class="page-item disabled">
+                            <span class="page-link">Siguiente</span>
+                        </li>
+                    <% } %>
+                </ul>
+            </nav>
+        <% } %>
+        <% if (totalItems > 0) { %>
+          <p class="text-center">Mostrando <%= reservations.length %> de <%= totalItems %> reservas.</p>
+        <% } %>
     </div>
 
