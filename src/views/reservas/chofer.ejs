@@ -1,31 +1,31 @@
 
     <div class="container reservas-list-container">
-        <h1 class="page-title">Reservaciones para <%= choferNombre %></h1> <%# Usa la variable del controlador %>
+        <h1 class="page-title">Reservaciones para <%= choferNombre %></h1>
 
-        <form method="GET" action="/reservas/chofer/<%= choferId %>" class="mb-3">
-            <div class="row align-items-end">
-                <div class="col-md-3">
-                    <label for="estado" class="form-label">Filtrar por Estado:</label>
-                    <select name="estado" id="estado" class="form-select" onchange="this.form.submit()">
-                        <option value="" <%= currentEstado === '' ? 'selected' : '' %>>Todos</option>
-                        <option value="espera" <%= currentEstado === 'espera' ? 'selected' : '' %>>Espera</option>
-                        <option value="confirmada" <%= currentEstado === 'confirmada' ? 'selected' : '' %>>Confirmada</option>
-                        <option value="notificada" <%= currentEstado === 'notificada' ? 'selected' : '' %>>Notificada</option>
-                        <option value="finalizada" <%= currentEstado === 'finalizada' ? 'selected' : '' %>>Finalizada</option>
-                        <option value="cancelada" <%= currentEstado === 'cancelada' ? 'selected' : '' %>>Cancelada</option>
-                        <!-- No se incluye 'sin_chofer_disponible' ya que el chofer no vería reservas en ese estado asignadas a él -->
-                    </select>
+        <div class="controls-header mb-3">
+             <form method="GET" action="/reservas/chofer/<%= choferId %>" class="filter-sort-form filter-sort-form-alone">
+                <div class="row gx-2 align-items-end">
+                    <div class="col-auto">
+                        <label for="estado" class="form-label visually-hidden">Estado:</label>
+                        <select name="estado" id="estado" class="form-select form-select-sm" onchange="this.form.submit()">
+                            <option value="" <%= currentEstado === '' ? 'selected' : '' %>>Todos los Estados</option>
+                            <option value="espera" <%= currentEstado === 'espera' ? 'selected' : '' %>>Espera</option>
+                            <option value="confirmada" <%= currentEstado === 'confirmada' ? 'selected' : '' %>>Confirmada</option>
+                            <option value="notificada" <%= currentEstado === 'notificada' ? 'selected' : '' %>>Notificada</option>
+                            <option value="finalizada" <%= currentEstado === 'finalizada' ? 'selected' : '' %>>Finalizada</option>
+                            <option value="cancelada" <%= currentEstado === 'cancelada' ? 'selected' : '' %>>Cancelada</option>
+                        </select>
+                    </div>
+                    <div class="col-auto">
+                        <% if (currentEstado || queryParams.sortBy !=='fecha' || queryParams.sortOrder !=='desc') { %>
+                            <a href="/reservas/chofer/<%= choferId %>" class="btn btn-outline-secondary btn-sm">Limpiar</a>
+                        <% } %>
+                    </div>
                 </div>
-                 <div class="col-md-2">
-                    <button type="submit" class="btn btn-secondary">Filtrar</button>
-                     <% if (currentEstado || queryParams.sortBy !=='fecha' || queryParams.sortOrder !=='desc') { %>
-                        <a href="/reservas/chofer/<%= choferId %>" class="btn btn-outline-secondary ms-2">Limpiar</a>
-                    <% } %>
-                </div>
-            </div>
-            <input type="hidden" name="sortBy" value="<%= currentSortBy %>">
-            <input type="hidden" name="sortOrder" value="<%= currentSortOrder %>">
-        </form>
+                <input type="hidden" name="sortBy" value="<%= currentSortBy %>">
+                <input type="hidden" name="sortOrder" value="<%= currentSortOrder %>">
+            </form>
+        </div>
 
         <table class="content-table">
             <thead class="table-header">
@@ -42,7 +42,7 @@
                             searchParams.set('sortBy', columnName);
                             searchParams.set('sortOrder', newSortOrder);
                             searchParams.delete('page');
-                            return `<a href="/reservas/chofer/${choferId}?${searchParams.toString()}">${display}${icon}</a>`;
+                            return `<a href="/reservas/chofer/${choferId}?${searchParams.toString()}" class="sort-link">${display}${icon}</a>`;
                         };
                     %>
                     <th class="reservas-table-header"><%- buildSortLinkChofer('fecha', 'Fecha') %></th>

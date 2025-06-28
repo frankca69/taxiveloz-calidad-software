@@ -1,12 +1,54 @@
 
     <div class="container reservas-list-container">
         <h1 class="page-title">Reservaciones</h1>
-        <a href="/reservas/create" class="btn btn-primary mb-3">Crear Reserva</a>
 
-        <form method="GET" action="/reservas" class="mb-3">
-            <div class="row align-items-end">
-                <div class="col-md-3">
-                    <label for="estado" class="form-label">Filtrar por Estado:</label>
+        <div class="controls-header mb-3">
+            <a href="/reservas/create" class="btn btn-primary">Crear Reserva</a>
+            <form method="GET" action="/reservas" class="filter-sort-form">
+                <div class="row gx-2 align-items-end">
+                    <div class="col-auto">
+                        <label for="estado" class="form-label visually-hidden">Estado:</label>
+                        <select name="estado" id="estado" class="form-select form-select-sm" onchange="this.form.submit()">
+                            <option value="" <%= currentEstado === '' ? 'selected' : '' %>>Todos los Estados</option>
+                            <option value="espera" <%= currentEstado === 'espera' ? 'selected' : '' %>>Espera</option>
+                            <option value="confirmada" <%= currentEstado === 'confirmada' ? 'selected' : '' %>>Confirmada</option>
+                            <option value="notificada" <%= currentEstado === 'notificada' ? 'selected' : '' %>>Notificada</option>
+                            <option value="finalizada" <%= currentEstado === 'finalizada' ? 'selected' : '' %>>Finalizada</option>
+                            <option value="cancelada" <%= currentEstado === 'cancelada' ? 'selected' : '' %>>Cancelada</option>
+                            <option value="sin_chofer_disponible" <%= currentEstado === 'sin_chofer_disponible' ? 'selected' : '' %>>Sin Chofer</option>
+                        </select>
+                    </div>
+                    <div class="col-auto">
+                        <!-- El botón de submit es opcional si el select ya hace submit onchange -->
+                        <!-- <button type="submit" class="btn btn-secondary btn-sm">Filtrar</button> -->
+                        <% if (currentEstado || queryParams.sortBy !=='fecha' || queryParams.sortOrder !=='desc') { %>
+                            <a href="/reservas" class="btn btn-outline-secondary btn-sm">Limpiar</a>
+                        <% } %>
+                    </div>
+                </div>
+                <input type="hidden" name="sortBy" value="<%= currentSortBy %>">
+                <input type="hidden" name="sortOrder" value="<%= currentSortOrder %>">
+            </form>
+        </div>
+
+        <table class="content-table">
+            <thead class="table-header">
+                <tr>
+                    <%
+                        const buildSortLink = (columnName, display) => {
+                            let newSortOrder = 'asc';
+                            let icon = '';
+                            if (currentSortBy === columnName) {
+                                newSortOrder = currentSortOrder === 'asc' ? 'desc' : 'asc';
+                                icon = currentSortOrder === 'asc' ? ' &#9650;' : ' &#9660;';
+                            }
+                            const searchParams = new URLSearchParams(queryParams);
+                            searchParams.set('sortBy', columnName);
+                            searchParams.set('sortOrder', newSortOrder);
+                            searchParams.delete('page');
+                            return `<a href="/reservas?${searchParams.toString()}" class="sort-link">${display}${icon}</a>`;
+                        };
+                    %>
                     <select name="estado" id="estado" class="form-select" onchange="this.form.submit()">
                         <option value="" <%= currentEstado === '' ? 'selected' : '' %>>Todos</option>
                         <option value="espera" <%= currentEstado === 'espera' ? 'selected' : '' %>>Espera</option>

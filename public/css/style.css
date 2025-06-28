@@ -764,3 +764,101 @@ a:hover {
     color: #555;
     font-size: 0.9em;
 }
+
+/* Styles for filter/sort controls header */
+.controls-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem; /* Corresponde a mb-3 de Bootstrap */
+    flex-wrap: wrap; /* Para que en pantallas pequeñas los elementos se acomoden */
+}
+
+.filter-sort-form {
+    display: flex;
+    gap: 0.5rem; /* Espacio entre elementos del formulario */
+    align-items: center;
+}
+
+/* Cuando el formulario de filtros está solo (sin botón de crear a la izquierda) */
+.filter-sort-form-alone {
+    justify-content: flex-end; /* Alinea el formulario a la derecha */
+    width: 100%; /* Opcional, si se quiere que ocupe todo el espacio disponible */
+}
+
+/* Clases de Bootstrap que podríamos estar usando y que queremos definir si no están */
+.form-select {
+    display: block;
+    width: 100%;
+    padding: .375rem 2.25rem .375rem .75rem;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #212529;
+    background-color: #fff;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right .75rem center;
+    background-size: 16px 12px;
+    border: 1px solid #ced4da;
+    border-radius: .25rem;
+    appearance: none; /* Quita la apariencia nativa */
+}
+.form-select:focus {
+    border-color: #86b7fe;
+    outline: 0;
+    box-shadow: 0 0 0 .25rem rgba(13,110,253,.25);
+}
+
+
+.form-select-sm {
+    padding-top: .25rem;
+    padding-bottom: .25rem;
+    padding-left: .5rem;
+    font-size: .875em;
+}
+
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+}
+
+.btn-sm { /* Re-definido o confirmado */
+    padding: .25rem .5rem;
+    font-size: .875rem;
+    border-radius: .2rem;
+}
+.btn-outline-secondary {
+    color: #6c757d;
+    border-color: #6c757d;
+}
+.btn-outline-secondary:hover {
+    color: #fff;
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+.ms-2 { /* Margin start (left) */
+    margin-left: .5rem !important;
+}
+.gx-2 { /* Gutter x (horizontal) */
+    --bs-gutter-x: 0.5rem; /* Simula Bootstrap gutter */
+}
+
+
+/* Estilo para los enlaces de ordenamiento en las cabeceras de tabla */
+.table-header a.sort-link,
+.table-header a.sort-link:visited {
+    color: #ffffff;
+    text-decoration: none;
+}
+
+.table-header a.sort-link:hover {
+    color: #e0e0e0;
+    text-decoration: underline;
+}
