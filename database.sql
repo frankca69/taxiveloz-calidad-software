@@ -75,6 +75,6 @@ CREATE TABLE reservas (
     destino VARCHAR(100),
     tarifa NUMERIC(10, 2),
     tipo_pago VARCHAR(20) CHECK (tipo_pago IN ('efectivo', 'virtual')),
-    estado VARCHAR(20) DEFAULT 'espera' CHECK (estado IN ('espera', 'confirmada', 'notificada', 'finalizada', 'eliminada'))
+    estado VARCHAR(30) DEFAULT 'espera' CHECK (estado IN ('espera', 'confirmada', 'notificada', 'finalizada', 'eliminada', 'sin_chofer_disponible'))
 );
 

@@ -1,0 +1,225 @@
+<div class="container mt-5">
+    <h2>Editar Reserva</h2>
+
+    <% if (typeof error !== 'undefined' && error) { %>
+        <div class="alert alert-danger" role="alert">
+            <%= error %>
+        </div>
+    <% } %>
+
+    <% if (typeof reserva === 'undefined' || !reserva) { %>
+        <div class="alert alert-warning" role="alert">
+            No se pudieron cargar los datos de la reserva para editar.
+        </div>
+    <% } else { %>
+        <form action="/reservas/edit/<%= reserva.id_reserva %>" method="POST">
+             <%
+                let fechaFormateada = '';
+                if (reserva.fecha) {
+                    const d = new Date(reserva.fecha);
+                    const offset = d.getTimezoneOffset();
+                    const dCorrected = new Date(d.getTime() - (offset*60*1000));
+                    fechaFormateada = dCorrected.toISOString().split('T')[0];
+                }
+                const horaInicioFormateada = reserva.hora_inicio ? reserva.hora_inicio.substring(0,5) : '';
+                const horaFinFormateada = reserva.hora_fin ? reserva.hora_fin.substring(0,5) : '';
+            %>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label for="fecha" class="form-label">Fecha*</label>
+                    <input type="date" class="form-control" id="fecha" name="fecha" value="<%= fechaFormateada %>" required>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="hora_inicio" class="form-label">Hora de Inicio*</label>
+                    <input type="time" class="form-control" id="hora_inicio" name="hora_inicio" value="<%= horaInicioFormateada %>" required>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="hora_fin" class="form-label">Hora de Fin*</label>
+                    <input type="time" class="form-control" id="hora_fin" name="hora_fin" value="<%= horaFinFormateada %>" required>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="chofer_id" class="form-label">Chofer y Vehículo*</label>
+                <select class="form-select" id="chofer_id" name="chofer_id" required>
+                    <!-- Las opciones se cargarán dinámicamente, pero podemos preseleccionar si es posible -->
+                    <option value="">Seleccione fecha y horas para ver choferes disponibles</option>
+                     <% if (typeof choferes !== 'undefined' && choferes.length > 0) { %>
+                        <% choferes.forEach(chofer => { %>
+                            <option value="<%= chofer.id %>" <%= (reserva.id_chofer == chofer.id) ? 'selected' : '' %>>
+                                <%= chofer.display_name %>
+                            </option>
+                        <% }); %>
+                    <% } %>
+                </select>
+                <div id="chofer_loading" style="display: none;">Consultando disponibilidad...</div>
+            </div>
+
+            <div class="mb-3">
+                <label for="cliente_id" class="form-label">Cliente*</label>
+                <select class="form-select" id="cliente_id" name="cliente_id" required>
+                    <option value="">Seleccione un cliente</option>
+                    <% clientes.forEach(cliente => { %>
+                        <option value="<%= cliente.id %>" <%= (reserva.id_cliente == cliente.id) ? 'selected' : '' %>>
+                            <%= cliente.display_name %>
+                        </option>
+                    <% }); %>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="tarifa" class="form-label">Tarifa*</label>
+                <input type="number" step="0.01" class="form-control" id="tarifa" name="tarifa" value="<%= reserva.tarifa %>" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="origen" class="form-label">Origen</label>
+                <input type="text" class="form-control" id="origen" name="origen" value="<%= reserva.origen || '' %>">
+            </div>
+
+            <div class="mb-3">
+                <label for="destino" class="form-label">Destino</label>
+                <input type="text" class="form-control" id="destino" name="destino" value="<%= reserva.destino || '' %>">
+            </div>
+
+            <div class="mb-3">
+                <label for="tipo_pago" class="form-label">Tipo de Pago*</label>
+                <select class="form-select" id="tipo_pago" name="tipo_pago" required>
+                    <option value="">Seleccione un tipo de pago</option>
+                    <option value="efectivo" <%= (reserva.tipo_pago === 'efectivo') ? 'selected' : '' %>>Efectivo</option>
+                    <option value="virtual" <%= (reserva.tipo_pago === 'virtual') ? 'selected' : '' %>>Virtual</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="estado" class="form-label">Estado</label>
+                <select class="form-select" id="estado" name="estado">
+                    <option value="espera" <%= (reserva.estado_reserva === 'espera') ? 'selected' : '' %>>Espera</option>
+                    <option value="confirmada" <%= (reserva.estado_reserva === 'confirmada') ? 'selected' : '' %>>Confirmada</option>
+                    <option value="notificada" <%= (reserva.estado_reserva === 'notificada') ? 'selected' : '' %>>Notificada</option>
+                    <option value="finalizada" <%= (reserva.estado_reserva === 'finalizada') ? 'selected' : '' %>>Finalizada</option>
+                    <option value="cancelada" <%= (reserva.estado_reserva === 'cancelada') ? 'selected' : '' %>>Cancelada</option>
+                    <!-- No se incluye 'eliminada' como opción seleccionable en edición normal -->
+                </select>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Actualizar Reserva</button>
+            <a href="/reservas" class="btn btn-secondary">Cancelar</a>
+        </form>
+    <% } %>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const fechaInput = document.getElementById('fecha');
+    const horaInicioInput = document.getElementById('hora_inicio');
+    const horaFinInput = document.getElementById('hora_fin');
+    const choferSelect = document.getElementById('chofer_id');
+    const choferLoadingDiv = document.getElementById('chofer_loading');
+    const currentReservaId = "<%= (typeof reserva !== 'undefined' && reserva.id_reserva) ? reserva.id_reserva : '' %>";
+    const initialChoferId = "<%= (typeof reserva !== 'undefined' && reserva.id_chofer) ? reserva.id_chofer : '' %>";
+
+    function fetchChoferesDisponibles() {
+        const fecha = fechaInput.value;
+        const horaInicio = horaInicioInput.value;
+        const horaFin = horaFinInput.value;
+
+        if (fecha && horaInicio && horaFin) {
+            choferSelect.disabled = true;
+            choferSelect.innerHTML = '<option value="">Cargando choferes...</option>';
+            choferLoadingDiv.style.display = 'block';
+
+            if (horaFin <= horaInicio) {
+                choferSelect.innerHTML = '<option value="">Hora de fin debe ser posterior a hora de inicio</option>';
+                choferLoadingDiv.style.display = 'none';
+                return;
+            }
+
+            const queryParams = new URLSearchParams({
+                fecha,
+                hora_inicio: horaInicio,
+                hora_fin: horaFin,
+            });
+            if (currentReservaId) {
+                queryParams.append('reserva_id_actual', currentReservaId);
+            }
+
+            fetch(`/choferes/disponibles?${queryParams.toString()}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Error HTTP: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    choferSelect.innerHTML = ''; // Limpiar opciones anteriores
+                    let initialChoferStillAvailable = false;
+                    if (data.choferes && data.choferes.length > 0) {
+                        choferSelect.appendChild(new Option('Seleccione un chofer y vehículo', ''));
+                        data.choferes.forEach(chofer => {
+                            const option = new Option(chofer.display_name, chofer.id);
+                            choferSelect.appendChild(option);
+                            if (chofer.id.toString() === initialChoferId) {
+                                initialChoferStillAvailable = true;
+                            }
+                        });
+                         // Si el chofer original sigue disponible (o es la misma reserva), preseleccionarlo.
+                        if (initialChoferStillAvailable) {
+                            choferSelect.value = initialChoferId;
+                        } else if (data.choferes.length > 0 && initialChoferId && !initialChoferStillAvailable) {
+                            // Si el chofer original ya no está disponible, pero hay otros,
+                            // se podría añadir un mensaje o simplemente dejar que el usuario seleccione uno nuevo.
+                            // Por ahora, se deja que el usuario seleccione.
+                            // Opcionalmente, se podría añadir el chofer original a la lista si es la misma reserva
+                            // y el backend lo permite (excluyéndolo del chequeo de conflicto).
+                        }
+                        choferSelect.disabled = false;
+                    } else {
+                        // Si el chofer original era el único y ahora no está disponible (y no es la misma reserva),
+                        // o si no había chofer original y no hay disponibles.
+                        choferSelect.appendChild(new Option('No hay choferes disponibles para este horario', ''));
+                         // Mantener deshabilitado si no hay opciones.
+                    }
+
+                })
+                .catch(error => {
+                    console.error('Error al cargar choferes:', error);
+                    choferSelect.innerHTML = '<option value="">Error al cargar choferes</option>';
+                })
+                .finally(() => {
+                    choferLoadingDiv.style.display = 'none';
+                });
+        } else {
+            choferSelect.disabled = true;
+            choferSelect.innerHTML = '<option value="">Seleccione fecha y horas para ver choferes disponibles</option>';
+        }
+    }
+
+    fechaInput.addEventListener('change', fetchChoferesDisponibles);
+    horaInicioInput.addEventListener('change', fetchChoferesDisponibles);
+    horaFinInput.addEventListener('change', fetchChoferesDisponibles);
+
+    // Cargar choferes al iniciar la página si ya hay fecha y hora
+    if (fechaInput.value && horaInicioInput.value && horaFinInput.value) {
+        fetchChoferesDisponibles();
+    } else {
+        // Si no hay fecha/hora inicial, mostrar el chofer original si existe,
+        // pero el select estará deshabilitado hasta que se ingrese fecha/hora.
+        // Esto es por si el usuario quiere ver quién estaba asignado antes de cambiar la fecha/hora.
+        if (initialChoferId && choferSelect.options.length <=1) { // si solo tiene la opcion default
+             const originalChoferOption = Array.from(choferSelect.options).find(opt => opt.value === initialChoferId);
+             if(originalChoferOption){
+                choferSelect.value = initialChoferId;
+             } else {
+                // Si el chofer original no está en la lista inicial (que puede estar vacía o solo con el placeholder)
+                // lo añadimos temporalmente para visualización, pero deshabilitado.
+                // Esto asume que `choferes` en el EJS podría no tener al chofer actual si no se pasó inicialmente.
+                // La lógica de `fetchChoferesDisponibles` lo reemplazará.
+                // Este caso es más complejo si la lista de `choferes` no se pasa completa al renderizar.
+                // Por ahora, se confía en que `fetchChoferesDisponibles` cargará la lista correcta.
+             }
+        }
+         choferSelect.disabled = true; // Asegurar que esté deshabilitado
+    }
+});
+</script>

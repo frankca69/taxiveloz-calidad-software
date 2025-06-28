@@ -1,18 +1,63 @@
 
     <div class="container reservas-list-container">
         <h1 class="page-title">Reservaciones</h1>
-        <a href="/reservas/create" class="btn btn-primary mb-3">Crear Reserva</a>
+
+        <div class="controls-header mb-3">
+            <a href="/reservas/create" class="btn btn-primary">Crear Reserva</a>
+            <form method="GET" action="/reservas" class="filter-sort-form">
+                <div class="row gx-2 align-items-end">
+                    <div class="col-auto">
+                        <label for="estado" class="form-label visually-hidden">Estado:</label>
+                        <select name="estado" id="estado" class="form-select form-select-sm" onchange="this.form.submit()">
+                            <option value="" <%= currentEstado === '' ? 'selected' : '' %>>Todos los Estados</option>
+                            <option value="espera" <%= currentEstado === 'espera' ? 'selected' : '' %>>Espera</option>
+                            <option value="confirmada" <%= currentEstado === 'confirmada' ? 'selected' : '' %>>Confirmada</option>
+                            <option value="notificada" <%= currentEstado === 'notificada' ? 'selected' : '' %>>Notificada</option>
+                            <option value="finalizada" <%= currentEstado === 'finalizada' ? 'selected' : '' %>>Finalizada</option>
+                            <option value="cancelada" <%= currentEstado === 'cancelada' ? 'selected' : '' %>>Cancelada</option>
+                            <option value="sin_chofer_disponible" <%= currentEstado === 'sin_chofer_disponible' ? 'selected' : '' %>>Sin Chofer</option>
+                        </select>
+                    </div>
+                    <div class="col-auto">
+                        <!-- El botón de submit es opcional si el select ya hace submit onchange -->
+                        <!-- <button type="submit" class="btn btn-secondary btn-sm">Filtrar</button> -->
+                        <% if (currentEstado || queryParams.sortBy !=='fecha' || queryParams.sortOrder !=='desc') { %>
+                            <a href="/reservas" class="btn btn-outline-secondary btn-sm">Limpiar</a>
+                        <% } %>
+                    </div>
+                </div>
+                <input type="hidden" name="sortBy" value="<%= currentSortBy %>">
+                <input type="hidden" name="sortOrder" value="<%= currentSortOrder %>">
+            </form>
+        </div>
+
         <table class="content-table">
             <thead class="table-header">
                 <tr>
-                    <th class="reservas-table-header">ID</th>
-                    <th class="reservas-table-header">Fecha</th>
-                    <th class="reservas-table-header">Hora de inicio</th>
-                    <th class="reservas-table-header">Hora de fin</th>
-                    <th class="reservas-table-header">Estado</th>
-                    <th class="reservas-table-header">Cliente</th>
-                    <th class="reservas-table-header">Conductor</th>
-                    <th class="reservas-table-header">Vehiculo</th>
+                    <%
+                        const buildSortLink = (columnName, display) => {
+                            let newSortOrder = 'asc';
+                            let icon = '';
+                            if (currentSortBy === columnName) {
+                                newSortOrder = currentSortOrder === 'asc' ? 'desc' : 'asc';
+                                icon = currentSortOrder === 'asc' ? ' &#9650;' : ' &#9660;';
+                            }
+                            const searchParams = new URLSearchParams(queryParams);
+                            searchParams.set('sortBy', columnName);
+                            searchParams.set('sortOrder', newSortOrder);
+                            searchParams.delete('page');
+                            return `<a href="/reservas?${searchParams.toString()}" class="sort-link">${display}${icon}</a>`;
+                        };
+                    %>
+                    <!-- ESTA SECCIÓN ESTABA DUPLICADA Y CAUSABA EL ERROR. SE ELIMINA. -->
+                    <th class="reservas-table-header"><%- buildSortLink('fecha', 'Fecha') %></th>
+                    <th class="reservas-table-header">Hora Inicio</th> <!-- No se suele ordenar por hora inicio sola sin fecha -->
+                    <th class="reservas-table-header"><%- buildSortLink('cliente', 'Cliente') %></th>
+                    <th class="reservas-table-header"><%- buildSortLink('chofer', 'Chofer') %></th>
+                    <th class="reservas-table-header">Origen</th>
+                    <th class="reservas-table-header"><%- buildSortLink('tarifa', 'Tarifa') %></th>
+                    <th class="reservas-table-header">Tipo Pago</th>
+                    <th class="reservas-table-header"><%- buildSortLink('estado', 'Estado') %></th>
                     <th class="reservas-table-header">Acciones</th>
                 </tr>
             </thead>
@@ -20,17 +65,30 @@
                 <% if (reservations && reservations.length > 0) { %>
                     <% reservations.forEach(reserva => { %>
                         <tr>
-                            <td class="reservas-table-cell"><%= reserva.id_reserva %></td>
                             <td class="reservas-table-cell"><%= new Date(reserva.fecha).toLocaleDateString('es-ES', { year: 'numeric', month: '2-digit', day: '2-digit' }) %></td>
                             <td class="reservas-table-cell"><%= new Date('1970-01-01T' + reserva.hora_inicio).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', hour12: false }) %></td>
-                            <td class="reservas-table-cell"><%= new Date('1970-01-01T' + reserva.hora_fin).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', hour12: false }) %></td>
-                            <td class="reservas-table-cell"><%= reserva.estado_reserva %></td>
                             <td class="reservas-table-cell"><%= reserva.nombre_cliente %> <%= reserva.apellido_cliente %></td>
                             <td class="reservas-table-cell"><%= reserva.nombre_chofer %> <%= reserva.apellido_chofer %></td>
-                            <td class="reservas-table-cell"><%= reserva.modelo_vehiculo %> (<%= reserva.placa_vehiculo %>)</td>
-                            <td class="reservas-table-cell"><a href="/reservas/<%= reserva.id_reserva %>" class="btn btn-sm btn-secondary">Detalles</a>
-                                                            <a href="/reservas/<%= reserva.id_reserva %>" class="btn btn-sm btn-secondary">Editar</a>
-                                                            <a href="/reservas/<%= reserva.id_reserva %>" class="btn btn-sm btn-secondary">Eliminar</a>
+                            <td class="reservas-table-cell"><%= reserva.origen %></td>
+                            <td class="reservas-table-cell"><%= reserva.tarifa.toLocaleString('es-ES', { style: 'currency', currency: 'EUR' }) %></td> <!-- Asumiendo EUR, ajustar si es otra moneda -->
+                            <td class="reservas-table-cell"><%= reserva.tipo_pago %></td>
+                            <td class="reservas-table-cell"><%= reserva.estado_reserva %></td>
+                            <td class="reservas-table-cell">
+                                <a href="/reservas/<%= reserva.id_reserva %>" class="btn btn-sm btn-info mb-1 d-block">Detalles</a>
+                                <!-- ID Reserva: <%= reserva.id_reserva %> (Solo para referencia si se necesita temporalmente) -->
+                                <% if (typeof user !== 'undefined' && (user.rol === 'admin' || user.rol === 'gerente')) { %>
+                                  <a href="/reservas/edit/<%= reserva.id_reserva %>" class="btn btn-sm btn-warning mb-1 d-block">Editar</a>
+                                <% } %>
+
+                                <% if (reserva.estado_reserva === 'confirmada' && typeof user !== 'undefined' && (user.rol === 'admin' || user.rol === 'gerente')) { %>
+                                    <form action="/reservas/<%= reserva.id_reserva %>/notificar" method="POST" style="display: inline;">
+                                        <button type="submit" class="btn btn-sm btn-success mb-1 d-block w-100">Notificar</button>
+                                    </form>
+                                <% } %>
+
+                                <form action="/reservas/<%= reserva.id_reserva %>/eliminar" method="POST" style="display: inline;" onsubmit="return confirm('¿Está seguro de que desea eliminar esta reserva?');">
+                                    <button type="submit" class="btn btn-sm btn-danger d-block w-100">Eliminar</button>
+                                </form>
                             </td>
                         </tr>
                     <% }); %>
@@ -41,5 +99,50 @@
                 <% } %>
             </tbody>
         </table>
+
+        <% if (totalPages > 1) { %>
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    <%
+                        const pageSortParams = new URLSearchParams(queryParams);
+                        pageSortParams.delete('page'); // El número de página se añadirá específicamente
+                    %>
+                    <% if (currentPage > 1) { %>
+                        <li class="page-item">
+                            <a class="page-link" href="/reservas?page=<%= currentPage - 1 %>&<%= pageSortParams.toString() %>">Anterior</a>
+                        </li>
+                    <% } else { %>
+                        <li class="page-item disabled">
+                            <span class="page-link">Anterior</span>
+                        </li>
+                    <% } %>
+
+                    <% for (let i = 1; i <= totalPages; i++) { %>
+                        <% if (i === currentPage) { %>
+                            <li class="page-item active" aria-current="page">
+                                <span class="page-link"><%= i %></span>
+                            </li>
+                        <% } else { %>
+                            <li class="page-item">
+                                <a class="page-link" href="/reservas?page=<%= i %>&<%= pageSortParams.toString() %>"><%= i %></a>
+                            </li>
+                        <% } %>
+                    <% } %>
+
+                    <% if (currentPage < totalPages) { %>
+                        <li class="page-item">
+                            <a class="page-link" href="/reservas?page=<%= currentPage + 1 %>&<%= pageSortParams.toString() %>">Siguiente</a>
+                        </li>
+                    <% } else { %>
+                        <li class="page-item disabled">
+                            <span class="page-link">Siguiente</span>
+                        </li>
+                    <% } %>
+                </ul>
+            </nav>
+        <% } %>
+        <% if (totalItems > 0) { %>
+            <p class="pagination-info">Mostrando <%= reservations.length %> de <%= totalItems %> reservas.</p>
+        <% } %>
     </div>
 

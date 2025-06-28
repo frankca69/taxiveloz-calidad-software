@@ -77,6 +77,67 @@ module.exports = {
   getById,
   updateChofer,
   updateEstado,
-  getAllActivosConVehiculo // Exportar la nueva función
+  getAllActivosConVehiculo, // Exportar la nueva función
+
+  /**
+   * Finds available choferes for a given date and time range, excluding a specific reservation if provided.
+   * @param {string} fecha - The date of the reservation (YYYY-MM-DD).
+   * @param {string} hora_inicio - The start time of the reservation (HH:MM:SS or HH:MM).
+   * @param {string} hora_fin - The end time of the reservation (HH:MM:SS or HH:MM).
+   * @param {number|string|null} reserva_id_actual - The ID of the current reservation being edited, to exclude from conflict checks.
+   * @param {Array<number|string>} choferes_a_excluir - An array of chofer IDs to exclude from the results.
+   * @returns {Promise<Array>} A promise that resolves to an array of available chofer objects with vehicle info.
+   */
+  findAvailable: async (fecha, hora_inicio, hora_fin, reserva_id_actual = null, choferes_a_excluir = []) => {
+    let query = `
+      SELECT
+          ch.id AS chofer_id,
+          ch.nombre AS chofer_nombre,
+          ch.apellido AS chofer_apellido,
+          v.placa AS vehiculo_placa,
+          v.modelo AS vehiculo_modelo
+      FROM choferes ch
+      JOIN vehiculos v ON ch.id = v.chofer_id
+      WHERE ch.estado = 'activo' AND v.estado = 'operativo'
+      AND ch.id NOT IN (
+          SELECT r.chofer_id
+          FROM reservas r
+          WHERE r.fecha = $1
+          AND r.estado NOT IN ('cancelada', 'finalizada', 'eliminada')
+          AND (
+              (r.hora_inicio < $3 AND r.hora_fin > $2) -- Solapamiento: la reserva existente se solapa con la nueva
+          )
+    `;
+
+    const params = [fecha, hora_inicio, hora_fin];
+
+    if (reserva_id_actual) {
+      query += ` AND r.id <> $${params.length + 1}`; // Excluir la reserva actual del chequeo
+      params.push(reserva_id_actual);
+    }
+
+    query += `
+      )`; // Cierre del NOT IN subquery
+
+    // Añadir exclusión de choferes específicos si el array tiene elementos
+    if (choferes_a_excluir && choferes_a_excluir.length > 0) {
+      // Crear placeholders para cada ID a excluir: $4, $5, etc.
+      const placeholders = choferes_a_excluir.map((_, index) => `$${params.length + 1 + index}`).join(', ');
+      query += ` AND ch.id NOT IN (${placeholders})`;
+      params.push(...choferes_a_excluir);
+    }
+
+    query += `
+      ORDER BY ch.nombre, ch.apellido;
+    `;
+
+    try {
+      const { rows } = await pool.query(query, params);
+      return rows;
+    } catch (error) {
+      console.error('Error finding available choferes:', error);
+      throw error;
+    }
+  }
 };
 

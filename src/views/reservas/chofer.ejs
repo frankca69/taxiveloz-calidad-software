@@ -1,16 +1,57 @@
 
     <div class="container reservas-list-container">
-        <h1 class="page-title">Reservaciones para <%= reservations && reservations.length > 0 ? reservations[0].nombre_chofer + ' ' + reservations[0].apellido_chofer : 'Driver' %></h1>
+        <h1 class="page-title">Reservaciones para <%= choferNombre %></h1>
+
+        <div class="controls-header mb-3">
+             <form method="GET" action="/reservas/chofer/<%= choferId %>" class="filter-sort-form filter-sort-form-alone">
+                <div class="row gx-2 align-items-end">
+                    <div class="col-auto">
+                        <label for="estado" class="form-label visually-hidden">Estado:</label>
+                        <select name="estado" id="estado" class="form-select form-select-sm" onchange="this.form.submit()">
+                            <option value="" <%= currentEstado === '' ? 'selected' : '' %>>Todos los Estados</option>
+                            <option value="espera" <%= currentEstado === 'espera' ? 'selected' : '' %>>Espera</option>
+                            <option value="confirmada" <%= currentEstado === 'confirmada' ? 'selected' : '' %>>Confirmada</option>
+                            <option value="notificada" <%= currentEstado === 'notificada' ? 'selected' : '' %>>Notificada</option>
+                            <option value="finalizada" <%= currentEstado === 'finalizada' ? 'selected' : '' %>>Finalizada</option>
+                            <option value="cancelada" <%= currentEstado === 'cancelada' ? 'selected' : '' %>>Cancelada</option>
+                        </select>
+                    </div>
+                    <div class="col-auto">
+                        <% if (currentEstado || queryParams.sortBy !=='fecha' || queryParams.sortOrder !=='desc') { %>
+                            <a href="/reservas/chofer/<%= choferId %>" class="btn btn-outline-secondary btn-sm">Limpiar</a>
+                        <% } %>
+                    </div>
+                </div>
+                <input type="hidden" name="sortBy" value="<%= currentSortBy %>">
+                <input type="hidden" name="sortOrder" value="<%= currentSortOrder %>">
+            </form>
+        </div>
+
         <table class="content-table">
             <thead class="table-header">
                 <tr>
-                    <th class="reservas-table-header">ID</th>
-                    <th class="reservas-table-header">Fecha</th>
-                    <th class="reservas-table-header">Fecha de inicio</th>
-                    <th class="reservas-table-header">Fecha de fin</th>
-                    <th class="reservas-table-header">Estado</th>
-                    <th class="reservas-table-header">Cliente</th>
-                    <th class="reservas-table-header">Vehiculo</th>
+                     <%
+                        const buildSortLinkChofer = (columnName, display) => {
+                            let newSortOrder = 'asc';
+                            let icon = '';
+                            if (currentSortBy === columnName) {
+                                newSortOrder = currentSortOrder === 'asc' ? 'desc' : 'asc';
+                                icon = currentSortOrder === 'asc' ? ' &#9650;' : ' &#9660;';
+                            }
+                            const searchParams = new URLSearchParams(queryParams);
+                            searchParams.set('sortBy', columnName);
+                            searchParams.set('sortOrder', newSortOrder);
+                            searchParams.delete('page');
+                            return `<a href="/reservas/chofer/${choferId}?${searchParams.toString()}" class="sort-link">${display}${icon}</a>`;
+                        };
+                    %>
+                    <th class="reservas-table-header"><%- buildSortLinkChofer('fecha', 'Fecha') %></th>
+                    <th class="reservas-table-header">Hora Inicio</th>
+                    <th class="reservas-table-header"><%- buildSortLinkChofer('cliente', 'Cliente') %></th>
+                    <th class="reservas-table-header">Origen</th>
+                    <th class="reservas-table-header"><%- buildSortLinkChofer('tarifa', 'Tarifa') %></th>
+                    <th class="reservas-table-header">Tipo Pago</th>
+                    <th class="reservas-table-header"><%- buildSortLinkChofer('estado', 'Estado') %></th>
                     <th class="reservas-table-header">Acciones</th>
                 </tr>
             </thead>
@@ -18,22 +59,84 @@
                 <% if (reservations && reservations.length > 0) { %>
                     <% reservations.forEach(reserva => { %>
                         <tr>
-                            <td class="reservas-table-cell"><%= reserva.id_reserva %></td>
                             <td class="reservas-table-cell"><%= new Date(reserva.fecha).toLocaleDateString('es-ES', { year: 'numeric', month: '2-digit', day: '2-digit' }) %></td>
                             <td class="reservas-table-cell"><%= new Date('1970-01-01T' + reserva.hora_inicio).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', hour12: false }) %></td>
-                            <td class="reservas-table-cell"><%= new Date('1970-01-01T' + reserva.hora_fin).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', hour12: false }) %></td>
-                            <td class="reservas-table-cell"><%= reserva.estado_reserva %></td>
                             <td class="reservas-table-cell"><%= reserva.nombre_cliente %> <%= reserva.apellido_cliente %></td>
-                            <td class="reservas-table-cell"><%= reserva.modelo_vehiculo %> (<%= reserva.placa_vehiculo %>)</td>
-                            <td class="reservas-table-cell"><a href="/reservas/<%= reserva.id_reserva %>" class="btn btn-sm btn-secondary">Detalle</a></td>
+                            <td class="reservas-table-cell"><%= reserva.origen %></td>
+                            <td class="reservas-table-cell"><%= reserva.tarifa.toLocaleString('es-ES', { style: 'currency', currency: 'EUR' }) %></td>
+                            <td class="reservas-table-cell"><%= reserva.tipo_pago %></td>
+                            <td class="reservas-table-cell"><%= reserva.estado_reserva %></td>
+                            <td class="reservas-table-cell">
+                                <a href="/reservas/<%= reserva.id_reserva %>" class="btn btn-sm btn-info mb-1 d-block">Detalle</a>
+                                <% if (reserva.estado_reserva === 'espera') { %>
+                                    <div class="d-flex flex-column">
+                                        <form action="/reservas/<%= reserva.id_reserva %>/confirmar" method="POST" class="mb-1">
+                                            <button type="submit" class="btn btn-sm btn-success w-100">Confirmar</button>
+                                        </form>
+                                        <form action="/reservas/<%= reserva.id_reserva %>/rechazar" method="POST">
+                                            <button type="submit" class="btn btn-sm btn-danger w-100" onclick="return confirm('¿Está seguro de que desea rechazar esta reserva? El sistema intentará reasignarla a otro chofer.');">Rechazar</button>
+                                        </form>
+                                    </div>
+                                <% } %>
+                                <% if (reserva.estado_reserva === 'notificada') { %>
+                                    <form action="/reservas/<%= reserva.id_reserva %>/finalizar" method="POST" class="mt-1">
+                                        <button type="submit" class="btn btn-sm btn-primary d-block w-100">Finalizar</button>
+                                    </form>
+                                <% } %>
+                            </td>
                         </tr>
                     <% }); %>
                 <% } else { %>
                     <tr>
-                        <td colspan="8">No se encontro reservaciones para este chofer.</td>
+                        <td colspan="8">No se encontraron reservaciones para este chofer.</td>
                     </tr>
                 <% } %>
             </tbody>
         </table>
+
+        <% if (totalPages > 1) { %>
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    <%
+                        const pageSortParamsChofer = new URLSearchParams(queryParams);
+                        pageSortParamsChofer.delete('page');
+                    %>
+                    <% if (currentPage > 1) { %>
+                        <li class="page-item">
+                            <a class="page-link" href="/reservas/chofer/<%= choferId %>?page=<%= currentPage - 1 %>&<%= pageSortParamsChofer.toString() %>">Anterior</a>
+                        </li>
+                    <% } else { %>
+                        <li class="page-item disabled">
+                            <span class="page-link">Anterior</span>
+                        </li>
+                    <% } %>
+
+                    <% for (let i = 1; i <= totalPages; i++) { %>
+                        <% if (i === currentPage) { %>
+                            <li class="page-item active" aria-current="page">
+                                <span class="page-link"><%= i %></span>
+                            </li>
+                        <% } else { %>
+                            <li class="page-item">
+                                <a class="page-link" href="/reservas/chofer/<%= choferId %>?page=<%= i %>&<%= pageSortParamsChofer.toString() %>"><%= i %></a>
+                            </li>
+                        <% } %>
+                    <% } %>
+
+                    <% if (currentPage < totalPages) { %>
+                        <li class="page-item">
+                            <a class="page-link" href="/reservas/chofer/<%= choferId %>?page=<%= currentPage + 1 %>&<%= pageSortParamsChofer.toString() %>">Siguiente</a>
+                        </li>
+                    <% } else { %>
+                        <li class="page-item disabled">
+                            <span class="page-link">Siguiente</span>
+                        </li>
+                    <% } %>
+                </ul>
+            </nav>
+        <% } %>
+        <% if (totalItems > 0) { %>
+            <p class="pagination-info">Mostrando <%= reservations.length %> de <%= totalItems %> reservas para <%= choferNombre %>.</p>
+        <% } %>
     </div>
 
