@@ -2,17 +2,62 @@
     <div class="container reservas-list-container">
         <h1 class="page-title">Reservaciones</h1>
         <a href="/reservas/create" class="btn btn-primary mb-3">Crear Reserva</a>
+
+        <form method="GET" action="/reservas" class="mb-3">
+            <div class="row align-items-end">
+                <div class="col-md-3">
+                    <label for="estado" class="form-label">Filtrar por Estado:</label>
+                    <select name="estado" id="estado" class="form-select" onchange="this.form.submit()">
+                        <option value="" <%= currentEstado === '' ? 'selected' : '' %>>Todos</option>
+                        <option value="espera" <%= currentEstado === 'espera' ? 'selected' : '' %>>Espera</option>
+                        <option value="confirmada" <%= currentEstado === 'confirmada' ? 'selected' : '' %>>Confirmada</option>
+                        <option value="notificada" <%= currentEstado === 'notificada' ? 'selected' : '' %>>Notificada</option>
+                        <option value="finalizada" <%= currentEstado === 'finalizada' ? 'selected' : '' %>>Finalizada</option>
+                        <option value="cancelada" <%= currentEstado === 'cancelada' ? 'selected' : '' %>>Cancelada</option>
+                        <option value="sin_chofer_disponible" <%= currentEstado === 'sin_chofer_disponible' ? 'selected' : '' %>>Sin Chofer Disponible</option>
+                    </select>
+                </div>
+                <!-- Otros filtros o campos de ordenamiento podrían ir aquí -->
+                 <div class="col-md-2">
+                    <!-- Botón para limpiar filtros/orden si es necesario, o simplemente reenviar el form -->
+                    <button type="submit" class="btn btn-secondary">Filtrar</button>
+                     <% if (currentEstado || queryParams.sortBy !=='fecha' || queryParams.sortOrder !=='desc') { %>
+                        <a href="/reservas" class="btn btn-outline-secondary ms-2">Limpiar</a>
+                    <% } %>
+                </div>
+            </div>
+             <!-- Hidden inputs for sorting to persist them on form submit if estado changes -->
+            <input type="hidden" name="sortBy" value="<%= currentSortBy %>">
+            <input type="hidden" name="sortOrder" value="<%= currentSortOrder %>">
+        </form>
+
         <table class="content-table">
             <thead class="table-header">
                 <tr>
-                    <th class="reservas-table-header">Fecha</th>
-                    <th class="reservas-table-header">Hora Inicio</th>
-                    <th class="reservas-table-header">Cliente</th>
-                    <th class="reservas-table-header">Chofer</th>
+                    <%
+                        const buildSortLink = (columnName, display) => {
+                            let newSortOrder = 'asc';
+                            let icon = '';
+                            if (currentSortBy === columnName) {
+                                newSortOrder = currentSortOrder === 'asc' ? 'desc' : 'asc';
+                                icon = currentSortOrder === 'asc' ? ' &#9650;' : ' &#9660;'; // Triángulo arriba/abajo
+                            }
+                            // Mantener otros queryParams como 'estado' y 'page' (page se resetea a 1 al cambiar orden)
+                            const searchParams = new URLSearchParams(queryParams);
+                            searchParams.set('sortBy', columnName);
+                            searchParams.set('sortOrder', newSortOrder);
+                            searchParams.delete('page'); // Reset page to 1 on new sort
+                            return `<a href="/reservas?${searchParams.toString()}">${display}${icon}</a>`;
+                        };
+                    %>
+                    <th class="reservas-table-header"><%- buildSortLink('fecha', 'Fecha') %></th>
+                    <th class="reservas-table-header">Hora Inicio</th> <!-- No se suele ordenar por hora inicio sola sin fecha -->
+                    <th class="reservas-table-header"><%- buildSortLink('cliente', 'Cliente') %></th>
+                    <th class="reservas-table-header"><%- buildSortLink('chofer', 'Chofer') %></th>
                     <th class="reservas-table-header">Origen</th>
-                    <th class="reservas-table-header">Tarifa</th>
+                    <th class="reservas-table-header"><%- buildSortLink('tarifa', 'Tarifa') %></th>
                     <th class="reservas-table-header">Tipo Pago</th>
-                    <th class="reservas-table-header">Estado</th>
+                    <th class="reservas-table-header"><%- buildSortLink('estado', 'Estado') %></th>
                     <th class="reservas-table-header">Acciones</th>
                 </tr>
             </thead>
@@ -58,9 +103,13 @@
         <% if (totalPages > 1) { %>
             <nav aria-label="Page navigation">
                 <ul class="pagination justify-content-center">
+                    <%
+                        const pageSortParams = new URLSearchParams(queryParams);
+                        pageSortParams.delete('page'); // El número de página se añadirá específicamente
+                    %>
                     <% if (currentPage > 1) { %>
                         <li class="page-item">
-                            <a class="page-link" href="/reservas?page=<%= currentPage - 1 %>">Anterior</a>
+                            <a class="page-link" href="/reservas?page=<%= currentPage - 1 %>&<%= pageSortParams.toString() %>">Anterior</a>
                         </li>
                     <% } else { %>
                         <li class="page-item disabled">
@@ -75,14 +124,14 @@
                             </li>
                         <% } else { %>
                             <li class="page-item">
-                                <a class="page-link" href="/reservas?page=<%= i %>"><%= i %></a>
+                                <a class="page-link" href="/reservas?page=<%= i %>&<%= pageSortParams.toString() %>"><%= i %></a>
                             </li>
                         <% } %>
                     <% } %>
 
                     <% if (currentPage < totalPages) { %>
                         <li class="page-item">
-                            <a class="page-link" href="/reservas?page=<%= currentPage + 1 %>">Siguiente</a>
+                            <a class="page-link" href="/reservas?page=<%= currentPage + 1 %>&<%= pageSortParams.toString() %>">Siguiente</a>
                         </li>
                     <% } else { %>
                         <li class="page-item disabled">

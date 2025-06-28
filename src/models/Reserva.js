@@ -408,7 +408,30 @@ class Reserva {
         }
     }
 
-    static async getAllPaginated(limit, offset) {
+    static async getAllPaginated(limit, offset, estado = '', sortBy = 'fecha', sortOrder = 'desc') {
+        let queryParams = [limit, offset];
+        let countQueryParams = [];
+
+        let whereClause = "WHERE r.estado <> 'eliminada'";
+        if (estado) {
+            whereClause += ` AND r.estado = $${queryParams.length + 1}`;
+            queryParams.push(estado);
+            countQueryParams.push(estado); // Mismo estado para la consulta de conteo
+        }
+
+        // Validación de sortBy para evitar inyección SQL
+        const allowedSortBy = {
+            'fecha': 'r.fecha',
+            'tarifa': 'r.tarifa',
+            'estado': 'r.estado', // Asumiendo que quieres ordenar por el string del estado
+            'cliente': 'nombre_cliente', // Ordenar por nombre de cliente
+            'chofer': 'nombre_chofer' // Ordenar por nombre de chofer
+        };
+        const orderByColumn = allowedSortBy[sortBy.toLowerCase()] || 'r.fecha'; // Default a r.fecha si no es válido
+
+        // Validación de sortOrder
+        const orderDirection = sortOrder.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
+
         const query = `
             SELECT
                 r.id AS id_reserva, r.fecha, r.hora_inicio, r.hora_fin, r.origen, r.destino,
@@ -422,14 +445,28 @@ class Reserva {
             LEFT JOIN clientes c ON r.cliente_id = c.id
             LEFT JOIN choferes ch ON r.chofer_id = ch.id
             LEFT JOIN vehiculos v ON ch.id = v.chofer_id
-            WHERE r.estado <> 'eliminada'
-            ORDER BY r.fecha DESC, r.hora_inicio DESC
+            ${whereClause}
+            ORDER BY ${orderByColumn} ${orderDirection}, r.hora_inicio ${orderDirection}
             LIMIT $1 OFFSET $2;
         `;
-        const countQuery = "SELECT COUNT(*) FROM reservas WHERE estado <> 'eliminada';";
+
+        let countQueryBase = "SELECT COUNT(*) FROM reservas r "; // Alias r para consistencia con whereClause si se usa
+        let countQuery = countQueryBase + whereClause.replace(/r\.estado = \$[0-9]+/g, (match) => {
+            // Ajustar el índice del placeholder para countQueryParams
+            // Si estado es $3 en queryParams (limit=$1, offset=$2, estado=$3)
+            // será $1 en countQueryParams
+            const paramIndex = queryParams.indexOf(estado); // Encuentra el índice de 'estado' en queryParams
+            if (paramIndex !== -1) { // Si 'estado' está en queryParams
+                 // El índice en countQueryParams es +1 porque los placeholders son 1-based
+                return `r.estado = $${countQueryParams.indexOf(queryParams[paramIndex]) + 1}`;
+            }
+            return match; // No debería llegar aquí si el estado está presente
+        });
+
+
         try {
-            const { rows } = await pool.query(query, [limit, offset]);
-            const countResult = await pool.query(countQuery);
+            const { rows } = await pool.query(query, queryParams);
+            const countResult = await pool.query(countQuery, countQueryParams);
             const totalItems = parseInt(countResult.rows[0].count, 10);
             return { rows, totalItems };
         } catch (error) {
@@ -438,7 +475,26 @@ class Reserva {
         }
     }
 
-    static async getByClienteIdPaginated(clienteId, limit, offset) {
+    static async getByClienteIdPaginated(clienteId, limit, offset, estado = '', sortBy = 'fecha', sortOrder = 'desc') {
+        let queryParams = [clienteId, limit, offset];
+        let countQueryParams = [clienteId];
+
+        let whereClause = "WHERE r.cliente_id = $1 AND r.estado <> 'eliminada'";
+        if (estado) {
+            whereClause += ` AND r.estado = $${queryParams.length + 1}`; // Será $4
+            queryParams.push(estado);
+            countQueryParams.push(estado); // Será $2
+        }
+
+        const allowedSortBy = {
+            'fecha': 'r.fecha',
+            'tarifa': 'r.tarifa',
+            'estado': 'r.estado',
+            'chofer': 'nombre_chofer'
+        };
+        const orderByColumn = allowedSortBy[sortBy.toLowerCase()] || 'r.fecha';
+        const orderDirection = sortOrder.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
+
         const query = `
             SELECT
                 r.id AS id_reserva, r.fecha, r.hora_inicio, r.hora_fin, r.origen, r.destino,
@@ -450,14 +506,19 @@ class Reserva {
             LEFT JOIN clientes c ON r.cliente_id = c.id
             LEFT JOIN choferes ch ON r.chofer_id = ch.id
             LEFT JOIN vehiculos v ON ch.id = v.chofer_id
-            WHERE r.cliente_id = $1 AND r.estado <> 'eliminada'
-            ORDER BY r.fecha DESC, r.hora_inicio DESC
+            ${whereClause}
+            ORDER BY ${orderByColumn} ${orderDirection}, r.hora_inicio ${orderDirection}
             LIMIT $2 OFFSET $3;
         `;
-        const countQuery = "SELECT COUNT(*) FROM reservas WHERE cliente_id = $1 AND estado <> 'eliminada';";
+        // Ajuste para countQuery: r.cliente_id = $1, y si hay estado, r.estado = $2
+        let countQuery = `SELECT COUNT(*) FROM reservas r WHERE r.cliente_id = $1 AND r.estado <> 'eliminada'`;
+        if (estado) {
+            countQuery += ` AND r.estado = $2`;
+        }
+
         try {
-            const { rows } = await pool.query(query, [clienteId, limit, offset]);
-            const countResult = await pool.query(countQuery, [clienteId]);
+            const { rows } = await pool.query(query, queryParams);
+            const countResult = await pool.query(countQuery, countQueryParams);
             const totalItems = parseInt(countResult.rows[0].count, 10);
             return { rows, totalItems };
         } catch (error) {
@@ -466,7 +527,26 @@ class Reserva {
         }
     }
 
-    static async getByChoferIdPaginated(choferId, limit, offset) {
+    static async getByChoferIdPaginated(choferId, limit, offset, estado = '', sortBy = 'fecha', sortOrder = 'desc') {
+        let queryParams = [choferId, limit, offset];
+        let countQueryParams = [choferId];
+
+        let whereClause = "WHERE r.chofer_id = $1 AND r.estado <> 'eliminada'";
+        if (estado) {
+            whereClause += ` AND r.estado = $${queryParams.length + 1}`; // Será $4
+            queryParams.push(estado);
+            countQueryParams.push(estado); // Será $2
+        }
+
+        const allowedSortBy = {
+            'fecha': 'r.fecha',
+            'tarifa': 'r.tarifa',
+            'estado': 'r.estado',
+            'cliente': 'nombre_cliente'
+        };
+        const orderByColumn = allowedSortBy[sortBy.toLowerCase()] || 'r.fecha';
+        const orderDirection = sortOrder.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
+
         const query = `
             SELECT
                 r.id AS id_reserva, r.fecha, r.hora_inicio, r.hora_fin, r.origen, r.destino,
@@ -478,14 +558,19 @@ class Reserva {
             LEFT JOIN clientes c ON r.cliente_id = c.id
             LEFT JOIN choferes ch ON r.chofer_id = ch.id
             LEFT JOIN vehiculos v ON ch.id = v.chofer_id
-            WHERE r.chofer_id = $1 AND r.estado <> 'eliminada'
-            ORDER BY r.fecha DESC, r.hora_inicio DESC
+            ${whereClause}
+            ORDER BY ${orderByColumn} ${orderDirection}, r.hora_inicio ${orderDirection}
             LIMIT $2 OFFSET $3;
         `;
-        const countQuery = "SELECT COUNT(*) FROM reservas res WHERE res.chofer_id = $1 AND res.estado <> 'eliminada';"; // Alias 'res'
+
+        let countQuery = `SELECT COUNT(*) FROM reservas r WHERE r.chofer_id = $1 AND r.estado <> 'eliminada'`;
+        if (estado) {
+            countQuery += ` AND r.estado = $2`;
+        }
+
         try {
-            const { rows } = await pool.query(query, [choferId, limit, offset]);
-            const countResult = await pool.query(countQuery, [choferId]);
+            const { rows } = await pool.query(query, queryParams);
+            const countResult = await pool.query(countQuery, countQueryParams);
             const totalItems = parseInt(countResult.rows[0].count, 10);
             return { rows, totalItems };
         } catch (error) {

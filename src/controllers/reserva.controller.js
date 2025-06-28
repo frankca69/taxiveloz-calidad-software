@@ -133,7 +133,12 @@ const getAllReservations = async (req, res) => {
     const limit = 10;
     const offset = (page - 1) * limit;
 
-    const result = await Reserva.getAllPaginated(limit, offset);
+    // Nuevos parámetros para filtro y orden
+    const estado = req.query.estado || ''; // '' o null para 'todos'
+    const sortBy = req.query.sortBy || 'fecha'; // Columna por defecto para ordenar
+    const sortOrder = req.query.sortOrder || 'desc'; // Orden por defecto
+
+    const result = await Reserva.getAllPaginated(limit, offset, estado, sortBy, sortOrder);
     const reservations = result.rows;
     const totalItems = result.totalItems;
     const totalPages = Math.ceil(totalItems / limit);
@@ -143,7 +148,11 @@ const getAllReservations = async (req, res) => {
       error: null,
       currentPage: page,
       totalPages,
-      totalItems
+      totalItems,
+      currentEstado: estado, // Pasar el estado actual a la vista
+      currentSortBy: sortBy,
+      currentSortOrder: sortOrder,
+      queryParams: req.query // Para ayudar a construir enlaces en la vista
     });
   } catch (error) {
     console.error("Error fetching all reservations in controller:", error);
@@ -165,7 +174,11 @@ const getReservationsByCliente = async (req, res) => {
     const limit = 10;
     const offset = (page - 1) * limit;
 
-    const result = await Reserva.getByClienteIdPaginated(cliente_id, limit, offset);
+    const estado = req.query.estado || '';
+    const sortBy = req.query.sortBy || 'fecha';
+    const sortOrder = req.query.sortOrder || 'desc';
+
+    const result = await Reserva.getByClienteIdPaginated(cliente_id, limit, offset, estado, sortBy, sortOrder);
     const reservations = result.rows;
     const totalItems = result.totalItems;
     const totalPages = Math.ceil(totalItems / limit);
@@ -182,8 +195,12 @@ const getReservationsByCliente = async (req, res) => {
       currentPage: page,
       totalPages,
       totalItems,
-      clienteId: cliente_id, // Para construir los enlaces de paginación correctamente
-      clienteNombre // Para el título de la página
+      clienteId: cliente_id,
+      clienteNombre,
+      currentEstado: estado,
+      currentSortBy: sortBy,
+      currentSortOrder: sortOrder,
+      queryParams: req.query
     });
   } catch (error) {
     console.error(`Error fetching reservations for client ${req.params.cliente_id} in controller:`, error);
@@ -207,7 +224,11 @@ const getReservationsByChofer = async (req, res) => {
     const limit = 10;
     const offset = (page - 1) * limit;
 
-    const result = await Reserva.getByChoferIdPaginated(chofer_id, limit, offset);
+    const estado = req.query.estado || '';
+    const sortBy = req.query.sortBy || 'fecha';
+    const sortOrder = req.query.sortOrder || 'desc';
+
+    const result = await Reserva.getByChoferIdPaginated(chofer_id, limit, offset, estado, sortBy, sortOrder);
     const reservations = result.rows;
     const totalItems = result.totalItems;
     const totalPages = Math.ceil(totalItems / limit);
@@ -220,8 +241,12 @@ const getReservationsByChofer = async (req, res) => {
       currentPage: page,
       totalPages,
       totalItems,
-      choferId: chofer_id, // Para construir los enlaces de paginación correctamente
-      choferNombre // Para el título de la página
+      choferId: chofer_id,
+      choferNombre,
+      currentEstado: estado,
+      currentSortBy: sortBy,
+      currentSortOrder: sortOrder,
+      queryParams: req.query
     });
   } catch (error) {
     console.error(`Error fetching reservations for chofer ${req.params.chofer_id} in controller:`, error);
