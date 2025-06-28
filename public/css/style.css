@@ -23,6 +23,35 @@ body {
     text-align: center;
 }
 
+/* Responsive adjustments for navigation */
+@media (max-width: 768px) {
+    .site-nav {
+        flex-direction: column; /* Stack nav items vertically */
+        align-items: center; /* Center items when stacked */
+    }
+
+    .site-nav .nav-link,
+    .site-nav .logout-form,
+    .site-nav .nav-separator {
+        margin: 5px 0; /* Adjust margin for vertical layout */
+    }
+
+    .logout-form {
+        margin-left: 0; /* Remove left margin when stacked */
+        margin-top: 10px; /* Add some space above logout button */
+    }
+
+    .nav-separator {
+        display: none; /* Hide separators on smaller screens for a cleaner look */
+    }
+}
+
+.main-header .nav-link { /* Be specific for header links */
+    color: #fff;
+    padding: 1rem 0;
+    text-align: center;
+}
+
 .main-header .nav-link { /* Be specific for header links */
     color: #fff;
     text-decoration: none;
@@ -109,9 +138,56 @@ body {
     text-decoration: underline;
 }
 
+/* === Responsive Table Column Visibility === */
+
+/* Hide on mobile (e.g., <= 576px) */
+@media (max-width: 576px) {
+    .col-hide-mobile {
+        display: none !important; /* Important to override table display properties */
+    }
+}
+
+/* Hide on tablet (e.g., <= 768px) */
+/* This will also hide on mobile if a column has both col-hide-tablet and col-hide-mobile,
+   or just this one if it should only be hidden up to tablet size. */
+@media (max-width: 768px) {
+    .col-hide-tablet {
+        display: none !important;
+    }
+}
+
+/* Utility class to make a table scrollable horizontally if needed */
+.table-responsive-wrapper {
+    overflow-x: auto;
+    width: 100%;
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+    margin-bottom: 1rem; /* Add some space below the scrolled table */
+}
+
 .footer-link-separator {
     color: #ccc; /* Light gray color, similar to nav-separator */
     margin: 0 10px;
+}
+
+@media (max-width: 576px) {
+    .main-footer .container {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+    .footer-text {
+        font-size: 0.8em; /* Slightly smaller font for very small screens */
+    }
+    .footer-link-separator {
+        display: block; /* Stack links in footer on very small screens */
+        margin: 5px auto;
+        width: 50px; /* Give it a small width to act as a visual separator line */
+        border-top: 1px solid #555; /* Make it a line */
+        height: 0;
+    }
+    .main-footer p.footer-text a { /* Ensure links are block for stacking */
+        display: block;
+        margin: 5px 0;
+    }
 }
 
 
@@ -270,6 +346,28 @@ a:hover {
 
 .form-group {
     margin-bottom: 15px;
+}
+
+/* Responsive forms */
+@media (max-width: 768px) {
+    .form-input,
+    .form-input-select,
+    .action-button, /* Ensure buttons also stack or resize well */
+    .btn { /* General bootstrap like buttons */
+        width: 100%; /* Make form elements and buttons full width */
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+    .form-styled {
+        padding: 15px; /* Reduce padding on smaller screens */
+    }
+
+    /* Adjust button groups or multiple buttons in a row */
+    .form-group .action-button + .action-button,
+    .form-group .btn + .btn {
+        margin-top: 10px; /* Add space if they stack */
+    }
 }
 
 .form-label {

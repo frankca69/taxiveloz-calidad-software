@@ -6,15 +6,16 @@
   <a class="filter-link" href="/choferes?estado=suspendido">Suspendidos</a>
 </div>
 
+<div class="table-responsive-wrapper">
 <table class="content-table">
   <thead class="table-header">
     <tr>
       <th>Nombre</th>
-      <th>Apellido</th>
+      <th class="col-hide-tablet">Apellido</th> <!-- Ocultar en tablet y móvil -->
       <th>DNI</th>
-      <th>Teléfono</th>
-      <th>Correo</th>
-      <th>Usuario</th>
+      <th class="col-hide-mobile">Teléfono</th> <!-- Ocultar en móvil -->
+      <th class="col-hide-mobile">Correo</th>   <!-- Ocultar en móvil -->
+      <th class="col-hide-tablet">Usuario</th>  <!-- Ocultar en tablet y móvil -->
       <th>Estado</th>
       <th>Acciones</th>
     </tr>
@@ -23,11 +24,11 @@
     <% choferes.forEach(chofer => { %>
       <tr>
         <td><a class="action-link" href="/choferes/<%= chofer.id %>"><%= chofer.nombre %></a></td>
-        <td><%= chofer.apellido %></td>
+        <td class="col-hide-tablet"><%= chofer.apellido %></td>
         <td><%= chofer.dni %></td>
-        <td><%= chofer.telefono %></td>
-        <td><%= chofer.email %></td>
-        <td><%= chofer.username || '—' %></td>
+        <td class="col-hide-mobile"><%= chofer.telefono %></td>
+        <td class="col-hide-mobile"><%= chofer.email %></td>
+        <td class="col-hide-tablet"><%= chofer.username || '—' %></td>
         <td><%= chofer.estado %></td>
         <td>
           <a class="action-link" href="/choferes/<%= chofer.id %>/edit">Editar</a>
@@ -46,7 +47,7 @@
     <% }) %>
   </tbody>
 </table>
-
+</div>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const forms = document.querySelectorAll('.delete-status-form');

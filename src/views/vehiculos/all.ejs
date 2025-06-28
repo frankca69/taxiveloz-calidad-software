@@ -20,7 +20,7 @@
                     <th scope="col">Modelo</th>
                     <th scope="col">Placa</th>
                     <th scope="col">Estado Vehículo</th>
-                    <th scope="col">Chofer Asignado</th>
+                    <th scope="col" class="col-hide-mobile">Chofer Asignado</th> <!-- Ocultar en móvil -->
                 </tr>
             </thead>
             <tbody>
@@ -38,7 +38,7 @@
                                 <span class="badge bg-secondary"><%= vehiculo.vehiculo_estado %></span>
                             <% } %>
                         </td>
-                        <td>
+                        <td class="col-hide-mobile"> <!-- Ocultar en móvil -->
                             <% if (vehiculo.chofer_nombre && vehiculo.chofer_apellido) { %>
                                 <%= vehiculo.chofer_nombre %> <%= vehiculo.chofer_apellido %>
                             <% } else { %>
