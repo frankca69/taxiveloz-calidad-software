@@ -696,3 +696,71 @@ a:hover {
     font-size: .875em;
     border-radius: .2rem;
 }
+
+/* === Pagination Styles === */
+.pagination {
+    display: flex;
+    justify-content: center;
+    padding-left: 0;
+    list-style: none;
+    border-radius: .25rem;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.page-item {
+    /* Spacing between page items */
+}
+
+.page-item.disabled .page-link {
+    color: #6c757d; /* Bootstrap's gray */
+    pointer-events: none;
+    cursor: auto;
+    background-color: #fff;
+    border-color: #dee2e6; /* Bootstrap's light gray border */
+}
+
+.page-item.active .page-link {
+    z-index: 1;
+    color: #fff;
+    background-color: #007bff; /* Bootstrap's primary blue */
+    border-color: #007bff;
+}
+
+.page-link {
+    position: relative;
+    display: block;
+    padding: .5rem .75rem;
+    margin-left: -1px; /* Collapse borders */
+    line-height: 1.25;
+    color: #007bff; /* Link color */
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    text-decoration: none; /* Remove underline from links */
+}
+
+.page-link:hover {
+    z-index: 2;
+    color: #0056b3; /* Darker blue on hover */
+    background-color: #e9ecef; /* Light gray background on hover */
+    border-color: #dee2e6;
+}
+
+.page-item:first-child .page-link {
+    margin-left: 0;
+    border-top-left-radius: .25rem;
+    border-bottom-left-radius: .25rem;
+}
+
+.page-item:last-child .page-link {
+    border-top-right-radius: .25rem;
+    border-bottom-right-radius: .25rem;
+}
+
+/* Text for "Showing X of Y" */
+.pagination-info {
+    text-align: center;
+    margin-top: 10px;
+    color: #555;
+    font-size: 0.9em;
+}
