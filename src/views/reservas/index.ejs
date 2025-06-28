@@ -49,49 +49,7 @@
                             return `<a href="/reservas?${searchParams.toString()}" class="sort-link">${display}${icon}</a>`;
                         };
                     %>
-                    <select name="estado" id="estado" class="form-select" onchange="this.form.submit()">
-                        <option value="" <%= currentEstado === '' ? 'selected' : '' %>>Todos</option>
-                        <option value="espera" <%= currentEstado === 'espera' ? 'selected' : '' %>>Espera</option>
-                        <option value="confirmada" <%= currentEstado === 'confirmada' ? 'selected' : '' %>>Confirmada</option>
-                        <option value="notificada" <%= currentEstado === 'notificada' ? 'selected' : '' %>>Notificada</option>
-                        <option value="finalizada" <%= currentEstado === 'finalizada' ? 'selected' : '' %>>Finalizada</option>
-                        <option value="cancelada" <%= currentEstado === 'cancelada' ? 'selected' : '' %>>Cancelada</option>
-                        <option value="sin_chofer_disponible" <%= currentEstado === 'sin_chofer_disponible' ? 'selected' : '' %>>Sin Chofer Disponible</option>
-                    </select>
-                </div>
-                <!-- Otros filtros o campos de ordenamiento podrían ir aquí -->
-                 <div class="col-md-2">
-                    <!-- Botón para limpiar filtros/orden si es necesario, o simplemente reenviar el form -->
-                    <button type="submit" class="btn btn-secondary">Filtrar</button>
-                     <% if (currentEstado || queryParams.sortBy !=='fecha' || queryParams.sortOrder !=='desc') { %>
-                        <a href="/reservas" class="btn btn-outline-secondary ms-2">Limpiar</a>
-                    <% } %>
-                </div>
-            </div>
-             <!-- Hidden inputs for sorting to persist them on form submit if estado changes -->
-            <input type="hidden" name="sortBy" value="<%= currentSortBy %>">
-            <input type="hidden" name="sortOrder" value="<%= currentSortOrder %>">
-        </form>
-
-        <table class="content-table">
-            <thead class="table-header">
-                <tr>
-                    <%
-                        const buildSortLink = (columnName, display) => {
-                            let newSortOrder = 'asc';
-                            let icon = '';
-                            if (currentSortBy === columnName) {
-                                newSortOrder = currentSortOrder === 'asc' ? 'desc' : 'asc';
-                                icon = currentSortOrder === 'asc' ? ' &#9650;' : ' &#9660;'; // Triángulo arriba/abajo
-                            }
-                            // Mantener otros queryParams como 'estado' y 'page' (page se resetea a 1 al cambiar orden)
-                            const searchParams = new URLSearchParams(queryParams);
-                            searchParams.set('sortBy', columnName);
-                            searchParams.set('sortOrder', newSortOrder);
-                            searchParams.delete('page'); // Reset page to 1 on new sort
-                            return `<a href="/reservas?${searchParams.toString()}">${display}${icon}</a>`;
-                        };
-                    %>
+                    <!-- ESTA SECCIÓN ESTABA DUPLICADA Y CAUSABA EL ERROR. SE ELIMINA. -->
                     <th class="reservas-table-header"><%- buildSortLink('fecha', 'Fecha') %></th>
                     <th class="reservas-table-header">Hora Inicio</th> <!-- No se suele ordenar por hora inicio sola sin fecha -->
                     <th class="reservas-table-header"><%- buildSortLink('cliente', 'Cliente') %></th>
