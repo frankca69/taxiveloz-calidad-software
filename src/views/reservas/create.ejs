@@ -56,14 +56,16 @@
             <input type="number" step="0.01" class="form-control" id="tarifa" name="tarifa" value="<%= (typeof oldInput !== 'undefined' && oldInput.tarifa) ? oldInput.tarifa : '' %>" required>
         </div>
 
-        <div class="mb-3">
-            <label for="origen" class="form-label">Origen*</label>
-            <input type="text" class="form-control" id="origen" name="origen" value="<%= (typeof oldInput !== 'undefined' && oldInput.origen) ? oldInput.origen : '' %>" required>
-        </div>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label for="origen" class="form-label">Origen*</label>
+                <input type="text" class="form-control" id="origen" name="origen" value="<%= (typeof oldInput !== 'undefined' && oldInput.origen) ? oldInput.origen : '' %>" required>
+            </div>
 
-        <div class="mb-3">
-            <label for="destino" class="form-label">Destino*</label>
-            <input type="text" class="form-control" id="destino" name="destino" value="<%= (typeof oldInput !== 'undefined' && oldInput.destino) ? oldInput.destino : '' %>" required>
+            <div class="col-md-6 mb-3">
+                <label for="destino" class="form-label">Destino*</label>
+                <input type="text" class="form-control" id="destino" name="destino" value="<%= (typeof oldInput !== 'undefined' && oldInput.destino) ? oldInput.destino : '' %>" required>
+            </div>
         </div>
 
         <div id="map" style="height: 400px; width: 100%; margin-bottom: 1rem;"></div>

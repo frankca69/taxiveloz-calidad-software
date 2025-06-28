@@ -72,15 +72,26 @@
                 <input type="number" step="0.01" class="form-control" id="tarifa" name="tarifa" value="<%= reserva.tarifa %>" required>
             </div>
 
-            <div class="mb-3">
-                <label for="origen" class="form-label">Origen</label>
-                <input type="text" class="form-control" id="origen" name="origen" value="<%= reserva.origen || '' %>">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="origen" class="form-label">Origen*</label>
+                    <input type="text" class="form-control" id="origen" name="origen" value="<%= reserva.origen || '' %>" required>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label for="destino" class="form-label">Destino*</label>
+                    <input type="text" class="form-control" id="destino" name="destino" value="<%= reserva.destino || '' %>" required>
+                </div>
             </div>
 
-            <div class="mb-3">
-                <label for="destino" class="form-label">Destino</label>
-                <input type="text" class="form-control" id="destino" name="destino" value="<%= reserva.destino || '' %>">
+            <div id="map" style="height: 400px; width: 100%; margin-bottom: 1rem;"></div>
+            <div id="distancia" class="mb-3">
+                <% if (reserva.distancia_km) { %>
+                    <strong>Distancia estimada:</strong> <%= reserva.distancia_km %> km
+                <% } %>
             </div>
+            <input type="hidden" name="distancia_km" id="distancia_km_hidden" value="<%= reserva.distancia_km || '' %>">
+
 
             <div class="mb-3">
                 <label for="tipo_pago" class="form-label">Tipo de Pago*</label>
@@ -118,6 +129,100 @@ document.addEventListener('DOMContentLoaded', function () {
     const choferLoadingDiv = document.getElementById('chofer_loading');
     const currentReservaId = "<%= (typeof reserva !== 'undefined' && reserva.id_reserva) ? reserva.id_reserva : '' %>";
     const initialChoferId = "<%= (typeof reserva !== 'undefined' && reserva.id_chofer) ? reserva.id_chofer : '' %>";
+
+    // --- Inicio: Lógica de Google Maps ---
+    let map;
+    let directionsService;
+    let directionsRenderer;
+    let autocompleteOrigen;
+    let autocompleteDestino;
+
+    const origenInput = document.getElementById('origen');
+    const destinoInput = document.getElementById('destino');
+    const distanciaDiv = document.getElementById('distancia');
+    const distanciaHiddenInput = document.getElementById('distancia_km_hidden');
+
+    function initMap() {
+        map = new google.maps.Map(document.getElementById('map'), {
+            center: { lat: -12.046374, lng: -77.042793 }, // Se ajustará si hay origen/destino
+            zoom: 12
+        });
+
+        directionsService = new google.maps.DirectionsService();
+        directionsRenderer = new google.maps.DirectionsRenderer();
+        directionsRenderer.setMap(map);
+
+        const autocompleteOptions = {
+            // componentRestrictions: { country: 'pe' } // Ejemplo: Restringir a Perú
+        };
+
+        autocompleteOrigen = new google.maps.places.Autocomplete(origenInput, autocompleteOptions);
+        autocompleteDestino = new google.maps.places.Autocomplete(destinoInput, autocompleteOptions);
+
+        autocompleteOrigen.addListener('place_changed', calculateAndDisplayRoute);
+        autocompleteDestino.addListener('place_changed', calculateAndDisplayRoute);
+
+        // Calcular y mostrar ruta inicial si ya hay origen y destino definidos
+        if (origenInput.value && destinoInput.value) {
+            calculateAndDisplayRoute();
+        }
+    }
+
+    function calculateAndDisplayRoute() {
+        const origen = origenInput.value;
+        const destino = destinoInput.value;
+
+        if (origen && destino) {
+            directionsService.route(
+                {
+                    origin: origen,
+                    destination: destino,
+                    travelMode: google.maps.TravelMode.DRIVING
+                },
+                (response, status) => {
+                    if (status === 'OK') {
+                        directionsRenderer.setDirections(response);
+                        const route = response.routes[0];
+                        if (route && route.legs && route.legs[0] && route.legs[0].distance) {
+                            const distanciaKm = (route.legs[0].distance.value / 1000).toFixed(2);
+                            distanciaDiv.innerHTML = `<strong>Distancia estimada:</strong> ${distanciaKm} km`;
+                            distanciaHiddenInput.value = distanciaKm;
+                        } else {
+                            distanciaDiv.innerHTML = 'No se pudo calcular la distancia.';
+                            distanciaHiddenInput.value = '';
+                        }
+                    } else {
+                        distanciaDiv.innerHTML = 'No se pudo calcular la ruta: ' + status;
+                        distanciaHiddenInput.value = '';
+                    }
+                }
+            );
+        } else {
+            distanciaDiv.innerHTML = '';
+            distanciaHiddenInput.value = '';
+            // Opcional: limpiar el mapa si no hay ruta
+            // directionsRenderer.setDirections({routes: []});
+            // map.setCenter({ lat: -12.046374, lng: -77.042793 });
+            // map.setZoom(12);
+        }
+    }
+
+    if (typeof google !== 'undefined' && typeof google.maps !== 'undefined') {
+        initMap();
+    } else {
+        // Fallback o manejo si la API de Google Maps no está cargada
+        console.warn("Google Maps API might not be loaded yet for edit.ejs. Consider callback.");
+        setTimeout(() => {
+            if (typeof google !== 'undefined' && typeof google.maps !== 'undefined') {
+                initMap();
+            } else {
+                console.error("Google Maps API failed to load for edit.ejs.");
+                distanciaDiv.innerHTML = "Error al cargar Google Maps API.";
+            }
+        }, 1000);
+    }
+    // --- Fin: Lógica de Google Maps ---
+
 
     function fetchChoferesDisponibles() {
         const fecha = fechaInput.value;
