@@ -67,11 +67,6 @@
                 </select>
             </div>
 
-            <div class="mb-3">
-                <label for="tarifa" class="form-label">Tarifa*</label>
-                <input type="number" step="0.01" class="form-control" id="tarifa" name="tarifa" value="<%= reserva.tarifa %>" required>
-            </div>
-
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <label for="origen" class="form-label">Origen*</label>
@@ -85,13 +80,22 @@
             </div>
 
             <div id="map" style="height: 400px; width: 100%; margin-bottom: 1rem;"></div>
-            <div id="distancia" class="mb-3">
-                <% if (reserva.distancia_km) { %>
-                    <strong>Distancia estimada:</strong> <%= reserva.distancia_km %> km
-                <% } %>
-            </div>
-            <input type="hidden" name="distancia_km" id="distancia_km_hidden" value="<%= reserva.distancia_km || '' %>">
+            <div id="map" style="height: 400px; width: 100%; margin-bottom: 1rem;"></div>
 
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <div id="distancia" class="mb-2">
+                        <% if (reserva.distancia_km) { %>
+                            <strong>Distancia estimada:</strong> <%= reserva.distancia_km %> km
+                        <% } %>
+                    </div>
+                    <input type="hidden" name="distancia_km" id="distancia_km_hidden" value="<%= reserva.distancia_km || '' %>">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="tarifa" class="form-label">Tarifa Calculada (S/)</label>
+                    <input type="number" step="0.01" class="form-control" id="tarifa" name="tarifa" value="<%= reserva.tarifa %>" readonly required>
+                </div>
+            </div>
 
             <div class="mb-3">
                 <label for="tipo_pago" class="form-label">Tipo de Pago*</label>
@@ -141,6 +145,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const destinoInput = document.getElementById('destino');
     const distanciaDiv = document.getElementById('distancia');
     const distanciaHiddenInput = document.getElementById('distancia_km_hidden');
+    const tarifaInput = document.getElementById('tarifa'); // Campo de tarifa
 
     function initMap() {
         map = new google.maps.Map(document.getElementById('map'), {
@@ -184,22 +189,26 @@ document.addEventListener('DOMContentLoaded', function () {
                         directionsRenderer.setDirections(response);
                         const route = response.routes[0];
                         if (route && route.legs && route.legs[0] && route.legs[0].distance) {
-                            const distanciaKm = (route.legs[0].distance.value / 1000).toFixed(2);
+                            const distanciaKm = parseFloat((route.legs[0].distance.value / 1000).toFixed(2));
                             distanciaDiv.innerHTML = `<strong>Distancia estimada:</strong> ${distanciaKm} km`;
                             distanciaHiddenInput.value = distanciaKm;
+                            tarifaInput.value = calcularTarifaReserva(distanciaKm).toFixed(2);
                         } else {
                             distanciaDiv.innerHTML = 'No se pudo calcular la distancia.';
                             distanciaHiddenInput.value = '';
+                            tarifaInput.value = calcularTarifaReserva(0).toFixed(2); // Tarifa base
                         }
                     } else {
                         distanciaDiv.innerHTML = 'No se pudo calcular la ruta: ' + status;
                         distanciaHiddenInput.value = '';
+                        tarifaInput.value = calcularTarifaReserva(0).toFixed(2); // Tarifa base
                     }
                 }
             );
         } else {
             distanciaDiv.innerHTML = '';
             distanciaHiddenInput.value = '';
+            tarifaInput.value = calcularTarifaReserva(0).toFixed(2); // Tarifa base
             // Opcional: limpiar el mapa si no hay ruta
             // directionsRenderer.setDirections({routes: []});
             // map.setCenter({ lat: -12.046374, lng: -77.042793 });
