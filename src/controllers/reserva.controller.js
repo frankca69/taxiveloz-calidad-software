@@ -58,14 +58,21 @@ const createReservation = async (req, res) => {
       origen,
       destino,
       tarifa,
-      tipo_pago
+      tipo_pago,
+      distancia_km
     } = req.body;
 
     // Basic validation (more can be added)
-    if (!cliente_id || !chofer_id || !fecha || !tarifa || !tipo_pago) {
+    // Ahora origen y destino también son obligatorios debido a los cambios en el formulario
+    if (!cliente_id || !chofer_id || !fecha || !hora_inicio || !hora_fin || !origen || !destino || !tarifa || !tipo_pago) {
       // If validation fails, re-render the form with an error message and old input
       const clientes = await Cliente.getAllActivos();
-      const choferes = await Chofer.getAllActivosConVehiculo();
+      // Los choferes se cargan dinámicamente, así que no es necesario pasarlos aquí
+      // a menos que quieras mostrar la lista completa si JS falla (poco probable con la lógica actual).
+      // Por simplicidad, y dado que el frontend maneja la carga de choferes,
+      // no los recargamos aquí para el caso de error de validación,
+      // pero sí los clientes.
+      // const choferes = await Chofer.getAllActivosConVehiculo(); // Opcional
       const choferesDisplay = choferes.map(ch => ({
         id: ch.chofer_id,
         display_name: `${ch.vehiculo_placa} - ${ch.vehiculo_modelo} - ${ch.chofer_nombre} ${ch.chofer_apellido}`
@@ -77,7 +84,8 @@ const createReservation = async (req, res) => {
 
       return res.render('reservas/create', {
         clientes: clientesDisplay,
-        choferes: choferesDisplay,
+        // choferes: choferesDisplay, // No se pasan los choferes si se cargan dinámicamente
+        choferes: [], // Pasar un array vacío o la lógica para recargarlos si es necesario
         error: 'Todos los campos marcados con * son obligatorios.',
         oldInput: req.body // Pass back the submitted data
       });
@@ -88,12 +96,13 @@ const createReservation = async (req, res) => {
       cliente_id: parseInt(cliente_id),
       chofer_id: parseInt(chofer_id),
       fecha,
-      hora_inicio: hora_inicio || null, // Handle optional fields
-      hora_fin: hora_fin || null,
-      origen: origen || null,
-      destino: destino || null,
+      hora_inicio: hora_inicio, // Ya son obligatorios
+      hora_fin: hora_fin,       // Ya son obligatorios
+      origen: origen,           // Ya son obligatorios
+      destino: destino,         // Ya son obligatorios
       tarifa: parseFloat(tarifa),
-      tipo_pago
+      tipo_pago,
+      distancia_km: distancia_km ? parseFloat(distancia_km) : null
     };
 
     const nuevaReserva = await Reserva.create(reservaData);
@@ -106,11 +115,8 @@ const createReservation = async (req, res) => {
     // In case of error (e.g., database error), re-render form with error
     // It's important to also repopulate the form with previous input
     const clientes = await Cliente.getAllActivos();
-    const choferes = await Chofer.getAllActivosConVehiculo();
-    const choferesDisplay = choferes.map(ch => ({
-        id: ch.chofer_id,
-        display_name: `${ch.vehiculo_placa} - ${ch.vehiculo_modelo} - ${ch.chofer_nombre} ${ch.chofer_apellido}`
-      }));
+    // Similar al bloque de validación, no es estrictamente necesario recargar choferes
+    // si el frontend los maneja dinámicamente.
     const clientesDisplay = clientes.map(cl => ({
         id: cl.id,
         display_name: `${cl.dni} - ${cl.nombre} ${cl.apellido}`
@@ -118,7 +124,7 @@ const createReservation = async (req, res) => {
 
     res.render('reservas/create', {
       clientes: clientesDisplay,
-      choferes: choferesDisplay,
+      choferes: [], // Pasar array vacío, el frontend se encarga de buscar disponibles
       error: 'Error al guardar la reserva. Inténtelo de nuevo.',
       oldInput: req.body
     });
@@ -429,11 +435,14 @@ module.exports = {
         destino,
         tarifa,
         tipo_pago,
-        estado // Added estado
+        estado, // Added estado
+        distancia_km // Añadido para la actualización
       } = req.body;
 
       // Basic validation (can be expanded)
-      if (!cliente_id || !chofer_id || !fecha || !tarifa || !tipo_pago || !estado) {
+      // Incluir origen y destino en la validación si también se editan y son obligatorios.
+      // Por ahora, la validación se mantiene como estaba, pero considera que origen y destino podrían necesitar validación aquí también.
+      if (!cliente_id || !chofer_id || !fecha || !origen || !destino || !tarifa || !tipo_pago || !estado) {
         // If validation fails, re-render form with error and existing data
         // This requires fetching reserva, clientes, choferes again, or passing them differently
         // For simplicity, redirecting back to edit form with a query param error might be easier
@@ -462,7 +471,8 @@ module.exports = {
         destino: destino || null,
         tarifa: parseFloat(tarifa),
         tipo_pago,
-        estado // Include estado in the data to be updated
+        estado, // Include estado in the data to be updated
+        distancia_km: distancia_km ? parseFloat(distancia_km) : null // Añadir distancia_km
       };
 
       const reservaActualizada = await Reserva.update(id, reservaData);

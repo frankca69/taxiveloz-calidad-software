@@ -57,14 +57,18 @@
         </div>
 
         <div class="mb-3">
-            <label for="origen" class="form-label">Origen</label>
-            <input type="text" class="form-control" id="origen" name="origen" value="<%= (typeof oldInput !== 'undefined' && oldInput.origen) ? oldInput.origen : '' %>">
+            <label for="origen" class="form-label">Origen*</label>
+            <input type="text" class="form-control" id="origen" name="origen" value="<%= (typeof oldInput !== 'undefined' && oldInput.origen) ? oldInput.origen : '' %>" required>
         </div>
 
         <div class="mb-3">
-            <label for="destino" class="form-label">Destino</label>
-            <input type="text" class="form-control" id="destino" name="destino" value="<%= (typeof oldInput !== 'undefined' && oldInput.destino) ? oldInput.destino : '' %>">
+            <label for="destino" class="form-label">Destino*</label>
+            <input type="text" class="form-control" id="destino" name="destino" value="<%= (typeof oldInput !== 'undefined' && oldInput.destino) ? oldInput.destino : '' %>" required>
         </div>
+
+        <div id="map" style="height: 400px; width: 100%; margin-bottom: 1rem;"></div>
+        <div id="distancia" class="mb-3"></div>
+        <input type="hidden" name="distancia_km" id="distancia_km_hidden">
 
         <div class="mb-3">
             <label for="tipo_pago" class="form-label">Tipo de Pago*</label>
@@ -82,6 +86,113 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        let map;
+        let directionsService;
+        let directionsRenderer;
+        let autocompleteOrigen;
+        let autocompleteDestino;
+
+        const origenInput = document.getElementById('origen');
+        const destinoInput = document.getElementById('destino');
+        const distanciaDiv = document.getElementById('distancia');
+
+        function initMap() {
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: { lat: -12.046374, lng: -77.042793 }, // Centro inicial (Lima, Perú)
+                zoom: 12
+            });
+
+            directionsService = new google.maps.DirectionsService();
+            directionsRenderer = new google.maps.DirectionsRenderer();
+            directionsRenderer.setMap(map);
+
+            const autocompleteOptions = {
+                // types: ['geocode'], // Opcional: restringe a resultados geográficos
+                // componentRestrictions: { country: 'pe' } // Opcional: restringe a un país (ej. Perú)
+            };
+
+            autocompleteOrigen = new google.maps.places.Autocomplete(origenInput, autocompleteOptions);
+            autocompleteDestino = new google.maps.places.Autocomplete(destinoInput, autocompleteOptions);
+
+            autocompleteOrigen.addListener('place_changed', calculateAndDisplayRoute);
+            autocompleteDestino.addListener('place_changed', calculateAndDisplayRoute);
+
+            // Si hay valores iniciales (ej. por error de formulario), intentar calcular la ruta
+            if (origenInput.value && destinoInput.value) {
+                calculateAndDisplayRoute();
+            }
+        }
+
+        function calculateAndDisplayRoute() {
+            const origen = origenInput.value;
+            const destino = destinoInput.value;
+
+            if (origen && destino) {
+                directionsService.route(
+                    {
+                        origin: origen,
+                        destination: destino,
+                        travelMode: google.maps.TravelMode.DRIVING
+                    },
+                    (response, status) => {
+                        if (status === 'OK') {
+                            directionsRenderer.setDirections(response);
+                            const route = response.routes[0];
+                            if (route && route.legs && route.legs[0] && route.legs[0].distance) {
+                                const distanciaKm = (route.legs[0].distance.value / 1000).toFixed(2);
+                                distanciaDiv.innerHTML = `<strong>Distancia estimada:</strong> ${distanciaKm} km`;
+                                document.getElementById('distancia_km_hidden').value = distanciaKm;
+                            } else {
+                                distanciaDiv.innerHTML = 'No se pudo calcular la distancia.';
+                                document.getElementById('distancia_km_hidden').value = '';
+                            }
+                        } else {
+                            distanciaDiv.innerHTML = 'No se pudo calcular la ruta: ' + status;
+                            document.getElementById('distancia_km_hidden').value = '';
+                            // Opcional: Limpiar el mapa si no se puede trazar la ruta
+                            // directionsRenderer.setDirections({routes: []});
+                            // map.setCenter({ lat: -12.046374, lng: -77.042793 }); // Resetear centro
+                            // map.setZoom(12);
+                        }
+                    }
+                );
+            } else {
+                // Si uno de los campos está vacío, limpiar la ruta y la distancia
+                // directionsRenderer.setDirections({routes: []});
+                // map.setCenter({ lat: -12.046374, lng: -77.042793 });
+                // map.setZoom(12);
+                distanciaDiv.innerHTML = '';
+                document.getElementById('distancia_km_hidden').value = '';
+            }
+        }
+
+        // Llamar a initMap cuando la API de Google Maps esté cargada
+        // Esto es importante si el script de la API se carga con 'defer'
+        if (typeof google !== 'undefined' && typeof google.maps !== 'undefined') {
+            initMap();
+        } else {
+            // Si la API no está lista, esperar al evento 'load' del script de la API.
+            // Esto es un fallback, usualmente el script de la API se carga antes de DOMContentLoaded si está en <head>
+            // o si no tiene 'async'/'defer'. Con 'defer', debería estar disponible.
+            // Sin embargo, para mayor robustez, podrías añadir un callback global a la URL de la API:
+            // &callback=initMapGlobal y definir function initMapGlobal() { initMap(); }
+            // Por ahora, asumimos que estará listo o se cargará poco después.
+            // Considera un enfoque más robusto para la inicialización si encuentras problemas.
+            console.warn("Google Maps API might not be loaded yet. Trying to initialize map anyway or consider using a callback.");
+            // Intentar inicializar de todas formas, o añadir un listener al script de la API
+            // window.initMap = initMap; // Si usas &callback=initMap en la URL de la API
+             // Una forma simple de reintentar después de un breve retraso:
+            setTimeout(() => {
+                if (typeof google !== 'undefined' && typeof google.maps !== 'undefined') {
+                    initMap();
+                } else {
+                    console.error("Google Maps API failed to load.");
+                    distanciaDiv.innerHTML = "Error al cargar Google Maps API.";
+                }
+            }, 1000);
+        }
+
+
         const fechaInput = document.getElementById('fecha');
         const horaInicioInput = document.getElementById('hora_inicio');
         const horaFinInput = document.getElementById('hora_fin');

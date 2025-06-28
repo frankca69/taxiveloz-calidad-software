@@ -19,6 +19,7 @@ class Reserva {
                 r.tarifa,
                 r.tipo_pago,
                 r.estado AS estado_reserva,
+                r.distancia_km,
                 c.id AS id_cliente,
                 c.nombre AS nombre_cliente,
                 c.apellido AS apellido_cliente,
@@ -68,6 +69,7 @@ class Reserva {
                 r.tarifa,
                 r.tipo_pago,
                 r.estado AS estado_reserva,
+                r.distancia_km,
                 c.id AS id_cliente,
                 c.nombre AS nombre_cliente,
                 c.apellido AS apellido_cliente,
@@ -117,6 +119,7 @@ class Reserva {
                 r.tarifa,
                 r.tipo_pago,
                 r.estado AS estado_reserva,
+                r.distancia_km,
                 c.id AS id_cliente,
                 c.nombre AS nombre_cliente,
                 c.apellido AS apellido_cliente,
@@ -166,6 +169,7 @@ class Reserva {
                 r.tarifa,
                 r.tipo_pago,
                 r.estado AS estado_reserva,
+                r.distancia_km,
                 c.id AS id_cliente,
                 c.nombre AS nombre_cliente,
                 c.apellido AS apellido_cliente,
@@ -222,7 +226,8 @@ class Reserva {
             origen,
             destino,
             tarifa,
-            tipo_pago
+            tipo_pago,
+            distancia_km // Nuevo campo
         } = reservaData;
 
         // The 'estado' defaults to 'espera' as per the table definition.
@@ -236,8 +241,9 @@ class Reserva {
                 origen,
                 destino,
                 tarifa,
-                tipo_pago
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+                tipo_pago,
+                distancia_km
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
             RETURNING *;
         `;
         // RETURNING * will return all columns of the newly inserted row.
@@ -252,7 +258,8 @@ class Reserva {
                 origen,
                 destino,
                 tarifa,
-                tipo_pago
+                tipo_pago,
+                distancia_km // Añadir a los parámetros de la consulta
             ]);
             return rows[0]; // Return the newly created reservation
         } catch (error) {
@@ -367,7 +374,8 @@ class Reserva {
             destino,
             tarifa,
             tipo_pago,
-            estado // Added estado
+            estado, // Added estado
+            distancia_km // Nuevo campo
         } = reservaData;
 
         const query = `
@@ -382,8 +390,9 @@ class Reserva {
                 destino = $7,
                 tarifa = $8,
                 tipo_pago = $9,
-                estado = $10
-            WHERE id = $11
+                estado = $10,
+                distancia_km = $11
+            WHERE id = $12
             RETURNING *;
         `;
 
@@ -398,7 +407,8 @@ class Reserva {
                 destino,
                 tarifa,
                 tipo_pago,
-                estado, // Pass estado to the query
+                estado,
+                distancia_km, // Añadir a los parámetros de la consulta
                 id
             ]);
             return rows.length > 0 ? rows[0] : null;
@@ -435,7 +445,7 @@ class Reserva {
         const query = `
             SELECT
                 r.id AS id_reserva, r.fecha, r.hora_inicio, r.hora_fin, r.origen, r.destino,
-                r.tarifa, r.tipo_pago, r.estado AS estado_reserva,
+                r.tarifa, r.tipo_pago, r.estado AS estado_reserva, r.distancia_km,
                 c.id AS id_cliente, c.nombre AS nombre_cliente, c.apellido AS apellido_cliente,
                 c.dni AS dni_cliente, c.email AS email_cliente, c.telefono AS telefono_cliente,
                 ch.id AS id_chofer, ch.nombre AS nombre_chofer, ch.apellido AS apellido_chofer,
@@ -498,7 +508,7 @@ class Reserva {
         const query = `
             SELECT
                 r.id AS id_reserva, r.fecha, r.hora_inicio, r.hora_fin, r.origen, r.destino,
-                r.tarifa, r.tipo_pago, r.estado AS estado_reserva,
+                r.tarifa, r.tipo_pago, r.estado AS estado_reserva, r.distancia_km,
                 c.id AS id_cliente, c.nombre AS nombre_cliente, c.apellido AS apellido_cliente,
                 ch.id AS id_chofer, ch.nombre AS nombre_chofer, ch.apellido AS apellido_chofer,
                 v.modelo AS modelo_vehiculo, v.placa AS placa_vehiculo
@@ -550,7 +560,7 @@ class Reserva {
         const query = `
             SELECT
                 r.id AS id_reserva, r.fecha, r.hora_inicio, r.hora_fin, r.origen, r.destino,
-                r.tarifa, r.tipo_pago, r.estado AS estado_reserva,
+                r.tarifa, r.tipo_pago, r.estado AS estado_reserva, r.distancia_km,
                 c.id AS id_cliente, c.nombre AS nombre_cliente, c.apellido AS apellido_cliente,
                 ch.id AS id_chofer, ch.nombre AS nombre_chofer, ch.apellido AS apellido_chofer,
                 v.modelo AS modelo_vehiculo, v.placa AS placa_vehiculo
