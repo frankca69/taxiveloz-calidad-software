@@ -28,6 +28,7 @@
             </form>
         </div>
 
+        <div class="table-responsive-wrapper">
         <table class="content-table">
             <thead class="table-header">
                 <tr>
@@ -47,11 +48,11 @@
                         };
                     %>
                     <th class="reservas-table-header"><%- buildSortLinkCliente('fecha', 'Fecha') %></th>
-                    <th class="reservas-table-header">Hora Inicio</th>
-                    <th class="reservas-table-header"><%- buildSortLinkCliente('chofer', 'Chofer') %></th>
+                    <th class="reservas-table-header col-hide-mobile">Hora Inicio</th>
+                    <th class="reservas-table-header col-hide-tablet"><%- buildSortLinkCliente('chofer', 'Chofer') %></th>
                     <th class="reservas-table-header">Origen</th>
-                    <th class="reservas-table-header"><%- buildSortLinkCliente('tarifa', 'Tarifa') %></th>
-                    <th class="reservas-table-header">Tipo Pago</th>
+                    <th class="reservas-table-header col-hide-mobile"><%- buildSortLinkCliente('tarifa', 'Tarifa') %></th>
+                    <th class="reservas-table-header col-hide-mobile">Tipo Pago</th>
                     <th class="reservas-table-header"><%- buildSortLinkCliente('estado', 'Estado') %></th>
                     <th class="reservas-table-header">Acciones</th>
                 </tr>
@@ -61,11 +62,11 @@
                     <% reservations.forEach(reserva => { %>
                         <tr>
                             <td class="reservas-table-cell"><%= new Date(reserva.fecha).toLocaleDateString('es-ES', { year: 'numeric', month: '2-digit', day: '2-digit' }) %></td>
-                            <td class="reservas-table-cell"><%= new Date('1970-01-01T' + reserva.hora_inicio).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', hour12: false }) %></td>
-                            <td class="reservas-table-cell"><%= reserva.nombre_chofer %> <%= reserva.apellido_chofer %></td>
+                            <td class="reservas-table-cell col-hide-mobile"><%= new Date('1970-01-01T' + reserva.hora_inicio).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', hour12: false }) %></td>
+                            <td class="reservas-table-cell col-hide-tablet"><%= reserva.nombre_chofer %> <%= reserva.apellido_chofer %></td>
                             <td class="reservas-table-cell"><%= reserva.origen %></td>
-                            <td class="reservas-table-cell"><%= reserva.tarifa.toLocaleString('es-ES', { style: 'currency', currency: 'EUR' }) %></td>
-                            <td class="reservas-table-cell"><%= reserva.tipo_pago %></td>
+                            <td class="reservas-table-cell col-hide-mobile"><%= reserva.tarifa.toLocaleString('es-ES', { style: 'currency', currency: 'EUR' }) %></td>
+                            <td class="reservas-table-cell col-hide-mobile"><%= reserva.tipo_pago %></td>
                             <td class="reservas-table-cell"><%= reserva.estado_reserva %></td>
                             <td class="reservas-table-cell"><a href="/reservas/<%= reserva.id_reserva %>" class="btn btn-sm btn-info d-block">Detalles</a></td>
                         </tr>
@@ -77,7 +78,7 @@
                 <% } %>
             </tbody>
         </table>
-
+        </div>
         <% if (totalPages > 1) { %>
             <nav aria-label="Page navigation">
                 <ul class="pagination justify-content-center">

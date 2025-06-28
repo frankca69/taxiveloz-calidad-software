@@ -19,51 +19,244 @@ body {
 .main-header {
     background: #333;
     color: #fff;
-    padding: 1rem 0;
-    text-align: center;
+    padding: 0.5rem 0; /* Reduced padding a bit */
+    position: relative; /* For z-index context if needed for dropdown */
 }
 
-.main-header .nav-link { /* Be specific for header links */
+.header-content-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    min-height: 50px; /* Ensure header has some height */
+}
+
+.site-title-link {
     color: #fff;
     text-decoration: none;
-    margin: 0 15px;
-    font-size: 1.1em;
+    font-size: 1.5em;
+    font-weight: bold;
 }
 
-.main-header .nav-link:hover {
-    color: #00aaff; /* Light blue for hover */
+.hamburger-menu {
+    display: none; /* Hidden by default */
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 10px;
+    z-index: 1001;
+}
+
+.hamburger-menu span {
+    display: block;
+    width: 25px;
+    height: 3px;
+    background-color: white;
+    margin: 5px 0;
+    transition: all 0.3s ease-in-out;
+}
+
+.hamburger-menu.active span:nth-child(1) {
+    transform: translateY(8px) rotate(45deg);
+}
+.hamburger-menu.active span:nth-child(2) {
+    opacity: 0;
+}
+.hamburger-menu.active span:nth-child(3) {
+    transform: translateY(-8px) rotate(-45deg);
 }
 
 .site-nav {
-    margin-top: 10px;
-    margin-left: 25px;
-    display: flex; /* Align items in a row */
-    align-items: center; /* Vertically align items */
-    flex-wrap: wrap; /* Allow wrapping on small screens */
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
 }
 
-.site-nav .nav-link, .site-nav .logout-form, .site-nav .nav-separator {
-    margin-right: 10px; /* Consistent spacing for nav items and separator */
-    margin-left: 10px; /* Consistent spacing for nav items and separator */
+/* Styles for original horizontal .site-nav (large screens) */
+.site-nav:not(.nav-active) { /* Ensure these apply when nav is NOT mobile-active */
+    margin-top: 0; /* Reset default margin if any */
+    margin-left: 0; /* Reset default margin if any */
 }
 
-.site-nav .nav-link:first-child, .site-nav .logout-form:first-child {
-    margin-left: 0; /* Remove left margin for the very first item */
+.main-header .nav-link {
+    color: #fff;
+    text-decoration: none;
+    margin: 0 10px; /* Adjusted margin */
+    font-size: 1em; /* Adjusted font size */
+    padding: 5px 0; /* Add some padding for easier clicking */
 }
-.site-nav .nav-link:last-of-type, .site-nav .nav-separator:last-of-type {
-     margin-right: 0; /* Remove right margin for the very last link/separator before logout form */
+
+.main-header .nav-link:hover {
+    color: #00aaff;
+}
+
+/* Responsive adjustments for navigation - Hamburger menu */
+@media (max-width: 768px) {
+    .site-nav { /* This is #main-nav-links */
+        display: none; /* Hidden by default, shown by JS by adding .nav-active */
+        flex-direction: column;
+        align-items: flex-start; /* Align items to the start for dropdown feel */
+        position: absolute;
+        top: 100%; /* Position below the header */
+        left: 0;
+        right: 0; /* Make it full width */
+        width: auto; /* Override any specific width */
+        background-color: #3a3a3a; /* Slightly different bg for dropdown */
+        padding: 0; /* Remove padding, handle with link padding */
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        z-index: 1000;
+        border-top: 1px solid #555; /* Add a separator from header */
+    }
+
+    .site-nav.nav-active {
+        display: flex; /* Show nav when active */
+    }
+
+    .site-nav .nav-link,
+    .site-nav .logout-form {
+        margin: 0;
+        width: 100%;
+        text-align: left;
+        padding: 12px 20px;
+        border-bottom: 1px solid #555;
+        box-sizing: border-box; /* Ensure padding doesn't make it wider than 100% */
+    }
+
+    .site-nav .nav-link:last-of-type { /* For the last link if not followed by form */
+       /* border-bottom: none; */ /* Covered by general rule below if form is last */
+    }
+
+    .site-nav > *:last-child { /* Remove border from the very last child, be it link or form */
+        border-bottom: none;
+    }
+
+    .logout-form {
+        margin-left: 0; /* Reset original margin-left: auto */
+        /* The padding is now on the .nav-link style which form inherits as a block */
+    }
+
+    .logout-form .logout-button {
+        width: auto; /* Button takes its own width */
+        padding: 8px 15px;
+        margin: 0; /* Reset button margin */
+        display: inline-block;
+        text-align: left; /* Should be default for button content */
+        background-color: transparent; /* Make button bg transparent */
+        border: none; /* Remove button border */
+        color: #fff; /* Ensure text color is white */
+        font-size: 1em; /* Match nav-link font size */
+    }
+    .logout-form .logout-button:hover {
+        background-color: #c82333; /* Keep distinctive hover for logout */
+    }
+
+    .main-header .nav-link { /* Overriding general .main-header .nav-link for mobile */
+        margin: 0;
+        font-size: 1em;
+        display: block; /* Make links full width for padding */
+    }
+
+    .main-header .nav-link:hover { /* Hover for nav links in dropdown */
+        background-color: #555;
+    }
+
+    .nav-separator { /* Separators like | */
+        display: none;
+    }
+
+    .hamburger-menu {
+        display: block;
+    }
+
+    .header-content-wrapper {
+        padding: 0 10px; /* Reduced padding for the wrapper on small screens */
+    }
+
+    /* Ensure original .site-nav rules for flex alignment don't conflict */
+    .site-nav {
+        margin-top: 0;
+        margin-left: 0;
+        flex-wrap: nowrap; /* Prevent wrapping inside the dropdown */
+    }
+}
+
+/* Original .site-nav rules for horizontal layout on larger screens */
+/* These are now more specific to avoid conflict with the mobile dropdown state */
+@media (min-width: 769px) {
+    .site-nav {
+        display: flex !important; /* Ensure it's flex for large screens, overriding mobile none */
+        align-items: center;
+        flex-direction: row; /* Horizontal */
+        position: static; /* Not absolute */
+        background-color: transparent; /* No background */
+        box-shadow: none;
+        padding: 0;
+        width: auto; /* Takes content width */
+        border-top: none;
+    }
+
+    .site-nav .nav-link,
+    .site-nav .logout-form,
+    .site-nav .nav-separator {
+        margin-right: 10px;
+        margin-left: 10px;
+        width: auto; /* Auto width for items */
+        padding: 5px 0; /* Original padding for horizontal links */
+        border-bottom: none; /* No borders */
+        text-align: left; /* Default text align */
+    }
+
+    .site-nav .nav-link:first-child,
+    .site-nav .logout-form:first-child {
+        margin-left: 0;
+    }
+    .site-nav .nav-link:last-of-type,
+    .site-nav .nav-separator:last-of-type {
+        margin-right: 0;
+    }
+
+    .main-header .nav-link:hover { /* Hover for desktop links */
+        background-color: transparent; /* No background hover for desktop links */
+        color: #00aaff; /* Original hover color */
+    }
+
+    .logout-form {
+        margin-left: auto; /* Push logout to the right */
+    }
+    .logout-form .logout-button { /* Restore original button style */
+        background: #007bff;
+        color: #fff;
+        border: none;
+        padding: 8px 12px;
+        font-size: 0.9em;
+    }
+    .logout-form .logout-button:hover {
+        background: #0056b3;
+    }
+
+    .nav-separator {
+        display: inline; /* Show separators on large screens */
+        color: #ccc;
+    }
+
+    .hamburger-menu {
+        display: none !important; /* Ensure hamburger is hidden on large screens */
+    }
 }
 
 
-.logout-form {
+/* .logout-form {
     /* display: inline; */ /* No longer needed with flex */
-    margin-left: auto; /* Push logout form to the right */
-}
+/*    margin-left: auto; /* Push logout form to the right */
+/*}
 
 .nav-separator {
     color: #ccc; /* Light gray color */
     /* margin: 0 5px; */ /* Replaced by margin on all nav items */
-}
+/*} */
 
 .nav-button, .logout-button { /* Style for buttons in nav, including logout */
     background: #007bff; /* Bootstrap primary blue */
@@ -109,9 +302,67 @@ body {
     text-decoration: underline;
 }
 
+/* === Responsive Table Column Visibility === */
+
+/* Hide on mobile (e.g., <= 576px) */
+@media (max-width: 576px) {
+    .col-hide-mobile {
+        display: none !important; /* Important to override table display properties */
+    }
+    .content-table th,
+    .content-table td {
+        font-size: 0.85em; /* Smaller font for tables on mobile */
+        padding: 8px 6px; /* Adjust padding */
+    }
+}
+
+/* Hide on tablet (e.g., <= 768px) */
+/* This will also hide on mobile if a column has both col-hide-tablet and col-hide-mobile,
+   or just this one if it should only be hidden up to tablet size. */
+@media (max-width: 768px) {
+    .col-hide-tablet {
+        display: none !important;
+    }
+    /* Reduce font size for tablets as well, but maybe slightly larger than mobile */
+    .content-table th,
+    .content-table td {
+        font-size: 0.9em; /* Slightly smaller font for tables on tablet */
+        /* Padding can be adjusted here too if needed, or inherit from mobile if this rule is placed after mobile */
+    }
+}
+
+/* Utility class to make a table scrollable horizontally if needed */
+.table-responsive-wrapper {
+    overflow-x: auto;
+    width: 100%;
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+    margin-bottom: 1rem; /* Add some space below the scrolled table */
+}
+
 .footer-link-separator {
     color: #ccc; /* Light gray color, similar to nav-separator */
     margin: 0 10px;
+}
+
+@media (max-width: 576px) {
+    .main-footer .container {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+    .footer-text {
+        font-size: 0.8em; /* Slightly smaller font for very small screens */
+    }
+    .footer-link-separator {
+        display: block; /* Stack links in footer on very small screens */
+        margin: 5px auto;
+        width: 50px; /* Give it a small width to act as a visual separator line */
+        border-top: 1px solid #555; /* Make it a line */
+        height: 0;
+    }
+    .main-footer p.footer-text a { /* Ensure links are block for stacking */
+        display: block;
+        margin: 5px 0;
+    }
 }
 
 
@@ -270,6 +521,28 @@ a:hover {
 
 .form-group {
     margin-bottom: 15px;
+}
+
+/* Responsive forms */
+@media (max-width: 768px) {
+    .form-input,
+    .form-input-select,
+    .action-button, /* Ensure buttons also stack or resize well */
+    .btn { /* General bootstrap like buttons */
+        width: 100%; /* Make form elements and buttons full width */
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+    .form-styled {
+        padding: 15px; /* Reduce padding on smaller screens */
+    }
+
+    /* Adjust button groups or multiple buttons in a row */
+    .form-group .action-button + .action-button,
+    .form-group .btn + .btn {
+        margin-top: 10px; /* Add space if they stack */
+    }
 }
 
 .form-label {

@@ -6,13 +6,14 @@
   <a class="filter-link" href="/gerentes?estado=suspendido">Suspendidos</a>
 </div>
 
+<div class="table-responsive-wrapper">
 <table class="content-table">
   <thead class="table-header">
     <tr>
       <th>Nombre</th>
-      <th>Apellido</th>
-      <th>Correo</th>
-      <th>Usuario</th>
+      <th class="col-hide-tablet">Apellido</th> <!-- Ocultar en tablet y móvil -->
+      <th class="col-hide-mobile">Correo</th>   <!-- Ocultar en móvil -->
+      <th class="col-hide-tablet">Usuario</th>  <!-- Ocultar en tablet y móvil -->
       <th>Estado</th>
       <th>Acciones</th>
     </tr>
@@ -21,9 +22,9 @@
     <% gerentes.forEach(gerente => { %>
       <tr>
         <td><a class="action-link" href="/gerentes/<%= gerente.id %>"><%= gerente.nombre %></a></td>
-        <td><%= gerente.apellido %></td>
-        <td><%= gerente.email %></td>
-        <td><%= gerente.username %></td>
+        <td class="col-hide-tablet"><%= gerente.apellido %></td>
+        <td class="col-hide-mobile"><%= gerente.email %></td>
+        <td class="col-hide-tablet"><%= gerente.username %></td>
         <td><%= gerente.estado %></td>
         <td>
           <a class="action-link" href="/gerentes/<%= gerente.id %>/edit">Editar</a>
@@ -42,7 +43,7 @@
     <% }) %>
   </tbody>
 </table>
-
+</div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {

@@ -6,14 +6,15 @@
   <a class="filter-link" href="/admins?estado=suspendido">Suspendidos</a>
 </div>
 
+<div class="table-responsive-wrapper"> <!- Added wrapper for horizontal scroll ->
 <table class="content-table">
   <thead class="table-header">
     <tr>
       <th>Nombre</th>
-      <th>Apellido</th>
-      <th>Correo</th>
+      <th class="col-hide-tablet">Apellido</th> <!-- Ocultar en tablet y móvil -->
+      <th class="col-hide-mobile">Correo</th>   <!-- Ocultar en móvil -->
       <th>Usuario</th>
-      <th>Estado</th>
+      <th class="col-hide-tablet">Estado</th>   <!-- Cambiado a col-hide-tablet para ocultar también en tablet -->
       <th>Acciones</th>
     </tr>
   </thead>
@@ -21,10 +22,10 @@
     <% admins.forEach(admin => { %>
       <tr>
         <td><a class="action-link" href="/admins/<%= admin.id %>"><%= admin.nombre %></a></td>
-        <td><%= admin.apellido %></td>
-        <td><%= admin.email %></td>
+        <td class="col-hide-tablet"><%= admin.apellido %></td>
+        <td class="col-hide-mobile"><%= admin.email %></td>
         <td><%= admin.username %></td>
-        <td><%= admin.estado %></td>
+        <td class="col-hide-tablet"><%= admin.estado %></td> <!-- Cambiado a col-hide-tablet -->
         <td>
           <a class="action-link" href="/admins/<%= admin.id %>/edit">Editar</a>
           <form class="status-form" method="POST" action="/admins/<%= admin.id %>/estado?_method=PUT" style="display: inline;">
@@ -42,7 +43,7 @@
     <% }) %>
   </tbody>
 </table>
-
+</div> <!- End of table-responsive-wrapper ->
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
