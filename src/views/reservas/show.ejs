@@ -12,9 +12,9 @@
                 <p class="detail-entry"><strong class="detail-label">Fecha de Reservacion:</strong> <span class="detail-value"><%= new Date(reserva.fecha).toLocaleDateString('es-ES', { year: 'numeric', month: '2-digit', day: '2-digit' }) %></span></p>
                 <p class="detail-entry"><strong class="detail-label">Hora de inicio:</strong> <span class="detail-value"><%= new Date('1970-01-01T' + reserva.hora_inicio).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', hour12: false }) %></span></p>
                 <p class="detail-entry"><strong class="detail-label">Hora de fin:</strong> <span class="detail-value"><%= new Date('1970-01-01T' + reserva.hora_fin).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', hour12: false }) %></span></p>
-                <p class="detail-entry"><strong class="detail-label">Origen:</strong> <span class="detail-value"><%= reserva.origen %></span></p>
-                <p class="detail-entry"><strong class="detail-label">Destino:</strong> <span class="detail-value"><%= reserva.destino %></span></p>
-                <p class="detail-entry"><strong class="detail-label">Tarifa:</strong> <span class="detail-value">$<%= reserva.tarifa %></span></p>
+                <p class="detail-entry"><strong class="detail-label">Origen:</strong> <span class="detail-value"><%= reserva.origen || 'No especificado' %></span></p>
+                <p class="detail-entry"><strong class="detail-label">Destino:</strong> <span class="detail-value"><%= reserva.destino || 'No especificado' %></span></p>
+                <p class="detail-entry"><strong class="detail-label">Tarifa:</strong> <span class="detail-value"><%= reserva.tarifa.toLocaleString('es-ES', { style: 'currency', currency: 'EUR' }) %></span></p> <!-- Asumiendo EUR, ajustar si es otra moneda -->
                 <p class="detail-entry"><strong class="detail-label">Tipo de pago:</strong> <span class="detail-value"><%= reserva.tipo_pago %></span></p>
                 <p class="detail-entry"><strong class="detail-label">Estado:</strong> <span class="detail-value"><%= reserva.estado_reserva %></span></p>
             </div>
