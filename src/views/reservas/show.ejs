@@ -64,7 +64,7 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    <% if (typeof reserva !== 'undefined' && reserva && reserva.origen && reserva.destino) { %>
+     if (typeof reserva !== 'undefined' && reserva && reserva.origen && reserva.destino) { 
         let mapShow;
         let directionsServiceShow;
         let directionsRendererShow;
@@ -133,6 +133,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             }, 1000);
         }
-    <% } %>
+     } 
 });
 </script>

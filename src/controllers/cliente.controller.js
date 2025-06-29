@@ -7,6 +7,7 @@ const create = (req, res) => {
 
 const store = async (req, res) => {
   const { nombre, apellido, dni, telefono, correo } = req.body;
+  const { redirect_url } = req.query; // Obtener redirect_url de los query params
 
   // Basic trimming (optional, but good practice)
   const finalDni = dni ? String(dni).trim() : '';
@@ -31,10 +32,25 @@ const store = async (req, res) => {
     }
 
     await model.store({ nombre, apellido, dni: finalDni, telefono: finalTelefono, correo });
-    res.redirect("/clientes");
+
+    // Redirección condicional
+    if (redirect_url) {
+      // Por seguridad, podrías validar que redirect_url sea a una ruta permitida en tu aplicación.
+      // Por ahora, simplemente redirigimos si existe.
+      // Ejemplo de validación simple: if (redirect_url === '/reservas/create') { ... }
+      return res.redirect(redirect_url);
+    } else {
+      return res.redirect("/clientes");
+    }
+
   } catch (error) {
     console.error("Error al guardar cliente:", error);
-    res.status(500).render("clientes/create", { error: "Error al guardar cliente", formData: req.body });
+    // Al renderizar error, también pasamos redirect_url para que el formulario lo mantenga si es necesario
+    return res.status(500).render("clientes/create", {
+        error: "Error al guardar cliente",
+        formData: req.body,
+        redirect_url: redirect_url // Para que el action del form lo pueda incluir de nuevo si hay error
+    });
   }
 };
 
