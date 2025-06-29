@@ -13,3 +13,22 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
+/**
+ * Calcula la tarifa de la reserva basada en la distancia.
+ * Tarifa = 5 (base) + 2 * distanciaEnKm.
+ * @param {number} distanciaEnKm - La distancia en kilómetros.
+ * @returns {number} La tarifa calculada, con dos decimales.
+ */
+function calcularTarifaReserva(distanciaEnKm) {
+    const tarifaBase = 5;
+    const costoPorKm = 2;
+    let distancia = parseFloat(distanciaEnKm);
+
+    if (isNaN(distancia) || distancia < 0) {
+        distancia = 0; // Si la distancia no es válida o es negativa, tratarla como 0 para el cálculo.
+    }
+
+    const tarifaTotal = tarifaBase + (costoPorKm * distancia);
+    return parseFloat(tarifaTotal.toFixed(2)); // Asegurar dos decimales
+}

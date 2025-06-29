@@ -57,43 +57,50 @@ const createReservation = async (req, res) => {
       hora_fin,
       origen,
       destino,
-      tarifa,
-      tipo_pago
+      // tarifa, // La tarifa ya no se toma directamente del body, se recalcula.
+      tipo_pago,
+      distancia_km
     } = req.body;
 
-    // Basic validation (more can be added)
-    if (!cliente_id || !chofer_id || !fecha || !tarifa || !tipo_pago) {
-      // If validation fails, re-render the form with an error message and old input
+    // Validación: La tarifa ya no se valida aquí porque se calcula en el backend.
+    // Se valida que los campos principales estén presentes.
+    if (!cliente_id || !chofer_id || !fecha || !hora_inicio || !hora_fin || !origen || !destino || !tipo_pago) {
       const clientes = await Cliente.getAllActivos();
-      const choferes = await Chofer.getAllActivosConVehiculo();
-      const choferesDisplay = choferes.map(ch => ({
-        id: ch.chofer_id,
-        display_name: `${ch.vehiculo_placa} - ${ch.vehiculo_modelo} - ${ch.chofer_nombre} ${ch.chofer_apellido}`
-      }));
       const clientesDisplay = clientes.map(cl => ({
         id: cl.id,
         display_name: `${cl.dni} - ${cl.nombre} ${cl.apellido}`
       }));
+      // No es necesario cargar choferesDisplay aquí ya que se cargan dinámicamente en el frontend.
 
       return res.render('reservas/create', {
         clientes: clientesDisplay,
-        choferes: choferesDisplay,
-        error: 'Todos los campos marcados con * son obligatorios.',
-        oldInput: req.body // Pass back the submitted data
+        choferes: [], // El frontend se encarga de esto
+        error: 'Todos los campos marcados con * son obligatorios (excepto tarifa que es automática).',
+        oldInput: req.body
       });
     }
+
+    // Calcular tarifa en el backend de forma segura
+    const tarifaBase = 5;
+    const costoPorKm = 2;
+    let distanciaNumericaValidada = distancia_km ? parseFloat(distancia_km) : 0;
+    if (isNaN(distanciaNumericaValidada) || distanciaNumericaValidada < 0) {
+        distanciaNumericaValidada = 0; // Asegurar que la distancia sea válida para el cálculo
+    }
+    const tarifaCalculada = tarifaBase + (costoPorKm * distanciaNumericaValidada);
 
     // Prepare data for Reserva.create
     const reservaData = {
       cliente_id: parseInt(cliente_id),
       chofer_id: parseInt(chofer_id),
       fecha,
-      hora_inicio: hora_inicio || null, // Handle optional fields
-      hora_fin: hora_fin || null,
-      origen: origen || null,
-      destino: destino || null,
-      tarifa: parseFloat(tarifa),
-      tipo_pago
+      hora_inicio: hora_inicio,
+      hora_fin: hora_fin,
+      origen: origen,
+      destino: destino,
+      tarifa: parseFloat(tarifaCalculada.toFixed(2)), // Usar la tarifa calculada en el backend
+      tipo_pago,
+      distancia_km: distanciaNumericaValidada // Usar la distancia ya validada y parseada, puede ser 0
     };
 
     const nuevaReserva = await Reserva.create(reservaData);
@@ -106,11 +113,8 @@ const createReservation = async (req, res) => {
     // In case of error (e.g., database error), re-render form with error
     // It's important to also repopulate the form with previous input
     const clientes = await Cliente.getAllActivos();
-    const choferes = await Chofer.getAllActivosConVehiculo();
-    const choferesDisplay = choferes.map(ch => ({
-        id: ch.chofer_id,
-        display_name: `${ch.vehiculo_placa} - ${ch.vehiculo_modelo} - ${ch.chofer_nombre} ${ch.chofer_apellido}`
-      }));
+    // Similar al bloque de validación, no es estrictamente necesario recargar choferes
+    // si el frontend los maneja dinámicamente.
     const clientesDisplay = clientes.map(cl => ({
         id: cl.id,
         display_name: `${cl.dni} - ${cl.nombre} ${cl.apellido}`
@@ -118,7 +122,7 @@ const createReservation = async (req, res) => {
 
     res.render('reservas/create', {
       clientes: clientesDisplay,
-      choferes: choferesDisplay,
+      choferes: [], // Pasar array vacío, el frontend se encarga de buscar disponibles
       error: 'Error al guardar la reserva. Inténtelo de nuevo.',
       oldInput: req.body
     });
@@ -427,16 +431,15 @@ module.exports = {
         hora_fin,
         origen,
         destino,
-        tarifa,
+        // tarifa, // Tarifa se recalcula en backend
         tipo_pago,
-        estado // Added estado
+        estado,
+        distancia_km
       } = req.body;
 
-      // Basic validation (can be expanded)
-      if (!cliente_id || !chofer_id || !fecha || !tarifa || !tipo_pago || !estado) {
-        // If validation fails, re-render form with error and existing data
-        // This requires fetching reserva, clientes, choferes again, or passing them differently
-        // For simplicity, redirecting back to edit form with a query param error might be easier
+      // Validación similar a createReservation, excluyendo tarifa.
+      if (!cliente_id || !chofer_id || !fecha || !origen || !destino || !tipo_pago || !estado) {
+        // Re-renderizar el formulario de edición con errores.
         // Or, better, re-render with all necessary data
         const reserva = await Reserva.getById(id); // Refetch current reserva data
         const clientes = await Cliente.getAllActivos();
@@ -448,21 +451,31 @@ module.exports = {
             reserva: { ...reserva, ...req.body }, // Merge original with attempted changes for repopulation
             clientes: clientesDisplay, // You'll need to re-fetch or pass these
             choferes: choferesDisplay, // Same as above
-            error: 'Todos los campos marcados con * son obligatorios, incluyendo el estado.'
+            error: 'Todos los campos marcados con * son obligatorios (excepto tarifa que es automática).'
         });
       }
+
+      // Calcular tarifa en el backend de forma segura
+      const tarifaBase = 5;
+      const costoPorKm = 2;
+      let distanciaNumericaUpdate = distancia_km ? parseFloat(distancia_km) : 0;
+      if (isNaN(distanciaNumericaUpdate) || distanciaNumericaUpdate < 0) {
+          distanciaNumericaUpdate = 0; // Asegurar que la distancia sea válida
+      }
+      const tarifaCalculadaUpdate = tarifaBase + (costoPorKm * distanciaNumericaUpdate);
 
       const reservaData = {
         cliente_id: parseInt(cliente_id),
         chofer_id: parseInt(chofer_id),
         fecha,
-        hora_inicio: hora_inicio || null,
-        hora_fin: hora_fin || null,
-        origen: origen || null,
-        destino: destino || null,
-        tarifa: parseFloat(tarifa),
+        hora_inicio: hora_inicio, // Asumir que son obligatorios si llegan aquí
+        hora_fin: hora_fin,
+        origen: origen,
+        destino: destino,
+        tarifa: parseFloat(tarifaCalculadaUpdate.toFixed(2)), // Usar tarifa calculada en backend
         tipo_pago,
-        estado // Include estado in the data to be updated
+        estado,
+        distancia_km: distanciaNumericaUpdate // Usar la distancia ya validada y parseada
       };
 
       const reservaActualizada = await Reserva.update(id, reservaData);
