@@ -4,7 +4,14 @@
   <p class="error-message"><%= error %></p>
 <% } %>
 
-<form class="form-styled" action="/clientes" method="post">
+<%
+let formAction = "/clientes";
+if (typeof redirect_url !== 'undefined' && redirect_url) {
+  formAction += "?redirect_url=" + encodeURIComponent(redirect_url);
+}
+%>
+
+<form class="form-styled" action="<%= formAction %>" method="post">
   <div class="form-group">
     <label class="form-label" for="nombre">Nombre:</label>
     <input class="form-input form-input-text" type="text" name="nombre" id="nombre" required>
