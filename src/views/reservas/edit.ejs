@@ -45,7 +45,6 @@
             <div class="mb-3">
                 <label for="chofer_id" class="form-label">Chofer y Vehículo*</label>
                 <select class="form-select" id="chofer_id" name="chofer_id" required>
-                    <!-- Las opciones se cargarán dinámicamente, pero podemos preseleccionar si es posible -->
                     <option value="">Seleccione fecha y horas para ver choferes disponibles</option>
                      <% if (typeof choferes !== 'undefined' && choferes.length > 0) { %>
                         <% choferes.forEach(chofer => { %>
@@ -133,105 +132,61 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+    // Definiciones de elementos del DOM al principio
     const fechaInput = document.getElementById('fecha');
     const horaInicioInput = document.getElementById('hora_inicio');
-    const horaFinInput = document.getElementById('hora_fin'); // Ya definido para el botón sugerir
+    const horaFinInput = document.getElementById('hora_fin');
     const choferSelect = document.getElementById('chofer_id');
     const choferLoadingDiv = document.getElementById('chofer_loading');
     const currentReservaId = "<%= (typeof reserva !== 'undefined' && reserva.id_reserva) ? reserva.id_reserva : '' %>";
     const initialChoferId = "<%= (typeof reserva !== 'undefined' && reserva.id_chofer) ? reserva.id_chofer : '' %>";
 
-    // --- Inicio: Lógica de Google Maps ---
     const origenInput = document.getElementById('origen');
     const destinoInput = document.getElementById('destino');
     const distanciaDiv = document.getElementById('distancia');
     const distanciaHiddenInput = document.getElementById('distancia_km_hidden');
     const tarifaInput = document.getElementById('tarifa');
     const duracionViajeDivEdit = document.getElementById('duracion_viaje_edit');
-    const sugerirHoraFinBtnEdit = document.getElementById('sugerir_hora_fin_btn_edit'); // Definición correcta
+    const sugerirHoraFinBtnEdit = document.getElementById('sugerir_hora_fin_btn_edit');
 
     let currentTravelDurationSecondsEdit = 0;
-
-    // Asegurarse de que horaInicioInput y horaFinInput estén disponibles para el event listener
-    // Ya están definidos globalmente en este script (const horaInicioInput = ..., const horaFinInput = ...)
-
-    if (sugerirHoraFinBtnEdit) { // Verificar que el botón exista antes de añadir listener
-        sugerirHoraFinBtnEdit.disabled = true; // Deshabilitar inicialmente
-        sugerirHoraFinBtnEdit.addEventListener('click', function() {
-            if (!horaInicioInput.value || currentTravelDurationSecondsEdit === 0) {
-                alert('Por favor, seleccione una hora de inicio y calcule una ruta primero.');
-        =======
-
-
-            const [hoursInicio, minutesInicio] = horaInicioInput.value.split(':').map(Number);
-            const fechaInicio = new Date();
-            fechaInicio.setHours(hoursInicio, minutesInicio, 0, 0);
-
-            const toleranciaSegundos = 30 * 60;
-            const fechaFin = new Date(fechaInicio.getTime() + (currentTravelDurationSecondsEdit + toleranciaSegundos) * 1000);
-
-            const hoursFin = fechaFin.getHours().toString().padStart(2, '0');
-            const minutesFin = fechaFin.getMinutes().toString().padStart(2, '0');
-
-            horaFinInput.value = `${hoursFin}:${minutesFin}`;
-        });
-    }
-
-
-    let map;
-            return;
-        }
-
-        const [hoursInicio, minutesInicio] = horaInicioInput.value.split(':').map(Number);
-        const fechaInicio = new Date();
-        fechaInicio.setHours(hoursInicio, minutesInicio, 0, 0);
-
-        const toleranciaSegundos = 30 * 60;
-        const fechaFin = new Date(fechaInicio.getTime() + (currentTravelDurationSecondsEdit + toleranciaSegundos) * 1000);
-
-        const hoursFin = fechaFin.getHours().toString().padStart(2, '0');
-        const minutesFin = fechaFin.getMinutes().toString().padStart(2, '0');
-
-        horaFinInput.value = `${hoursFin}:${minutesFin}`;
-    });
-
     let map;
     let directionsService;
     let directionsRenderer;
     let autocompleteOrigen;
     let autocompleteDestino;
 
-    const origenInput = document.getElementById('origen');
-    const destinoInput = document.getElementById('destino');
-    const distanciaDiv = document.getElementById('distancia');
-    const distanciaHiddenInput = document.getElementById('distancia_km_hidden');
-    const tarifaInput = document.getElementById('tarifa');
-    const duracionViajeDivEdit = document.getElementById('duracion_viaje_edit'); // Div para duración
-    const sugerirHoraFinBtnEdit = document.getElementById('sugerir_hora_fin_btn_edit');
-
-    let currentTravelDurationSecondsEdit = 0; // Variable para almacenar la duración del viaje en segundos
+    if (sugerirHoraFinBtnEdit) {
+        sugerirHoraFinBtnEdit.disabled = true;
+        sugerirHoraFinBtnEdit.addEventListener('click', function() {
+            if (!horaInicioInput.value || currentTravelDurationSecondsEdit === 0) {
+                alert('Por favor, seleccione una hora de inicio y calcule una ruta primero.');
+                return;
+            }
+            const [hoursInicio, minutesInicio] = horaInicioInput.value.split(':').map(Number);
+            const fechaInicio = new Date();
+            fechaInicio.setHours(hoursInicio, minutesInicio, 0, 0);
+            const toleranciaSegundos = 30 * 60;
+            const fechaFinCalculada = new Date(fechaInicio.getTime() + (currentTravelDurationSecondsEdit + toleranciaSegundos) * 1000);
+            const hoursFin = fechaFinCalculada.getHours().toString().padStart(2, '0');
+            const minutesFin = fechaFinCalculada.getMinutes().toString().padStart(2, '0');
+            horaFinInput.value = `${hoursFin}:${minutesFin}`;
+        });
+    }
 
     function initMap() {
         map = new google.maps.Map(document.getElementById('map'), {
-            center: { lat: -12.046374, lng: -77.042793 }, // Se ajustará si hay origen/destino
+            center: { lat: -12.046374, lng: -77.042793 },
             zoom: 12
         });
-
         directionsService = new google.maps.DirectionsService();
         directionsRenderer = new google.maps.DirectionsRenderer();
         directionsRenderer.setMap(map);
-
-        const autocompleteOptions = {
-            // componentRestrictions: { country: 'pe' } // Ejemplo: Restringir a Perú
-        };
-
+        const autocompleteOptions = {};
         autocompleteOrigen = new google.maps.places.Autocomplete(origenInput, autocompleteOptions);
         autocompleteDestino = new google.maps.places.Autocomplete(destinoInput, autocompleteOptions);
-
         autocompleteOrigen.addListener('place_changed', calculateAndDisplayRoute);
         autocompleteDestino.addListener('place_changed', calculateAndDisplayRoute);
-
-        // Calcular y mostrar ruta inicial si ya hay origen y destino definidos
         if (origenInput.value && destinoInput.value) {
             calculateAndDisplayRoute();
         }
@@ -240,72 +195,62 @@ document.addEventListener('DOMContentLoaded', function () {
     function calculateAndDisplayRoute() {
         const origen = origenInput.value;
         const destino = destinoInput.value;
-
         if (origen && destino) {
             directionsService.route(
-                {
-                    origin: origen,
-                    destination: destino,
-                    travelMode: google.maps.TravelMode.DRIVING
-                },
+                { origin: origen, destination: destino, travelMode: google.maps.TravelMode.DRIVING },
                 (response, status) => {
                     if (status === 'OK') {
                         directionsRenderer.setDirections(response);
-                        const route = response.routes[0];
-                        const leg = route.legs[0];
+                        const leg = response.routes[0].legs[0];
                         if (leg.distance && leg.duration) {
                             const distanciaKm = parseFloat((leg.distance.value / 1000).toFixed(2));
                             distanciaDiv.innerHTML = `<strong>Distancia:</strong> ${distanciaKm} km`;
                             distanciaHiddenInput.value = distanciaKm;
                             tarifaInput.value = calcularTarifaReserva(distanciaKm).toFixed(2);
-
                             currentTravelDurationSecondsEdit = leg.duration.value;
-                            duracionViajeDivEdit.innerHTML = `<strong>Duración viaje:</strong> ${leg.duration.text}`;
-                            sugerirHoraFinBtnEdit.disabled = false;
+                            if(duracionViajeDivEdit) duracionViajeDivEdit.innerHTML = `<strong>Duración viaje:</strong> ${leg.duration.text}`;
+                            if (sugerirHoraFinBtnEdit) sugerirHoraFinBtnEdit.disabled = false;
                         } else {
                             distanciaDiv.innerHTML = 'No se pudo calcular distancia/duración.';
-                            duracionViajeDivEdit.innerHTML = '';
+                            if(duracionViajeDivEdit) duracionViajeDivEdit.innerHTML = '';
                             distanciaHiddenInput.value = '';
                             currentTravelDurationSecondsEdit = 0;
                             tarifaInput.value = calcularTarifaReserva(0).toFixed(2);
-                            sugerirHoraFinBtnEdit.disabled = true;
+                            if (sugerirHoraFinBtnEdit) sugerirHoraFinBtnEdit.disabled = true;
                         }
                     } else {
                         distanciaDiv.innerHTML = 'No se pudo calcular la ruta: ' + status;
-                        duracionViajeDivEdit.innerHTML = '';
+                        if(duracionViajeDivEdit) duracionViajeDivEdit.innerHTML = '';
                         distanciaHiddenInput.value = '';
                         currentTravelDurationSecondsEdit = 0;
                         tarifaInput.value = calcularTarifaReserva(0).toFixed(2);
-                        sugerirHoraFinBtnEdit.disabled = true;
+                        if (sugerirHoraFinBtnEdit) sugerirHoraFinBtnEdit.disabled = true;
                     }
                 }
             );
         } else {
             distanciaDiv.innerHTML = '';
-            duracionViajeDivEdit.innerHTML = '';
+            if(duracionViajeDivEdit) duracionViajeDivEdit.innerHTML = '';
             distanciaHiddenInput.value = '';
             currentTravelDurationSecondsEdit = 0;
             tarifaInput.value = calcularTarifaReserva(0).toFixed(2);
-            sugerirHoraFinBtnEdit.disabled = true;
+            if (sugerirHoraFinBtnEdit) sugerirHoraFinBtnEdit.disabled = true;
         }
     }
 
     if (typeof google !== 'undefined' && typeof google.maps !== 'undefined') {
         initMap();
     } else {
-        // Fallback o manejo si la API de Google Maps no está cargada
         console.warn("Google Maps API might not be loaded yet for edit.ejs. Consider callback.");
         setTimeout(() => {
             if (typeof google !== 'undefined' && typeof google.maps !== 'undefined') {
                 initMap();
             } else {
                 console.error("Google Maps API failed to load for edit.ejs.");
-                distanciaDiv.innerHTML = "Error al cargar Google Maps API.";
+                if(distanciaDiv) distanciaDiv.innerHTML = "Error al cargar Google Maps API.";
             }
         }, 1000);
     }
-    // --- Fin: Lógica de Google Maps ---
-
 
     function fetchChoferesDisponibles() {
         const fecha = fechaInput.value;
@@ -340,7 +285,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     return response.json();
                 })
                 .then(data => {
-                    choferSelect.innerHTML = ''; // Limpiar opciones anteriores
+                    choferSelect.innerHTML = '';
                     let initialChoferStillAvailable = false;
                     if (data.choferes && data.choferes.length > 0) {
                         choferSelect.appendChild(new Option('Seleccione un chofer y vehículo', ''));
@@ -351,24 +296,13 @@ document.addEventListener('DOMContentLoaded', function () {
                                 initialChoferStillAvailable = true;
                             }
                         });
-                         // Si el chofer original sigue disponible (o es la misma reserva), preseleccionarlo.
                         if (initialChoferStillAvailable) {
                             choferSelect.value = initialChoferId;
-                        } else if (data.choferes.length > 0 && initialChoferId && !initialChoferStillAvailable) {
-                            // Si el chofer original ya no está disponible, pero hay otros,
-                            // se podría añadir un mensaje o simplemente dejar que el usuario seleccione uno nuevo.
-                            // Por ahora, se deja que el usuario seleccione.
-                            // Opcionalmente, se podría añadir el chofer original a la lista si es la misma reserva
-                            // y el backend lo permite (excluyéndolo del chequeo de conflicto).
                         }
                         choferSelect.disabled = false;
                     } else {
-                        // Si el chofer original era el único y ahora no está disponible (y no es la misma reserva),
-                        // o si no había chofer original y no hay disponibles.
                         choferSelect.appendChild(new Option('No hay choferes disponibles para este horario', ''));
-                         // Mantener deshabilitado si no hay opciones.
                     }
-
                 })
                 .catch(error => {
                     console.error('Error al cargar choferes:', error);
@@ -387,27 +321,16 @@ document.addEventListener('DOMContentLoaded', function () {
     horaInicioInput.addEventListener('change', fetchChoferesDisponibles);
     horaFinInput.addEventListener('change', fetchChoferesDisponibles);
 
-    // Cargar choferes al iniciar la página si ya hay fecha y hora
     if (fechaInput.value && horaInicioInput.value && horaFinInput.value) {
         fetchChoferesDisponibles();
     } else {
-        // Si no hay fecha/hora inicial, mostrar el chofer original si existe,
-        // pero el select estará deshabilitado hasta que se ingrese fecha/hora.
-        // Esto es por si el usuario quiere ver quién estaba asignado antes de cambiar la fecha/hora.
-        if (initialChoferId && choferSelect.options.length <=1) { // si solo tiene la opcion default
+        if (initialChoferId && choferSelect.options.length <=1) {
              const originalChoferOption = Array.from(choferSelect.options).find(opt => opt.value === initialChoferId);
              if(originalChoferOption){
                 choferSelect.value = initialChoferId;
-             } else {
-                // Si el chofer original no está en la lista inicial (que puede estar vacía o solo con el placeholder)
-                // lo añadimos temporalmente para visualización, pero deshabilitado.
-                // Esto asume que `choferes` en el EJS podría no tener al chofer actual si no se pasó inicialmente.
-                // La lógica de `fetchChoferesDisponibles` lo reemplazará.
-                // Este caso es más complejo si la lista de `choferes` no se pasa completa al renderizar.
-                // Por ahora, se confía en que `fetchChoferesDisponibles` cargará la lista correcta.
              }
         }
-         choferSelect.disabled = true; // Asegurar que esté deshabilitado
+         choferSelect.disabled = true;
     }
 });
 </script>
