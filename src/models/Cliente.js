@@ -105,5 +105,34 @@ module.exports = {
   updateCliente,
   existsDNI,
   getAllActivos, // Make sure it's exported
-  softDelete
+  softDelete,
+  updatePassword: async (userId, currentPassword, newPassword) => {
+    // Este método asume que el userId es el ID de la tabla 'users'
+    // Los clientes pueden o no tener un user_id si se registran o son creados por un admin
+    // El controlador debe asegurarse de pasar el user_id correcto.
+    const bcrypt = require('bcrypt'); // Asegúrate de tener bcrypt aquí si no está global
+    try {
+      const userQuery = await pool.query('SELECT password FROM users WHERE id = $1', [userId]);
+      if (userQuery.rows.length === 0) {
+        console.error("Usuario no encontrado para actualizar contraseña (Cliente). UserID:", userId);
+        return false;
+      }
+      const hashedPassword = userQuery.rows[0].password;
+
+      const match = await bcrypt.compare(currentPassword, hashedPassword);
+      if (!match) {
+         console.log("La contraseña actual no coincide para el UserID (Cliente):", userId);
+        return false;
+      }
+
+      const saltRounds = 10;
+      const newHashedPassword = await bcrypt.hash(newPassword, saltRounds);
+
+      await pool.query('UPDATE users SET password = $1 WHERE id = $2', [newHashedPassword, userId]);
+      return true;
+    } catch (error) {
+      console.error("Error al actualizar la contraseña del cliente (usuario):", error);
+      throw error;
+    }
+  }
 };

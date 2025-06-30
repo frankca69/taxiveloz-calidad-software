@@ -18,9 +18,13 @@ router.get('/', controller.index);
 router.get('/create', controller.create);
 router.post('/', controller.store);
 router.get('/:id', controller.show); // Nuevo
-router.get('/:id/edit', controller.edit);
-router.put('/:id', controller.update);
-router.put('/:id/estado', controller.updateEstado); // Nuevo
+router.get('/:id/edit', controller.edit); // Gerente edita chofer
+router.put('/:id', controller.update); // Gerente actualiza chofer
+router.put('/:id/estado', controller.updateEstado);
 router.delete('/:id', controller.destroy);
+
+// Rutas para que el propio chofer edite su cuenta
+router.get('/profile/:id/edit', tieneRol('chofer'), controller.editProfileForm);
+router.put('/profile/:id', tieneRol('chofer'), controller.updateProfile);
 
 module.exports = router;

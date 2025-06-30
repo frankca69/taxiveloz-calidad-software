@@ -1,0 +1,87 @@
+<%- include('../partials/header') %>
+
+<div class="container mt-5">
+    <h2>Editar Mi Perfil de Gerente</h2>
+
+    <% if (locals.error_msg && error_msg) { %>
+        <div class="alert alert-danger" role="alert"><%= error_msg %></div>
+    <% } %>
+    <% if (locals.success_msg && success_msg) { %>
+        <div class="alert alert-success" role="alert"><%= success_msg %></div>
+    <% } %>
+    <% if (locals.error) { %>
+        <div class="alert alert-danger" role="alert"><%= error %></div>
+    <% } %>
+
+    <form action="/gerente/profile/<%= gerente.id %>?_method=PUT" method="POST">
+        <input type="hidden" name="_method" value="PUT">
+
+        <div class="mb-3">
+            <label for="username" class="form-label">Nombre de Usuario</label>
+            <input type="text" class="form-control" id="username" name="username" value="<%= gerente.user_username || gerente.username %>" disabled>
+            <small class="form-text text-muted">El nombre de usuario no se puede cambiar.</small>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label for="nombre" class="form-label">Nombre</label>
+                <input type="text" class="form-control" id="nombre" name="nombre" value="<%= gerente.nombre %>" required>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label for="apellido" class="form-label">Apellido</label>
+                <input type="text" class="form-control" id="apellido" name="apellido" value="<%= gerente.apellido %>" required>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label for="dni" class="form-label">DNI</label>
+                <input type="text" class="form-control" id="dni" name="dni" value="<%= gerente.dni %>" pattern="\\d{8}" title="El DNI debe tener 8 dígitos">
+            </div>
+            <div class="col-md-6 mb-3">
+                <label for="telefono" class="form-label">Teléfono</label>
+                <input type="text" class="form-control" id="telefono" name="telefono" value="<%= gerente.telefono %>" pattern="\\d{9}" title="El teléfono debe tener 9 dígitos">
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" class="form-control" id="email" name="email" value="<%= gerente.email %>" required>
+        </div>
+
+        <hr>
+        <h4>Cambiar Contraseña (opcional)</h4>
+        <div class="mb-3">
+            <label for="current_password" class="form-label">Contraseña Actual</label>
+            <input type="password" class="form-control" id="current_password" name="current_password">
+            <small class="form-text text-muted">Dejar en blanco si no desea cambiar la contraseña. Si cambia la contraseña, este campo es obligatorio.</small>
+        </div>
+        <div class="mb-3">
+            <label for="password" class="form-label">Nueva Contraseña</label>
+            <input type="password" class="form-control" id="password" name="password">
+        </div>
+        <div class="mb-3">
+            <label for="confirm_password" class="form-label">Confirmar Nueva Contraseña</label>
+            <input type="password" class="form-control" id="confirm_password" name="confirm_password">
+        </div>
+
+        <button type="submit" class="btn btn-primary">Actualizar Perfil</button>
+        <a href="/dashboard" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>
+
+<script>
+    const formGerente = document.querySelector('form');
+    const passwordInputGerente = document.getElementById('password');
+    const confirmPasswordInputGerente = document.getElementById('confirm_password');
+
+    formGerente.addEventListener('submit', function(event) {
+        if (passwordInputGerente.value && passwordInputGerente.value !== confirmPasswordInputGerente.value) {
+            alert('Las nuevas contraseñas no coinciden.');
+            event.preventDefault();
+            confirmPasswordInputGerente.focus();
+        }
+    });
+</script>
+
+<%- include('../partials/footer') %>

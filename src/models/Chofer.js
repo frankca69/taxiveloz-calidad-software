@@ -138,6 +138,38 @@ module.exports = {
       console.error('Error finding available choferes:', error);
       throw error;
     }
+  },
+  updatePassword: async (choferId, currentPassword, newPassword) => {
+    try {
+      const choferQuery = await pool.query('SELECT user_id FROM choferes WHERE id = $1', [choferId]);
+      if (choferQuery.rows.length === 0) {
+        console.error("Chofer no encontrado para actualizar contraseña.");
+        return false;
+      }
+      const userId = choferQuery.rows[0].user_id;
+
+      const userQuery = await pool.query('SELECT password FROM users WHERE id = $1', [userId]);
+      if (userQuery.rows.length === 0) {
+        console.error("Usuario no encontrado para actualizar contraseña.");
+        return false;
+      }
+      const hashedPassword = userQuery.rows[0].password;
+
+      const match = await bcrypt.compare(currentPassword, hashedPassword);
+      if (!match) {
+        console.log("La contraseña actual no coincide para el choferId:", choferId);
+        return false;
+      }
+
+      const saltRounds = 10;
+      const newHashedPassword = await bcrypt.hash(newPassword, saltRounds);
+
+      await pool.query('UPDATE users SET password = $1 WHERE id = $2', [newHashedPassword, userId]);
+      return true;
+    } catch (error) {
+      console.error("Error al actualizar la contraseña del chofer:", error);
+      throw error;
+    }
   }
 };
 

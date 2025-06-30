@@ -1,0 +1,88 @@
+<%- include('../partials/header') %>
+
+<div class="container mt-5">
+    <h2>Editar Mi Perfil de Administrador</h2>
+
+    <% if (locals.error_msg && error_msg) { %>
+        <div class="alert alert-danger" role="alert"><%= error_msg %></div>
+    <% } %>
+    <% if (locals.success_msg && success_msg) { %>
+        <div class="alert alert-success" role="alert"><%= success_msg %></div>
+    <% } %>
+    <% if (locals.error) { %>
+        <div class="alert alert-danger" role="alert"><%= error %></div>
+    <% } %>
+
+    <form action="/admin/profile/<%= admin.id %>?_method=PUT" method="POST">
+        <input type="hidden" name="_method" value="PUT"> <!-- Para Express method override -->
+
+        <div class="mb-3">
+            <label for="username" class="form-label">Nombre de Usuario</label>
+            <input type="text" class="form-control" id="username" name="username" value="<%= admin.user_username || admin.username %>" disabled>
+            <small class="form-text text-muted">El nombre de usuario no se puede cambiar.</small>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label for="nombre" class="form-label">Nombre</label>
+                <input type="text" class="form-control" id="nombre" name="nombre" value="<%= admin.nombre %>" required>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label for="apellido" class="form-label">Apellido</label>
+                <input type="text" class="form-control" id="apellido" name="apellido" value="<%= admin.apellido %>" required>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label for="dni" class="form-label">DNI</label>
+                <input type="text" class="form-control" id="dni" name="dni" value="<%= admin.dni %>" pattern="\\d{8}" title="El DNI debe tener 8 dígitos">
+            </div>
+            <div class="col-md-6 mb-3">
+                <label for="telefono" class="form-label">Teléfono</label>
+                <input type="text" class="form-control" id="telefono" name="telefono" value="<%= admin.telefono %>" pattern="\\d{9}" title="El teléfono debe tener 9 dígitos">
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" class="form-control" id="email" name="email" value="<%= admin.email %>" required>
+        </div>
+
+        <hr>
+        <h4>Cambiar Contraseña (opcional)</h4>
+        <div class="mb-3">
+            <label for="current_password" class="form-label">Contraseña Actual</label>
+            <input type="password" class="form-control" id="current_password" name="current_password">
+            <small class="form-text text-muted">Dejar en blanco si no desea cambiar la contraseña. Si cambia la contraseña, este campo es obligatorio.</small>
+        </div>
+        <div class="mb-3">
+            <label for="password" class="form-label">Nueva Contraseña</label>
+            <input type="password" class="form-control" id="password" name="password">
+        </div>
+        <div class="mb-3">
+            <label for="confirm_password" class="form-label">Confirmar Nueva Contraseña</label>
+            <input type="password" class="form-control" id="confirm_password" name="confirm_password">
+        </div>
+
+        <button type="submit" class="btn btn-primary">Actualizar Perfil</button>
+        <a href="/dashboard" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>
+
+<script>
+    // Script para validación de confirmación de contraseña
+    const form = document.querySelector('form');
+    const passwordInput = document.getElementById('password');
+    const confirmPasswordInput = document.getElementById('confirm_password');
+
+    form.addEventListener('submit', function(event) {
+        if (passwordInput.value && passwordInput.value !== confirmPasswordInput.value) {
+            alert('Las nuevas contraseñas no coinciden.');
+            event.preventDefault(); // Evita que el formulario se envíe
+            confirmPasswordInput.focus();
+        }
+    });
+</script>
+
+<%- include('../partials/footer') %>

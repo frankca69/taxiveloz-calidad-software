@@ -137,4 +137,75 @@ module.exports = {
  edit,
  update,
  destroy,
+  editProfileForm: async (req, res) => {
+    // El ID del cliente para editar viene de req.user.profile_id, que debe coincidir con req.params.id
+    if (req.user.profile_id !== parseInt(req.params.id)) {
+        req.flash('error_msg', 'No autorizado para editar este perfil.');
+        return res.redirect('/dashboard');
+    }
+    try {
+        const cliente = await model.getById(req.params.id);
+        if (!cliente) {
+            req.flash('error_msg', 'Cliente no encontrado.');
+            return res.redirect('/dashboard');
+        }
+        // Asume una vista 'clientes/editProfile.ejs'
+        res.render('clientes/editProfile', { cliente, user: req.user, error: null, success_msg: '', error_msg: '' });
+    } catch (error) {
+        console.error("Error al cargar perfil de cliente:", error);
+        req.flash('error_msg', 'Error al cargar el perfil.');
+        res.redirect('/dashboard');
+    }
+  },
+  updateProfile: async (req, res) => {
+    if (req.user.profile_id !== parseInt(req.params.id)) {
+        req.flash('error_msg', 'No autorizado para actualizar este perfil.');
+        return res.redirect('/dashboard');
+    }
+    const clienteId = req.params.id;
+    // Los clientes no tienen username/password directamente en la tabla clientes, sino en 'users'
+    // Para actualizar contraseña, se necesitaría un método en el modelo Cliente que maneje la actualización en la tabla 'users'
+    // Por ahora, solo actualizamos los datos de la tabla 'clientes'
+    const { nombre, apellido, dni, telefono, correo, password, current_password } = req.body;
+
+    const finalDni = dni ? String(dni).trim() : '';
+    const finalTelefono = telefono ? String(telefono).trim() : '';
+
+    try {
+        // Lógica para actualizar contraseña si se proporciona
+        if (password) {
+            if (!current_password) {
+                req.flash('error_msg', 'Debe proporcionar la contraseña actual para cambiarla.');
+                const cliente = await model.getById(clienteId);
+                return res.render('clientes/editProfile', { cliente, user: req.user, error: 'Debe proporcionar la contraseña actual.', formData: req.body, success_msg: '', error_msg: 'Debe proporcionar la contraseña actual para cambiarla.' });
+            }
+            // Asumimos que el modelo Cliente tiene un método `updatePassword` que opera sobre la tabla `users`
+            // Este método necesitaría el `user_id` asociado al cliente.
+            // Si el cliente no tiene user_id directo (ej. si es solo un contacto), esta lógica debe cambiar.
+            // Por el momento, asumimos que el modelo Cliente puede encontrar el user_id o que se pasa de alguna forma.
+            const clienteData = await model.getById(clienteId); // Para obtener user_id si no está en req.user
+            if (!clienteData || !clienteData.user_id) {
+                 req.flash('error_msg', 'No se pudo encontrar el usuario asociado para actualizar la contraseña.');
+                 return res.redirect('/dashboard');
+            }
+
+            const passwordUpdated = await model.updatePassword(clienteData.user_id, current_password, password);
+            if (!passwordUpdated) {
+                req.flash('error_msg', 'La contraseña actual es incorrecta.');
+                const cliente = await model.getById(clienteId);
+                return res.render('clientes/editProfile', { cliente, user: req.user, error: 'La contraseña actual es incorrecta.', formData: req.body, success_msg: '', error_msg: 'La contraseña actual es incorrecta.' });
+            }
+        }
+
+        await model.updateCliente(clienteId, { nombre, apellido, dni: finalDni, telefono: finalTelefono, correo });
+
+        req.flash('success_msg', 'Perfil actualizado correctamente.');
+        res.redirect('/dashboard');
+    } catch (error) {
+        console.error("Error al actualizar perfil de cliente:", error);
+        req.flash('error_msg', 'Error al actualizar el perfil.');
+        const cliente = await model.getById(clienteId); // Recargar datos del cliente
+        res.render('clientes/editProfile', { cliente, user: req.user, error: 'Error al actualizar el perfil.', formData: req.body, success_msg: '', error_msg: 'Error al actualizar el perfil.' });
+    }
+  }
 };

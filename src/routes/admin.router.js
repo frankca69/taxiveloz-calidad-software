@@ -13,5 +13,9 @@ router.get('/:id/edit', controller.edit);
 router.put('/:id', controller.update);
 router.put('/:id/estado', controller.changeEstado);
 
+// Rutas para que el propio admin edite su cuenta
+router.get('/profile/:id/edit', tieneRol('admin'), controller.editProfileForm);
+router.put('/profile/:id', tieneRol('admin'), controller.updateProfile);
+
 module.exports = router;
 
