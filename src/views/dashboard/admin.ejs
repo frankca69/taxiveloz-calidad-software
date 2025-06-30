@@ -29,7 +29,7 @@
         <div class="dashboard-card">
             <h3>Cuenta</h3>
             <div class="dashboard-actions-container">
-                <a href="/admin/<%= user.profile_id %>/edit" class="btn btn-secondary dashboard-button">Editar Cuenta</a>
+                <a href="/admin/profile/<%= user.profile_id %>/edit" class="btn btn-secondary dashboard-button">Editar Cuenta</a>
                 <form action="/sessions/logout" method="POST" class="logout-form-dashboard" style="display: inline;">
                     <button type="submit" class="btn dashboard-button logout-button">Cerrar Sesión</button>
                 </form>
