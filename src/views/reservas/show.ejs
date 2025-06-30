@@ -52,13 +52,29 @@
             </div>
 
             <div class="mt-3"> <!-- Added a wrapper div for button spacing if needed -->
+                <% if (user.role === 'cliente') { %>
+                <a href="/reservas/cliente/<%= user.profile_id %>" class="btn btn-primary">Volver</a>
+                <% } else if (user.role === 'chofer') { %>
+                <a href="/reservas/chofer/<%= user.profile_id %>" class="btn btn-primary">Volver</a>
+                <% } else if (user.role === 'admin') { %>
+                <a href="/reservas" class="btn btn-primary">Volver</a>  
+                <% } else if (user.role === 'gerente') { %>
                 <a href="/reservas" class="btn btn-primary">Volver</a>
+                <% } %>
                 <a href="/reservas/edit/<%= reserva.id_reserva %>" class="btn btn-warning">Editar Reservaciones</a>
             </div>
 
         <% } else { %>
             <div class="alert alert-info">No hay informacion de esta reservacion.</div>
+            <% if (user.role === 'cliente') { %>
+            <a href="/reservas/cliente/<%= user.profile_id %>" class="btn btn-primary">Volver</a>
+            <% } else if (user.role === 'chofer') { %>
+            <a href="/reservas/chofer/<%= user.profile_id %>" class="btn btn-primary">Volver</a>
+            <% } else if (user.role === 'admin') { %>
+            <a href="/reservas" class="btn btn-primary">Volver</a>  
+            <% } else if (user.role === 'gerente') { %>
             <a href="/reservas" class="btn btn-primary">Volver</a>
+            <% } %>
         <% } %>
     </div>
 

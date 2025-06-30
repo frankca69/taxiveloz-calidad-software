@@ -78,11 +78,11 @@
                             <td class="reservas-table-cell"><%= reserva.estado_reserva %></td>
                             <td class="reservas-table-cell">
                                 <a href="/reservas/<%= reserva.id_reserva %>" class="btn btn-sm btn-info mb-1 d-block">Detalles</a>
-                                <% if (typeof user !== 'undefined' && (user.rol === 'admin' || user.rol === 'gerente')) { %>
+                                <% if (typeof user !== 'undefined' && (user.role === 'admin' || user.role === 'gerente')) { %>
                                   <a href="/reservas/edit/<%= reserva.id_reserva %>" class="btn btn-sm btn-warning mb-1 d-block">Editar</a>
                                 <% } %>
 
-                                <% if (reserva.estado_reserva === 'confirmada' && typeof user !== 'undefined' && (user.rol === 'admin' || user.rol === 'gerente')) { %>
+                                <% if (reserva.estado_reserva === 'confirmada' && typeof user !== 'undefined' && (user.role === 'admin' || user.role === 'gerente')) { %>
                                     <form action="/reservas/<%= reserva.id_reserva %>/notificar" method="POST" style="display: inline;">
                                         <button type="submit" class="btn btn-sm btn-success mb-1 d-block w-100">Notificar</button>
                                     </form>
