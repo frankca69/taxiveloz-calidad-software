@@ -20,12 +20,12 @@
                 <p class="detail-entry"><strong class="detail-label">Tarifa:</strong> <span class="detail-value"><%= reserva.tarifa.toLocaleString('es-ES', { style: 'currency', currency: 'PEN' }) %></span></p> <!-- Cambiado a PEN, ajustar si es otra moneda -->
                 <p class="detail-entry"><strong class="detail-label">Tipo de pago:</strong> <span class="detail-value"><%= reserva.tipo_pago %></span></p>
                 <p class="detail-entry"><strong class="detail-label">Estado:</strong> <span class="detail-value"><%= reserva.estado_reserva %></span></p>
-
+                
                 <% if (reserva.origen && reserva.destino) { %>
                     <div id="mapShow" style="height: 300px; width: 100%; margin-top: 1rem; margin-bottom: 1rem;"></div>
                 <% } %>
             </div>
-
+            
             <div class="detail-section">
                 <h2 class="section-title">Detalles de Cliente</h2>
                 <p class="detail-entry"><strong class="detail-label">Cliente ID:</strong> <span class="detail-value"><a href="/clientes/<%= reserva.id_cliente %>"><%= reserva.id_cliente %></a></span></p>
@@ -64,7 +64,7 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-     if (typeof reserva !== 'undefined' && reserva && reserva.origen && reserva.destino) { 
+    <% if (typeof reserva !== 'undefined' && reserva && reserva.origen && reserva.destino) { %>
         let mapShow;
         let directionsServiceShow;
         let directionsRendererShow;
@@ -72,7 +72,7 @@ document.addEventListener('DOMContentLoaded', function () {
         function initShowMap() {
             mapShow = new google.maps.Map(document.getElementById('mapShow'), {
                 // Centro y zoom se ajustarán por la ruta, pero puedes poner un default
-                center: { lat: -12.046374, lng: -77.042793 },
+                center: { lat: -12.046374, lng: -77.042793 }, 
                 zoom: 12,
                 mapTypeControl: false, // Opcional: simplificar controles
                 streetViewControl: false, // Opcional: simplificar controles
@@ -133,6 +133,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             }, 1000);
         }
-     } 
+    <% } %>
 });
 </script>
